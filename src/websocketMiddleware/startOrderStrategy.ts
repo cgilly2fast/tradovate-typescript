@@ -5,9 +5,12 @@ import { Action } from "../utils/types"
 export const startOrderStrategy = (state:{[k:string]:any}, action:Action) => {
 
     const {event, payload} = action
-
+    
     if(event === 'orderStrategy/startOrderStrategy') {
+        
         const { data, props } = payload
+        console.log("payload", payload)
+        console.log("data", data)
         const { dev_mode } = props
         const { contract, action, brackets, entryVersion } = data
         

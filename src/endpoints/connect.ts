@@ -5,7 +5,7 @@ import { waitForMs } from '../utils/wait'
 
 export const connect = async (data: any) => {
     const { token, expiration } = getAccessToken()
-    if(token && expiration && tokenIsValid(expiration)) {
+    if(token && tokenIsValid(expiration)) {
         console.log('[DevX Trader]: Already have an access token. Using existing token.')
         return
     }

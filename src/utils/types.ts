@@ -225,22 +225,3 @@ export enum Trend {
     NA = 0,
     UP =1
 }
-
-export interface AccessToken {
-    token:string| undefined,
-    expiration:string |undefined
-}
-export interface TradovateAccount {
-    id:number,
-    name:string,
-    userId:number,
-    accountType:string,
-    active:boolean,
-    clearingHouseId:number,
-    riskCategoryId:number,
-    autoLiqProfileId:number,
-    marginAccountType:string,
-    legalStatus:string,
-    archived:boolean,
-    timestamp:string
-}

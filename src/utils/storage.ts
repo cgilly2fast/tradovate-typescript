@@ -1,9 +1,23 @@
-import { TradovateAccount, AccessToken } from "./types"
 const STORAGE_KEY       = 'tradovate-api-access-token'
 const EXPIRATION_KEY    = 'tradovate-api-access-expiration'
 const DEVICE_ID_KEY     = 'tradovate-device-id'
 const AVAIL_ACCTS_KEY   = 'tradovate-api-available-accounts'
 const USER_DATA_KEY     = 'tradovate-user-data'
+
+export interface TradovateAccount {
+    id:number,
+    name:string,
+    userId:number,
+    accountType:string,
+    active:boolean,
+    clearingHouseId:number,
+    riskCategoryId:number,
+    autoLiqProfileId:number,
+    marginAccountType:string,
+    legalStatus:string,
+    archived:boolean,
+    timestamp:string
+}
 
 export const setDeviceId = (id:string) => {
     sessionStorage.setItem(DEVICE_ID_KEY, id)
@@ -39,7 +53,7 @@ export const setAccessToken = (token:string, md_token:string, expiration:string)
     process.env.EXPIRATION_KEY= expiration
 }
 
-export const getAccessToken = ():AccessToken => {
+export const getAccessToken = ():{ token:any, expiration:any } => {
     const token = process.env.ACCESS_TOKEN
     const expiration = process.env.EXPIRATION_KEY
     if(!token) {

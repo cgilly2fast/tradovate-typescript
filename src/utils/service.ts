@@ -1,7 +1,6 @@
 import { getAccessToken } from './storage'
 import { URLs } from '../config/credentials'
 import axios from 'axios';
-import { AccessToken } from './types';
 
 const { DEMO_URL, LIVE_URL } = URLs
 
@@ -86,7 +85,7 @@ export const tvGet = async (endpoint:string, query: any = null, env = 'demo') =>
  * @returns 
  */
 export const tvPost = async (endpoint:string, data:any, usetoken:boolean = true, env = 'demo') => {
-    let accessToken: AccessToken
+    let accessToken
     if(usetoken) 
         accessToken = getAccessToken()
 
