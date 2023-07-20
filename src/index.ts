@@ -6,7 +6,7 @@ import TradovateSocket  from './websockets/TradovateSocket'
 import MarketDataSocket from './websockets/MarketDataSocket'
 import {contractSuggest} from './endpoints/contractSuggest'
 import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
-import TrendStrategy from './strageties/test/trendStrategy'
+import TrendStrategy from './strageties/trend/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
 import {getSocket, getMdSocket} from './utils/socketUtils'

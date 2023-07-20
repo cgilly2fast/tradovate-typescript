@@ -225,3 +225,8 @@ export enum Trend {
     NA = 0,
     UP =1
 }
+
+export interface AccessToken {
+    token?: string,
+    expiration?:string
+}

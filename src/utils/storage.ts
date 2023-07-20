@@ -1,3 +1,5 @@
+import { AccessToken } from "./types"
+
 const STORAGE_KEY       = 'tradovate-api-access-token'
 const EXPIRATION_KEY    = 'tradovate-api-access-expiration'
 const DEVICE_ID_KEY     = 'tradovate-device-id'
@@ -53,7 +55,7 @@ export const setAccessToken = (token:string, md_token:string, expiration:string)
     process.env.EXPIRATION_KEY= expiration
 }
 
-export const getAccessToken = ():{ token:any, expiration:any } => {
+export const getAccessToken = ():AccessToken => {
     const token = process.env.ACCESS_TOKEN
     const expiration = process.env.EXPIRATION_KEY
     if(!token) {
