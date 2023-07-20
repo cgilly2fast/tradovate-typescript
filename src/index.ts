@@ -9,25 +9,28 @@ import TrendStrategy from './strageties/trend/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
 import {getSocket, getMdSocket} from './utils/socketUtils'
-
-
-setAccessToken(""," ", "")
+import express, { Express, Request, Response } from 'express';
 
 const { MD_URL, WS_DEMO_URL, WS_LIVE_URL } = URLs
+const app: Express = express();
+const port = 8888;
 
-const main = async (symbol:string ="ETH") => {
+setAccessToken(""," ", "")
+const socket = getSocket()
+const mdSocket = getMdSocket()
+let renewTokenInterval: NodeJS.Timer
 
-    const { accessToken, mdAccessToken } = await connect(credentials)
+const main = async (symbol:string ="ES") => {
+
+    await connect(credentials)
     
-    const socket = getSocket()
-    const mdSocket = getMdSocket()
 
     await Promise.all([
-        socket.connect(URLs.WS_DEMO_URL),
-        mdSocket.connect(URLs.MD_URL)
+        socket.connect(WS_DEMO_URL),
+        mdSocket.connect(MD_URL)
     ])
 
-    const renewTokenInterval = setInterval(async () => {
+    renewTokenInterval = setInterval(async () => {
         await connect(credentials) 
         
     }, 74.5*60*1000)
@@ -40,7 +43,7 @@ const main = async (symbol:string ="ETH") => {
             devMode:false,
             replayPeriods: {},
             underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-            elementSize:30,
+            elementSize:100,
             elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
             withHistogram: false
         })
@@ -64,6 +67,38 @@ async function disconnect(socket: any, mdSocket:any, renewTokenInterval:any) {
 }
 
 main()
+
+app.get('/disconnect', async  (req: Request, res: Response) => {
+    main()
+    console.log('[DevX Trader]: Started')
+    res.send('[DevX Trader]: Started');
+});
+
+app.get('/disconnect', async  (req: Request, res: Response) => {
+    await disconnect(socket, mdSocket, renewTokenInterval)
+    console.log('[DevX Trader]: Stopped')
+    res.send('[DevX Trader]: Stopped');
+});
+
+app.get('/cancelOrders', async  (req: Request, res: Response) => {
+    const orders = await socket.request({
+        url: 'order/list',
+    })
+    const activeOrders = orders.d.filter((order:any) => {return order.ordStatus === "Working"})
+
+    activeOrders.forEach(async (order:any) =>{
+        await socket.request({
+            url: "order/cancelorder",
+            body: {orderId: order.id}
+        })
+    })
+    console.log('[DevX Trader]: Orders Cancelled')
+    res.send('[DevX Trader]: Orders Cancelled');
+});
+
+app.listen(port, () => {
+  console.log(`[DevX Trader]: ⚡️ Server is running at http://localhost:${port}`);
+});
 
  // const brackets = getLongBracket(3,-20)
     // const entryVersion = {

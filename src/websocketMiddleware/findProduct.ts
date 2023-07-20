@@ -17,9 +17,9 @@ export const productFind = (state:{[k:string]:any}, action:Action): Action => {
             query: `name=${name}`,
             onResponse: (id, r) => {
                 if(r.i === id) { 
-                    console.log("[DevX Trader]: " + r)
+                    //console.log("[DevX Trader]: Product Found: " + JSON.stringify(r))
                     dispatcher.dispatch('product/found', { data: { entity: r.d }, props })
-                    //dispose()
+                    
                 }
             }
         })

@@ -6,4 +6,4 @@ services:
       context: .
       target: production
     ports:
-      - 4000:4000
+      - 8888:8888

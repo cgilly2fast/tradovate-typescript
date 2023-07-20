@@ -9,8 +9,6 @@ export const startOrderStrategy = (state:{[k:string]:any}, action:Action) => {
     if(event === 'orderStrategy/startOrderStrategy') {
         
         const { data, props } = payload
-        console.log("payload", payload)
-        console.log("data", data)
         const { dev_mode } = props
         const { contract, action, brackets, entryVersion } = data
         
@@ -21,7 +19,7 @@ export const startOrderStrategy = (state:{[k:string]:any}, action:Action) => {
             brackets
         }
 
-        console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
+        //console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
 
         const { id, name } = getAvailableAccounts()[0]
         

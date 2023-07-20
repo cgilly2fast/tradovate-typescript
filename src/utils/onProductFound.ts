@@ -11,7 +11,7 @@ export function onProductFound(type:any, prevState:any, payload:any) {
                 ...prevState,
                 product: entity,
             },
-            effects: [{ event: `${type}/draw` }]
+            effects: []
         }
     }
 }

@@ -102,7 +102,7 @@ export default class Strategy {
         
         if(effects && effects.length && effects.length > 0) {
             console.log("effects",effects)
-            console.log("data", effects.payload)
+            console.log("data", effects[0].payload)
             effects.forEach((fx:any) => {
                 
                 if(fx.url) {
