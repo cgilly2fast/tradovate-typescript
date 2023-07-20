@@ -102,13 +102,14 @@ export default class Strategy {
         
         if(effects && effects.length && effects.length > 0) {
             console.log("effects",effects)
+            console.log("data", effects.payload)
             effects.forEach((fx:any) => {
                 
                 if(fx.url) {
-                    this.D.dispatch(fx.url, {data: fx.data, props:this.getProps()})
+                    this.D.dispatch(fx.url, {data: fx.payload, props:this.getProps()})
                 }
                 else if(fx.event) {
-                    this.D.dispatch(fx.event, {data: fx.data, props:this.getProps()})
+                    this.D.dispatch(fx.event, {data: fx.payload, props:this.getProps()})
                 }
             })
         }

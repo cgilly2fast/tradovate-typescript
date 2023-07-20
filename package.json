@@ -1,24 +1,23 @@
 {
-  "name": "trading",
+  "name": "DevX Trader",
   "version": "1.0.0",
   "description": "trading bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "ts-node-dev --poll src/index.ts",
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node build/index.js"
   },
   "author": "Colby Gilbert",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.4.0",
-    "csv-parser": "^3.0.0",
-    "dotenv": "^16.3.1",
-    "moment": "^2.29.4",
-    "sqlite3": "^5.1.6",
-    "tulind": "^0.8.20",
     "ws": "^8.13.0"
   },
   "devDependencies": {
     "@types/node": "^20.3.0",
-    "@types/ws": "^8.5.5"
+    "@types/ws": "^8.5.5",
+    "rimraf": "^5.0.1",
+    "ts-node-dev": "^2.0.0"
   }
 }

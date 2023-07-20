@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { URLs, credentials } from './config/credentials'
 import { connect } from './endpoints/connect'
 import { setAccessToken, getAvailableAccounts } from './utils/storage'

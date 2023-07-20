@@ -1,0 +1,13 @@
+version: "1.0"
+
+services:
+  api:
+    build:
+      context: .
+      target: development
+    volumes:
+      - ./:usr/src/app
+      - /user/src/app/node_modules
+    ports:
+      - 4000:4000
+    command: npm run dev
