@@ -21,7 +21,7 @@ const mdSocket = getMdSocket()
 let renewTokenInterval: NodeJS.Timer
 
 const main = async (symbol:string ="ES") => {
-
+    console.log('[DevX Trader]: Stopped')
     await connect(credentials)
     
 
@@ -30,10 +30,10 @@ const main = async (symbol:string ="ES") => {
         mdSocket.connect(MD_URL)
     ])
 
-    renewTokenInterval = setInterval(async () => {
-        await connect(credentials) 
+    // renewTokenInterval = setInterval(async () => {
+    //     await connect(credentials) 
         
-    }, 74.5*60*1000)
+    // }, 74.5*60*1000)
 
     try {
         const trend = new TrendStrategy({
@@ -43,7 +43,7 @@ const main = async (symbol:string ="ES") => {
             devMode:false,
             replayPeriods: {},
             underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-            elementSize:100,
+            elementSize:50,
             elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
             withHistogram: false
         })
@@ -52,9 +52,9 @@ const main = async (symbol:string ="ES") => {
         disconnect(socket, mdSocket, renewTokenInterval)
     }
 
-    setTimeout(async () =>  {
-        await disconnect(socket, mdSocket, renewTokenInterval)
-    }, 25*60*1000);
+    // setTimeout(async () =>  {
+    //     await disconnect(socket, mdSocket, renewTokenInterval)
+    // }, 25*60*1000);
  
 }
 
@@ -68,9 +68,8 @@ async function disconnect(socket: any, mdSocket:any, renewTokenInterval:any) {
 
 main()
 
-app.get('/disconnect', async  (req: Request, res: Response) => {
+app.get('/connect', async  (req: Request, res: Response) => {
     main()
-    console.log('[DevX Trader]: Started')
     res.send('[DevX Trader]: Started');
 });
 

@@ -66,5 +66,7 @@ export const getAccessToken = ():AccessToken => {
 
 export const tokenIsValid = (expiration:string):boolean => {return new Date(expiration).getMilliseconds() - new Date().getMilliseconds()  > 0 }
 
+export const tokenNearExpiry = (expiration:string):boolean => {return new Date(expiration).getMilliseconds() - new Date().getMilliseconds()  < (10*60*1000) }
+
 export const setUserData = (data:any) => process.env.USER_DATA= JSON.stringify(data)
 export const getUserData = ():any => {return JSON.parse(process.env.USER_DATA!)} 

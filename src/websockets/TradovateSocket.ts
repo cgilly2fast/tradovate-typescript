@@ -1,5 +1,6 @@
 import { URLs } from "../config/credentials";
 import { getAvailableAccounts } from '../utils/storage'
+import { renewAccessToken } from "../endpoints/renewAccessToken";
 import WebSocket from 'ws';
 
 const { MD_URL, WS_DEMO_URL, WS_LIVE_URL } = URLs
@@ -107,7 +108,7 @@ export default class TradovateSocket {
                     } 
                 })  
             })
-            
+            console.log(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
             this.ws.send(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
         })
 
@@ -143,10 +144,10 @@ export default class TradovateSocket {
                                 
                                 return
                             }
-                            const renewToken = this.constructor.name === 'TradovateSocket' ? process.env.ACCESS_TOKEN : process.env.MD_ACCESS_TOKEN
-                            this.ws.send(`authorize\n0\n\n${renewToken}`) 
+                            const env = (this.listeningURL === WS_DEMO_URL? "demo":"live")
+                            renewAccessToken("demo")
                             
-                        }, 75*60*1000)          
+                        }, 1*60*1000)          
                         heartbeatInterval = setInterval(() => {
                             if(this.ws.readyState == 0 || this.ws.readyState == 3 || this.ws.readyState == 2 || this.ws.readyState === undefined) {
                                 clearInterval(heartbeatInterval)

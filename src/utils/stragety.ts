@@ -101,7 +101,7 @@ export default class Strategy {
         let effects = this.D.effects()
         
         if(effects && effects.length && effects.length > 0) {
-            console.log("effects",effects)
+            
             console.log("data", effects[0].payload)
             effects.forEach((fx:any) => {
                 
