@@ -117,9 +117,3 @@ export const tvPost = async (endpoint:string, data:any, usetoken:boolean = true,
         console.error("[DevX Trader]: tvPost: "+err)
     }
 }
-
-// New! Interact with the API via browser console.
-// window.tradovate = {
-//     get: tvGet,
-//     post: tvPost
-// }

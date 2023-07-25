@@ -23,7 +23,7 @@ const main = async (symbol:string ="ES") => {
 
     await connect(credentials)
     
-    await connectSockets({live: true, tvSocket: true, marketData:true, replay: false})
+    await connectSockets({live: false, tvSocket: true, marketData:true, replay: false})
     
 
     try {
@@ -34,7 +34,7 @@ const main = async (symbol:string ="ES") => {
             devMode:false,
             replayPeriods: {},
             underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-            elementSize:50,
+            elementSize:300,
             elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
             withHistogram: false
         })
@@ -48,6 +48,12 @@ const main = async (symbol:string ="ES") => {
     // }, 25*60*1000);
  
 }
+
+// To-do's
+// Confirm operation local testing
+// Set up Firebase
+// export to docker image
+// Deploy to vm
 
 main()
 

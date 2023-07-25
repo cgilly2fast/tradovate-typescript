@@ -9,7 +9,7 @@ export const connect = async (data: any) => {
         console.log('[DevX Trader]: Already have an access token. Using existing token.')
         return
     }
-    console.log(expiration)
+   
     const authResponse = await tvPost('/auth/accesstokenrequest', data, false)
     if(authResponse['p-ticket']) {
         return await handleRetry(data, authResponse) 

@@ -67,9 +67,9 @@ export const connectAllSockets = async (live:boolean = false) =>  {
 export const disconnectSockets = async () => {
     try{
         await Promise.all([
-            socket.disconnect(),
-            mdSocket.disconnect(),
-            replaySocket.disconnect()
+            (socket.isConnected()? socket.disconnect(): null),
+            (mdSocket.isConnected()?mdSocket.disconnect(): null),
+            //(replaySocket.isConnected()? replaySocket.disconnect(): null)
         ])
         clearInterval(renewTokenInterval)
     } catch(err) {
