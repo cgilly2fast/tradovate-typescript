@@ -1,5 +1,5 @@
 import { getAccessToken } from './storage'
-import { URLs } from '../config/credentials'
+import { URLs } from '../config/tvCredentials'
 import axios from 'axios';
 import { AccessToken } from './types';
 

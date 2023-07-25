@@ -1,4 +1,4 @@
-import { URLs, credentials } from './config/credentials'
+import { URLs, credentials } from './config/tvCredentials'
 import { connect } from './endpoints/connect'
 import { setAccessToken, getAvailableAccounts } from './utils/storage'
 import TradovateSocket  from './websockets/TradovateSocket'
@@ -30,11 +30,11 @@ const main = async (symbol:string ="ES") => {
         const trend = new TrendStrategy({
             contract:{name:"ESU3", id:2665267},
             timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
-            timeRangeValue: 2,
+            timeRangeValue: 3,
             devMode:false,
             replayPeriods: {},
             underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-            elementSize:300,
+            elementSize:50,
             elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
             withHistogram: false
         })

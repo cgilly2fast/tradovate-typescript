@@ -1,4 +1,4 @@
-import { URLs } from "../config/credentials";
+import { URLs } from "../config/tvCredentials";
 import { getAvailableAccounts } from '../utils/storage'
 import { renewAccessToken } from "../endpoints/renewAccessToken";
 import WebSocket from 'ws';

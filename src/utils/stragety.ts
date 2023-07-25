@@ -7,7 +7,7 @@ import { replayComplete }                            from "../websocketMiddlewar
 import { startOrderStrategy }                        from "../websocketMiddleware/startOrderStrategy"
 import Dispatcher, {  pipeMiddleware  }        from "./dispatcher"
 import { getSocket, getMdSocket, getReplaySocket }   from "./socketUtils" //remove
-import { URLs } from '../config/credentials'
+import { URLs } from '../config/tvCredentials'
 import {TdEvent, BarType, ElementSizeUnit, TimeRangeType, Contract, ChartDescription, Action }   from "./types"
 import TradovateSocket from "../websockets/TradovateSocket"
 import MarketDataSocket from "../websockets/MarketDataSocket"
@@ -106,9 +106,11 @@ export default class Strategy {
             effects.forEach((fx:any) => {
                 
                 if(fx.url) {
+                    console.log(fx.url)
                     this.D.dispatch(fx.url, {data: fx.payload, props:this.getProps()})
                 }
                 else if(fx.event) {
+                    console.log(fx.event)
                     this.D.dispatch(fx.event, {data: fx.payload, props:this.getProps()})
                 }
             })

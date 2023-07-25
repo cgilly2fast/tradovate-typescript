@@ -1,7 +1,8 @@
 # dependencies
 /node_modules
 /lib
-credentials.ts
+tvCredentials.ts
+fbCredentials.ts
 .env
 
 # testing

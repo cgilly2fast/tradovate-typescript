@@ -1,7 +1,7 @@
 import  MarketDataSocket from "../websockets/MarketDataSocket";
 import ReplaySocket from "../websockets/ReplaySocket";
 import TradovateSocket from "../websockets/TradovateSocket";
-import { URLs } from '../config/credentials'
+import { URLs } from '../config/tvCredentials'
 import { renewAccessToken } from "../endpoints/renewAccessToken";
 
 const { DEMO_URL, LIVE_URL, MD_URL, WS_DEMO_URL, WS_LIVE_URL } = URLs

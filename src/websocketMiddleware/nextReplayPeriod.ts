@@ -1,6 +1,6 @@
 import {calculatePnL} from '../utils/pnl';
 import { getReplaySocket, getSessionResults } from "../utils/socketUtils"
-import { URLs } from "../config/credentials";
+import { URLs } from "../config/tvCredentials";
 import { getAccessToken } from '../utils/storage'
 import {Action} from "../utils/types"
 const { MD_URL } = URLs
