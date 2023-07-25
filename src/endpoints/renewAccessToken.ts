@@ -3,19 +3,15 @@ import { getAccessToken, setAccessToken, tokenIsValid, setAvailableAccounts, tok
 import { waitForMs } from '../utils/wait'
 
 
-export const renewAccessToken = async (env:string= 'demo') => {
+export const renewAccessToken = async (live:boolean= false) => {
     const { token, expiration } = getAccessToken()
-    if(token && expiration && tokenIsValid(expiration) ) {
+    if(token && expiration && tokenIsValid(expiration) && !tokenNearExpiry(expiration)) {
         console.log('[DevX Trader]: Already have an access token. Using existing token.')
         return
     }
 
-    if(expiration && !tokenNearExpiry(expiration)) {
-        console.log('[DevX Trader]: Token is not ready for renewal')
-        return
-    }
-
-    
+    console.log("[DevX Trader]: Renewing access token...")
+    const env = (live? "live": "demo")
     const authResponse = await tvGet('/auth/renewaccesstoken',null, env)
     if(authResponse['p-ticket']) {
         return await handleRetry(env, authResponse) 

@@ -64,7 +64,7 @@ export default class TradovateSocket {
 
     request(params: TradovateSocketRequestParams):Promise<{e?: string, d?: any, i: number, s: number}>;
     request(params: TradovateSocketSubscribeParams):Promise<()=> Promise<void>>;
-    request(params:TradovateSocketSubscribeParams) {
+    request(params: TradovateSocketSubscribeParams) {
         const {url, query, body, onResponse, onReject, disposer} = params
         const self =this
 
@@ -108,7 +108,7 @@ export default class TradovateSocket {
                     } 
                 })  
             })
-            console.log(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
+            
             this.ws.send(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
         })
 
@@ -138,16 +138,7 @@ export default class TradovateSocket {
                         const token = this.constructor.name === 'TradovateSocket' ? process.env.ACCESS_TOKEN : process.env.MD_ACCESS_TOKEN
                         this.ws.send(`authorize\n0\n\n${token}`) 
                         console.log('[DevX Trader]: '+this.constructor.name+ ' connected.')
-                        accessInterval = setInterval(() => {
-                            if(this.ws.readyState == 0 || this.ws.readyState == 3 || this.ws.readyState == 2 || this.ws.readyState === undefined) {
-                                clearInterval(accessInterval)
-                                
-                                return
-                            }
-                            const env = (this.listeningURL === WS_DEMO_URL? "demo":"live")
-                            renewAccessToken("demo")
-                            
-                        }, 1*60*1000)          
+                           
                         heartbeatInterval = setInterval(() => {
                             if(this.ws.readyState == 0 || this.ws.readyState == 3 || this.ws.readyState == 2 || this.ws.readyState === undefined) {
                                 clearInterval(heartbeatInterval)

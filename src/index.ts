@@ -8,32 +8,23 @@ import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
 import TrendStrategy from './strageties/trend/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
-import {getSocket, getMdSocket} from './utils/socketUtils'
+import {connectSockets, disconnectSockets, getSocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 
-const { MD_URL, WS_DEMO_URL, WS_LIVE_URL } = URLs
+
 const app: Express = express();
 const port = 8888;
 
 setAccessToken(""," ", "")
-const socket = getSocket()
-const mdSocket = getMdSocket()
-let renewTokenInterval: NodeJS.Timer
+
 
 const main = async (symbol:string ="ES") => {
-    console.log('[DevX Trader]: Stopped')
+    console.log('[DevX Trader]: Started')
+
     await connect(credentials)
     
-
-    await Promise.all([
-        socket.connect(WS_DEMO_URL),
-        mdSocket.connect(MD_URL)
-    ])
-
-    // renewTokenInterval = setInterval(async () => {
-    //     await connect(credentials) 
-        
-    // }, 74.5*60*1000)
+    await connectSockets({live: true, tvSocket: true, marketData:true, replay: false})
+    
 
     try {
         const trend = new TrendStrategy({
@@ -49,21 +40,13 @@ const main = async (symbol:string ="ES") => {
         })
     } catch (err:any) {
         console.log(err)
-        disconnect(socket, mdSocket, renewTokenInterval)
+        await disconnectSockets()
     }
 
     // setTimeout(async () =>  {
     //     await disconnect(socket, mdSocket, renewTokenInterval)
     // }, 25*60*1000);
  
-}
-
-async function disconnect(socket: any, mdSocket:any, renewTokenInterval:any) {
-    await Promise.all([
-        socket.disconnect(),
-        mdSocket.disconnect()
-    ]);
-    clearInterval(renewTokenInterval)
 }
 
 main()
@@ -74,12 +57,13 @@ app.get('/connect', async  (req: Request, res: Response) => {
 });
 
 app.get('/disconnect', async  (req: Request, res: Response) => {
-    await disconnect(socket, mdSocket, renewTokenInterval)
+    await disconnectSockets()
     console.log('[DevX Trader]: Stopped')
     res.send('[DevX Trader]: Stopped');
 });
 
 app.get('/cancelOrders', async  (req: Request, res: Response) => {
+    const socket = getSocket()
     const orders = await socket.request({
         url: 'order/list',
     })
