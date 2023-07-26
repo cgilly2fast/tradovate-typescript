@@ -21,6 +21,6 @@ COPY package*.json .
 
 RUN npm ci --only=production
 
-COPY --from=develpment /user/src/app/build ./build 
+COPY --from=development /usr/src/app/build ./build 
 
-CMD ["node", "build/indes.js"]
+CMD ["node", "build/index.js"]

@@ -10,4 +10,4 @@ services:
       - /usr/src/app/node_modules
     ports:
       - 8888:8888
-    command: npm run dev
+    command: npm run start
