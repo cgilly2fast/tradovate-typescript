@@ -5,11 +5,12 @@ import TradovateSocket  from './websockets/TradovateSocket'
 import MarketDataSocket from './websockets/MarketDataSocket'
 import {contractSuggest} from './endpoints/contractSuggest'
 import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
-import TrendStrategy from './strageties/trend/trendStrategy'
+import TrendStrategy, { TrendStrategyParams } from './strageties/trend/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
 import {connectSockets, disconnectSockets, getSocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
+import {db} from "./config/fbCredentials"
 
 
 const app: Express = express();
@@ -24,20 +25,25 @@ const main = async (symbol:string ="ES") => {
     await connect(credentials)
     
     await connectSockets({live: false, tvSocket: true, marketData:true, replay: false})
-    
+    const runsSnapshot = await db.collection('trade_runs').count().get()
+
+    const stragetyParams:TrendStrategyParams ={
+        contract:{name:"ESU3", id:2665267},
+        timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
+        timeRangeValue: 2,
+        devMode:false,
+        replayPeriods: {},
+        underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
+        elementSize:50,
+        elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
+        withHistogram: false,
+        runId: runsSnapshot.data().count +1
+    }
+
+    await db.collection("trade_runs").doc(stragetyParams.runId+"").set(stragetyParams)
 
     try {
-        const trend = new TrendStrategy({
-            contract:{name:"ESU3", id:2665267},
-            timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
-            timeRangeValue: 3,
-            devMode:false,
-            replayPeriods: {},
-            underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-            elementSize:50,
-            elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
-            withHistogram: false
-        })
+        const trend = new TrendStrategy(stragetyParams)
     } catch (err:any) {
         console.log(err)
         await disconnectSockets()
