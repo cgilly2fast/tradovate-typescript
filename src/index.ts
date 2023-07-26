@@ -57,7 +57,6 @@ const main = async (symbol:string ="ES") => {
 
 // To-do's
 // Confirm operation local testing
-// Set up Firebase
 // export to docker image
 // Deploy to vm
 

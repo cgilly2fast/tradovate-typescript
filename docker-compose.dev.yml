@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.8"
 
 services:
   api:
@@ -6,8 +6,8 @@ services:
       context: .
       target: development
     volumes:
-      - ./:usr/src/app
-      - /user/src/app/node_modules
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
       - 8888:8888
     command: npm run dev
