@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev --poll src/index.ts",
     "build": "rimraf ./build && tsc",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node build/index.js",
+    "deploy": "docker build -t developxllc/devx-trader . && docker push developxllc/devx-trader "
   },
   "author": "Colby Gilbert",
   "license": "ISC",
