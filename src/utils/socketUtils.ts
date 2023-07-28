@@ -75,6 +75,7 @@ export const disconnectSockets = async () => {
     } catch(err) {
         console.log(err)
     }
+    console.log('[DevX Trader]: Stopped')
 }
 
 export const getSocket = () => socket

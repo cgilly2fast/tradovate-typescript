@@ -2,8 +2,9 @@ version: "3.8"
 
 services:
   api:
+    platform: linux/amd64
     build:
       context: .
       target: production
     ports:
-      - 8888:8888
+      - 8080:8080

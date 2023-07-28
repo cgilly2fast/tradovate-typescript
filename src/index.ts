@@ -11,10 +11,11 @@ import Strategy from './utils/stragety'
 import {connectSockets, disconnectSockets, getSocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 import {db} from "./config/fbCredentials"
+import { getLongBracket, adjustStoploss} from "./strageties/trend/onChart"
 
 
 const app: Express = express();
-const port = 8888;
+const port = 8080;
 
 setAccessToken(""," ", "")
 
@@ -27,14 +28,27 @@ const main = async (symbol:string ="ES") => {
     await connectSockets({live: false, tvSocket: true, marketData:true, replay: false})
     const runsSnapshot = await db.collection('trade_runs').count().get()
 
+    // const stragetyParams:TrendStrategyParams ={
+    //     contract:{name:"ESU3", id:2665267},
+    //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
+    //     timeRangeValue: 2,
+    //     devMode:false,
+    //     replayPeriods: {},
+    //     underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
+    //     elementSize:1000,
+    //     elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
+    //     withHistogram: false,
+    //     runId: runsSnapshot.data().count +1
+    // }
+
     const stragetyParams:TrendStrategyParams ={
         contract:{name:"ESU3", id:2665267},
         timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
         timeRangeValue: 2,
         devMode:false,
         replayPeriods: {},
-        underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-        elementSize:50,
+        underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
+        elementSize:2,
         elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
         withHistogram: false,
         runId: runsSnapshot.data().count +1
@@ -49,18 +63,22 @@ const main = async (symbol:string ="ES") => {
         await disconnectSockets()
     }
 
-    // setTimeout(async () =>  {
-    //     await disconnect(socket, mdSocket, renewTokenInterval)
-    // }, 25*60*1000);
+   
  
 }
 
 // To-do's
 // Confirm operation local testing
-// export to docker image
+    // Adjust to breakeven,
+    // Test with custom chart
+// Crash reports
 // Deploy to vm
 
 main()
+
+app.get('/', async  (req: Request, res: Response) => {
+    res.send(`<div><button onclick=window.open('http://localhost:${port}/disconnect') >Disconnect</button><button onclick==window.open('http://localhost:${port}/cancelOrders')>Cancel Orders</button></div>`)
+})
 
 app.get('/connect', async  (req: Request, res: Response) => {
     main()
@@ -69,11 +87,20 @@ app.get('/connect', async  (req: Request, res: Response) => {
 
 app.get('/disconnect', async  (req: Request, res: Response) => {
     await disconnectSockets()
-    console.log('[DevX Trader]: Stopped')
     res.send('[DevX Trader]: Stopped');
 });
 
 app.get('/cancelOrders', async  (req: Request, res: Response) => {
+    await cancelOrders()
+    
+    res.send('[DevX Trader]: Orders Cancelled');
+});
+
+app.listen(port, () => {
+  console.log(`[DevX Trader]: ⚡️ Server is running at http://localhost:${port}`);
+});
+
+async function cancelOrders() {
     const socket = getSocket()
     const orders = await socket.request({
         url: 'order/list',
@@ -87,47 +114,8 @@ app.get('/cancelOrders', async  (req: Request, res: Response) => {
         })
     })
     console.log('[DevX Trader]: Orders Cancelled')
-    res.send('[DevX Trader]: Orders Cancelled');
-});
-
-app.listen(port, () => {
-  console.log(`[DevX Trader]: ⚡️ Server is running at http://localhost:${port}`);
-});
-
- // const brackets = getLongBracket(3,-20)
-    // const entryVersion = {
-    //     orderQty: 3,
-    //     orderType: 'Market',
-    // }
-
-    // const orderData = {
-    //     entryVersion,
-    //     brackets
-    // }
-
-    // console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
-
-    // const { id, name } = getAvailableAccounts()[0]
-    
-    // const body = {
-    //     accountId: id,
-    //     accountSpec: name,
-    //     symbol: "ESU3",
-    //     action: "Buy",
-    //     orderStrategyTypeId: 2,
-    //     params: JSON.stringify(orderData)
-    // }
-
-    // let dispose = socket.request({
-    //     url: 'orderStrategy/startOrderStrategy',
-    //     body,
-    //     onResponse: (id, r) => {
-    //         if(id === r.i) {
-    //             console.log("[DevX Trader]: " +JSON.stringify(r, null, 2))
-    //             //dispose()
-    //         }
-    //     }
-    // })
+}
+ 
     // const strats = await socket.request({
     //     url: 'orderStrategy/list',
     // })
@@ -212,3 +200,51 @@ app.listen(port, () => {
     //     },
     //     callback: (chart) =>{console.log("chart",chart)}
        // })
+
+
+    // ################ STOP TEST #################
+
+    // await connectSockets({live: false, tvSocket: true, marketData:false, replay: false})
+    // const socket = getSocket()
+    
+
+    // const brackets = getLongBracket(3,-20)
+    // const entryVersion = {
+    //     orderQty: 3,
+    //     orderType: 'Market',
+    // }
+
+    // const orderData = {
+    //     entryVersion,
+    //     brackets
+    // }
+
+    // console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
+
+    // const { id, name } = getAvailableAccounts()[0]
+    
+    // const body = {
+    //     accountId: id,
+    //     accountSpec: name,
+    //     symbol: "ESU3",
+    //     action: "Buy",
+    //     orderStrategyTypeId: 2,
+    //     params: JSON.stringify(orderData)
+    // }
+
+    // let dispose = socket.request({
+    //     url: 'orderStrategy/startOrderStrategy',
+    //     body,
+    //     onResponse: (id, r) => {
+    //         if(id === r.i) {
+    //             console.log("[DevX Trader]: " +JSON.stringify(r, null, 2))
+    //             //dispose()
+    //         }
+    //     }
+    // })
+
+    // await adjustStoploss(5)
+
+
+    
+    
