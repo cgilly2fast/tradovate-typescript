@@ -48,7 +48,7 @@ const main = async (symbol:string ="ES") => {
         devMode:false,
         replayPeriods: {},
         underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-        elementSize:2,
+        elementSize:1,
         elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
         withHistogram: false,
         runId: runsSnapshot.data().count +1
