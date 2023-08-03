@@ -102,15 +102,15 @@ export default class Strategy {
         
         if(effects && effects.length && effects.length > 0) {
             
-            console.log("data", effects[0].payload)
+            
             effects.forEach((fx:any) => {
                 
                 if(fx.url) {
-                    console.log(fx.url)
+                    console.log("[DevX Trader]: Side Effect:",fx.url, fx.payload)
                     this.D.dispatch(fx.url, {data: fx.payload, props:this.getProps()})
                 }
                 else if(fx.event) {
-                    console.log(fx.event)
+                    console.log("[DevX Trader]: ", fx.event, fx.payload)
                     this.D.dispatch(fx.event, {data: fx.payload, props:this.getProps()})
                 }
             })
