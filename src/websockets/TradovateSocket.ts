@@ -27,6 +27,7 @@ export default class TradovateSocket {
     public ws: WebSocket 
     public listeningURL: string
     public debugLabel: string
+    private curTime: Date
    // public listeners: any[]
     
 
@@ -35,6 +36,7 @@ export default class TradovateSocket {
         this.ws = {} as WebSocket
         this.listeningURL = ""
         this.debugLabel = debugLabel
+        this.curTime = new Date()
         
     }
 
@@ -72,7 +74,8 @@ export default class TradovateSocket {
             const id = this.increment()
             
             this.ws.addEventListener('message', function onEvent(msg: any) {
-                const [T, data] = prepareMessage(msg.data)
+                self.checkHeartbeats()
+                const [T, data] = self.prepareMessage(msg.data)
     
                 if(T !== 'a') { return }    
     
@@ -119,6 +122,26 @@ export default class TradovateSocket {
         return subscribeRoutes.includes(url)
     }
 
+    private prepareMessage(raw:any) {
+        const T = raw.slice(0, 1)
+        const data = raw.length > 1 ? JSON.parse(raw.slice(1)) : []
+    
+        return [T, data]
+    }
+
+    private checkHeartbeats() {
+        const now = new Date()  //time at call of onmessage
+    
+        if(now.getTime() - this.curTime.getTime() >= 2500) {
+            this.ws.send('[]')   //send heartbeat
+            this.setCurTime(new Date())  //set the new base time
+        }
+        
+        this.setCurTime(this.curTime)
+    }
+    
+    private getCurTime() { return this.curTime }
+    private setCurTime(t:any) { this.curTime = t === this.curTime ? this.curTime : t }
 
     connect(url: string):Promise<any> {
        
@@ -126,12 +149,12 @@ export default class TradovateSocket {
         this.ws = new WebSocket(url)  
         this.listeningURL = url
         let heartbeatInterval:NodeJS.Timer
-        let accessInterval: NodeJS.Timer
+        const self =this
 
         return new Promise((res, rej) => {
             this.ws.addEventListener('message', async (msg:any) => {
                  
-                const [T, data] = prepareMessage(msg.data)
+                const [T, data] = self.prepareMessage(msg.data)
                 
                 switch(T) {
                     case 'o':   
@@ -142,7 +165,6 @@ export default class TradovateSocket {
                         heartbeatInterval = setInterval(() => {
                             if(this.ws.readyState == 0 || this.ws.readyState == 3 || this.ws.readyState == 2 || this.ws.readyState === undefined) {
                                 clearInterval(heartbeatInterval)
-                                clearInterval(accessInterval)
                                 return
                             }
                             this.ws.send('[]')
@@ -150,6 +172,7 @@ export default class TradovateSocket {
                         
                         break
                     case 'h':
+                        this.ws.send('[]')
                         break
                     case 'a':
                         const [first] = data
@@ -158,8 +181,9 @@ export default class TradovateSocket {
                         } else rej()
                         break
                     case 'c':
+                        console.log('[DevX Trader]: '+this.constructor.name+ ' connected.')
+                        console.log(msg)
                         clearInterval(heartbeatInterval)
-                        clearInterval(accessInterval)
                         break
                     default:
                         console.error('[DevX Trader]: Unexpected response token received:')
@@ -187,13 +211,6 @@ export default class TradovateSocket {
             }
         })
     }
-
-
 }
 
-function prepareMessage(raw:any) {
-    const T = raw.slice(0, 1)
-    const data = raw.length > 1 ? JSON.parse(raw.slice(1)) : []
 
-    return [T, data]
-}
