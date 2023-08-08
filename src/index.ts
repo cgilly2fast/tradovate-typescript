@@ -5,13 +5,13 @@ import TradovateSocket  from './websockets/TradovateSocket'
 import MarketDataSocket from './websockets/MarketDataSocket'
 import {contractSuggest} from './endpoints/contractSuggest'
 import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
-import TrendStrategy, { TrendStrategyParams } from './strageties/trend/trendStrategy'
+import TrendStrategy, { TrendStrategyParams } from './strageties/trendv2/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
 import {connectSockets, disconnectSockets, getSocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 import {db} from "./config/fbCredentials"
-import { getLongBracket, adjustStoploss} from "./strageties/trend/onChart"
+import { getLongBracket, adjustStoploss} from "./strageties/trendv2/onChart"
 
 
 const app: Express = express();
@@ -24,22 +24,9 @@ const main = async (symbol:string ="ES") => {
     console.log('[DevX Trader]: Started')
 
     await connect(credentials)
-    
+
     await connectSockets({live: false, tvSocket: true, marketData:true, replay: false})
     const runsSnapshot = await db.collection('trade_runs').count().get()
-
-    // const stragetyParams:TrendStrategyParams ={
-    //     contract:{name:"ESU3", id:2665267},
-    //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
-    //     timeRangeValue: 2,
-    //     devMode:false,
-    //     replayPeriods: {},
-    //     underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-    //     elementSize:1000,
-    //     elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
-    //     withHistogram: false,
-    //     runId: runsSnapshot.data().count +1
-    // }
 
     const stragetyParams:TrendStrategyParams ={
         contract:{name:"ESU3", id:2665267},
@@ -47,12 +34,25 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:false,
         replayPeriods: {},
-        underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-        elementSize:1,
+        underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
+        elementSize:1000,
         elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
         withHistogram: false,
         runId: runsSnapshot.data().count +1
     }
+
+    // const stragetyParams:TrendStrategyParams ={
+    //     contract:{name:"ESU3", id:2665267},
+    //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
+    //     timeRangeValue: 2,
+    //     devMode:false,
+    //     replayPeriods: {},
+    //     underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
+    //     elementSize:1,
+    //     elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
+    //     withHistogram: false,
+    //     runId: runsSnapshot.data().count +1
+    // }
 
     await db.collection("trade_runs").doc(stragetyParams.runId+"").set(stragetyParams)
 
@@ -208,7 +208,7 @@ async function cancelOrders() {
     // const socket = getSocket()
     
 
-    // const brackets = getLongBracket(3,-20)
+    // const brackets = getTestLongBracket(3,-20)
     // const entryVersion = {
     //     orderQty: 3,
     //     orderType: 'Market',
