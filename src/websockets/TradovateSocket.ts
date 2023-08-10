@@ -1,5 +1,5 @@
 import { URLs } from "../config/tvCredentials";
-import { getAvailableAccounts } from '../utils/storage'
+import { getCurrentAccount } from '../utils/storage'
 import { renewAccessToken } from "../endpoints/renewAccessToken";
 import WebSocket from 'ws';
 
@@ -72,7 +72,7 @@ export default class TradovateSocket {
 
         return new Promise((res, rej) => {
             const id = this.increment()
-            
+            try {
             this.ws.addEventListener('message', function onEvent(msg: any) {
                 self.checkHeartbeats()
                 const [T, data] = self.prepareMessage(msg.data)
@@ -111,6 +111,10 @@ export default class TradovateSocket {
                     } 
                 })  
             })
+        } catch (err) {
+            console.log(`[DevX Trader]: WS request parmas: ${JSON.stringify(params, null, 2)}`)
+            throw err
+        }
             
             this.ws.send(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
         })
@@ -144,8 +148,8 @@ export default class TradovateSocket {
     private setCurTime(t:any) { this.curTime = t === this.curTime ? this.curTime : t }
 
     connect(url: string):Promise<any> {
-       
-        console.log('[DevX Trader]: connecting '+this.constructor.name+'...')
+        
+        console.log(`[DevX Trader]: connecting ${this.constructor.name} to ${url}...`)
         this.ws = new WebSocket(url)  
         this.listeningURL = url
         let heartbeatInterval:NodeJS.Timer
@@ -201,7 +205,7 @@ export default class TradovateSocket {
         }
         return this.request({
             url: 'user/syncrequest',
-            body: { accounts: [getAvailableAccounts()[0].id ]},
+            body: { accounts: [getCurrentAccount().id ]},
             onResponse: (id, data) => { 
                 if(data.i === id
                 || (data.e && data.e === 'props')

@@ -1,5 +1,5 @@
 import { getReplaySocket, getSocket } from "../utils/socketUtils"
-import {getAvailableAccounts} from '../utils/storage'
+import {getCurrentAccount} from '../utils/storage'
 import {Action} from "../utils/types"
 
 export const placeOCO = (state:{[k:string]:any} , action:Action):Action => {
@@ -7,7 +7,7 @@ export const placeOCO = (state:{[k:string]:any} , action:Action):Action => {
 
     if(event === '/order/placeOCO') {
         const { data, props } = payload
-        const { dev_mode } = props
+        const { devMode } = props
         
         const {
             action,
@@ -18,9 +18,9 @@ export const placeOCO = (state:{[k:string]:any} , action:Action):Action => {
             other,
         } = data
 
-        const socket = dev_mode ? getReplaySocket() : getSocket()
+        const socket = devMode ? getReplaySocket() : getSocket()
         
-        const { id, name } = getAvailableAccounts()[0]
+        const { id, name } = getCurrentAccount()
 
         const body = {
             accountSpec: name,

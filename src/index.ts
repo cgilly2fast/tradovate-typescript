@@ -1,6 +1,6 @@
 import { URLs, credentials } from './config/tvCredentials'
 import { connect } from './endpoints/connect'
-import { setAccessToken, getAvailableAccounts } from './utils/storage'
+import { setAccessToken, getCurrentAccount } from './utils/storage'
 import TradovateSocket  from './websockets/TradovateSocket'
 import MarketDataSocket from './websockets/MarketDataSocket'
 import {contractSuggest} from './endpoints/contractSuggest'
@@ -8,7 +8,7 @@ import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
 import TrendStrategy, { TrendStrategyParams } from './strageties/trendv2/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
-import {connectSockets, disconnectReplaySocket, disconnectSockets, getSocket} from './utils/socketUtils'
+import {connectSockets, disconnectReplaySocket, disconnectSockets, getSocket, getReplaySocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 import {db} from "./config/fbCredentials"
 import { getLongBracket, adjustStoploss} from "./strageties/trendv2/onChart"
@@ -146,7 +146,7 @@ app.listen(port, () => {
 });
 
 async function cancelOrders() {
-    const socket = getSocket()
+    const socket = replay ? getReplaySocket() : getSocket()
     const orders = await socket.request({
         url: 'order/list',
     })
@@ -250,7 +250,7 @@ async function cancelOrders() {
     // ################ STOP TEST #################
 
     // await connectSockets({live: false, tvSocket: true, marketData:false, replay: false})
-    // const socket = getSocket()
+    // const socket = devMode ? getReplaySocket() : getSocket()
     
 
     // const brackets = getLongBracket(3,-20)
@@ -266,7 +266,7 @@ async function cancelOrders() {
 
     // console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
 
-    // const { id, name } = getAvailableAccounts()[0]
+    // const { id, name } = getCurrentAccount()[0]
     
     // const body = {
     //     accountId: id,
@@ -288,7 +288,7 @@ async function cancelOrders() {
     //     }
     // })
 
-    // await adjustStoploss(5)
+    // await adjustStoploss(5, replay)
 
 
     

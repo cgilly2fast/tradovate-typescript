@@ -21,6 +21,12 @@ export interface TradovateAccount {
     timestamp:string
 }
 
+export interface TradovateAccountMini {
+    id:number,
+    name:string,
+    userId:number,
+}
+
 export const setDeviceId = (id:string) => {
     sessionStorage.setItem(DEVICE_ID_KEY, id)
 }
@@ -31,6 +37,9 @@ export const getDeviceId = ():any => {
 
 export const setAvailableAccounts = (accounts:TradovateAccount[]) => {
     process.env.AVAIL_ACCTS = JSON.stringify(accounts)
+    process.env.ID = accounts[0].id as unknown as string
+    process.env.SPEC = accounts[0].name
+    process.env.USER_ID = accounts[0].userId as unknown as string
 }
 
 /**
@@ -39,6 +48,14 @@ export const setAvailableAccounts = (accounts:TradovateAccount[]) => {
  */
 export const getAvailableAccounts = ():TradovateAccount[] => {
     return JSON.parse(process.env.AVAIL_ACCTS!)
+}
+
+/**
+ * Returns and array of available accounts or undefined.
+ * @returns Account
+ */
+export const getCurrentAccount = ():TradovateAccountMini => {
+    return {id: parseInt(process.env.ID!), name: process.env.SPEC!, userId: parseInt(process.env.USER_ID!) }
 }
 
 /**

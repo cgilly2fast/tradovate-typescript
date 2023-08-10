@@ -12,6 +12,7 @@ import {TdEvent, BarType, ElementSizeUnit, TimeRangeType, Contract, ChartDescrip
 import TradovateSocket from "../websockets/TradovateSocket"
 import MarketDataSocket from "../websockets/MarketDataSocket"
 import ReplaySocket from "../websockets/ReplaySocket"
+import {setAvailableAccounts} from "./storage"
 
 
 
@@ -121,7 +122,6 @@ export default class Strategy {
 
     private async devModeSetup(props: StrategyParams) {
         try {
-            console.log( this.replayPeriods)
             await this.replaySocket.checkReplaySession({
                 startTimestamp: this.replayPeriods[0].start,
                 callback: async (item:any) => { //TODO: cb hell, this should be reorganized eventually
@@ -142,11 +142,8 @@ export default class Strategy {
                     if(id === item.i) {
                         const accounts = item.d
                         const account = accounts.find((acct:any) => acct.active)
-                        
-                        process.env.ACCOUNT = JSON.stringify(account)
-                        process.env.ID = account.id,
-                        process.env.SPEC = account.name
-                        process.env.USER_ID = account.userId
+
+                        setAvailableAccounts([account])
 
                         this.setupEventCatcher(this.D, this.replaySocket, this.replaySocket, props)
                     

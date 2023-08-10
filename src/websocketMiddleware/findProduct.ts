@@ -1,5 +1,5 @@
 import { getReplaySocket, getSocket } from "../utils/socketUtils"
-import {getAvailableAccounts} from '../utils/storage'
+import {getCurrentAccount} from '../utils/storage'
 import { Action } from "../utils/types"
 
 export const productFind = (state:{[k:string]:any}, action:Action): Action => {
@@ -7,10 +7,10 @@ export const productFind = (state:{[k:string]:any}, action:Action): Action => {
 
     if(event === 'product/find') {
         const { data, props } = payload
-        const { dev_mode, dispatcher } = props
+        const { devMode, dispatcher } = props
         const { name } = data
 
-        const socket = dev_mode ? getReplaySocket() : getSocket()
+        const socket = devMode ? getReplaySocket() : getSocket()
 
         let dispose = socket.request({
             url: 'product/find',

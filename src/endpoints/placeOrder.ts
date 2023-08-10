@@ -1,5 +1,5 @@
 // import { DEMO_URL } from './credentials'
-import { getAccessToken, getAvailableAccounts } from '../utils/storage'
+import { getAccessToken, getCurrentAccount } from '../utils/storage'
 import { tvPost } from '../utils/service'
 import { ORDER_TYPE, ORDER_ACTION, TIME_IN_FORCE } from '../utils/types'
 
@@ -26,7 +26,7 @@ export interface OrderParams {
 
 export const placeOrder = async (params: OrderParams) => {
 
-    const { id, name } = getAvailableAccounts()[0]
+    const { id, name } = getCurrentAccount()
     const { token } = getAccessToken()
     const {action, symbol, orderQty, orderType, isAutomated} = params
 
