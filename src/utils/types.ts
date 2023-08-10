@@ -64,7 +64,8 @@ export enum LongShortMode  {
     Long=       '[LongShortMode] Long',
     Short=      '[LongShortMode] Short', 
     Watch=      '[LongShortMode] Watch',
-    Entry=      '[LongShortMode] Entry', // When a techincal set up occurs and looking for desired price to enter 
+    Setup=      '[LongShortMode] Setup', // Looking for a technical set up to occur
+    Entry=      '[LongShortMode] Entry', // When a technical set up occurs and looking for desired price to enter 
 }
 
 export enum BarType {

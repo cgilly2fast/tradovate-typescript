@@ -40,6 +40,7 @@ export default class Strategy {
     private withHistogram
     private devMode?
     private replayPeriods?
+    
 
     private shouldRun
     private D: Dispatcher
@@ -61,6 +62,7 @@ export default class Strategy {
         this.withHistogram = props.withHistogram;
         this.devMode = props.devMode;
         this.replayPeriods = props.replayPeriods;
+
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
         this.model = { ...this.init(), current_period: this.devMode ? 0 : undefined }
@@ -87,7 +89,7 @@ export default class Strategy {
             
         
         if(this.devMode) {
-            this.devModeSetup()
+            this.devModeSetup(props)
         } else {
             this.setupEventCatcher(this.D, this.socket, this.mdSocket, props)
         }
@@ -117,8 +119,9 @@ export default class Strategy {
         }
     }  
 
-    private async devModeSetup() {
+    private async devModeSetup(props: StrategyParams) {
         try {
+            console.log( this.replayPeriods)
             await this.replaySocket.checkReplaySession({
                 startTimestamp: this.replayPeriods[0].start,
                 callback: async (item:any) => { //TODO: cb hell, this should be reorganized eventually
@@ -145,13 +148,13 @@ export default class Strategy {
                         process.env.SPEC = account.name
                         process.env.USER_ID = account.userId
 
-                        this.setupEventCatcher(this.D, this.replaySocket, this.replaySocket, this.getProps())
+                        this.setupEventCatcher(this.D, this.replaySocket, this.replaySocket, props)
                     
                     }
                 }
             })
         } catch (err) {
-            console.log("[DevX Trader]: " + err)
+            console.log("[DevX Trader]: devModeSetup:" + err)
             
         }
     }

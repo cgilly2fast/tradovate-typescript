@@ -9,7 +9,7 @@ export const nextReplayPeriod = (state:{[k:string]:any}, action:Action): Action 
     const {event, payload} = action
     
 
-    if(event === 'replay/nextReplayPeriod') {
+    if(event === 'replay/nextneplayperiod') {
         console.log('[GOT TO NEXT REPLAY]')
         const { data, props } = payload
         const { current_period, position, realizedPnL, buffer, product } = state
@@ -30,7 +30,7 @@ export const nextReplayPeriod = (state:{[k:string]:any}, action:Action): Action 
                     position
                 }).toFixed(2)}`
             }
-            console.log("[DevX Trader]: " + sessionResults)
+            console.log("[DevX Trader]: replay/nextreplayperiod:" + sessionResults)
         }
 
         if(current_period === replay_periods.length) {

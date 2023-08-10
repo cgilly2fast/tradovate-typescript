@@ -18,7 +18,7 @@ export default class ReplaySocket extends MarketDataSocket {
     checkReplaySession(params:ReplaySocketCheckReplaySessionParams) {
         const {startTimestamp, callback} = params
         return this.request({
-            url: 'replay/checkReplaySession',
+            url: 'replay/checkreplaysession',
             body: { startTimestamp },
             onResponse: (id, item) => {
                 if(item.i === id) {
@@ -35,7 +35,7 @@ export default class ReplaySocket extends MarketDataSocket {
         initialBalance = (initialBalance === undefined? 50000:initialBalance )
         
         return this.request({
-            url: 'replay/initializeClock',
+            url: 'replay/initializeclock',
             body: { startTimestamp, speed, initialBalance },
             onResponse: (id, item) => {
                 

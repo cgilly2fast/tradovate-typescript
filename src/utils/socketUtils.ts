@@ -4,7 +4,7 @@ import TradovateSocket from "../websockets/TradovateSocket";
 import { URLs } from '../config/tvCredentials'
 import { renewAccessToken } from "../endpoints/renewAccessToken";
 
-const { DEMO_URL, LIVE_URL, MD_URL, WS_DEMO_URL, WS_LIVE_URL } = URLs
+const { DEMO_URL, LIVE_URL, MD_URL, WS_DEMO_URL, WS_LIVE_URL, REPLAY_URL } = URLs
 
 const socket = new TradovateSocket()
 const mdSocket = new MarketDataSocket()
@@ -35,7 +35,7 @@ export const connectSockets = async ( params: ConnectSocketsParams = {  live: fa
         await Promise.all([
             (tvSocket? socket.connect(url): null),
             (marketData? mdSocket.connect(MD_URL): null),
-            (replay? replaySocket.connect(MD_URL): null)
+            (replay? replaySocket.connect(REPLAY_URL): null)
         ])
 
         renewTokenInterval = setInterval(() => {
@@ -67,10 +67,19 @@ export const connectAllSockets = async (live:boolean = false) =>  {
 export const disconnectSockets = async () => {
     try{
         await Promise.all([
-            (socket.isConnected()? socket.disconnect(): null),
             (mdSocket.isConnected()?mdSocket.disconnect(): null),
-            //(replaySocket.isConnected()? replaySocket.disconnect(): null)
+            (socket.isConnected()? socket.disconnect(): null)
         ])
+        clearInterval(renewTokenInterval)
+    } catch(err) {
+        console.log(err)
+    }
+    console.log('[DevX Trader]: Stopped')
+}
+
+export const disconnectReplaySocket = async () => {
+    try{
+        (replaySocket.isConnected()? await replaySocket.disconnect(): null),
         clearInterval(renewTokenInterval)
     } catch(err) {
         console.log(err)

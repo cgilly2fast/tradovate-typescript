@@ -8,50 +8,91 @@ import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
 import TrendStrategy, { TrendStrategyParams } from './strageties/trendv2/trendStrategy'
 //import{getLongBracket} from "./strageties/test/onChart"
 import Strategy from './utils/stragety'
-import {connectSockets, disconnectSockets, getSocket} from './utils/socketUtils'
+import {connectSockets, disconnectReplaySocket, disconnectSockets, getSocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 import {db} from "./config/fbCredentials"
 import { getLongBracket, adjustStoploss} from "./strageties/trendv2/onChart"
+import WebSocket from 'ws';
 
 
 const app: Express = express();
 const port = 8080;
+const replay = true
 
 setAccessToken(""," ", "")
 
 
 const main = async (symbol:string ="ES") => {
     console.log('[DevX Trader]: Started')
+    
+    // const URL = 'wss://replay.tradovateapi.com/v1/websocket'
 
-    await connect(credentials)
+    // const myMarketReplaySocket = new WebSocket(URL)
+    // const accessToken = "VgoK3TD0SJeeUtoKHNRUgI5FCdtNQrIdDVo6ASlcHRVUcNnBmmIiL-4REfSjkbK8q5L4HHZOuHcpImq2AfXRxCN32tZSUzJdgVzSH3SIJsr7U53tzCR93p1VqdKjugi0D0ZJb0yljXPz1xzY9rkhy7jLWuRKtl87QkKJNhLL0yBrf0iB2geCRLP7sz6VPV9SZyuilAHfQN1iW5Q"
+    // //simple WebSocket authorization procedure
+    // myMarketReplaySocket.onopen = function() {
+    //     myMarketReplaySocket.send(`authorize\n0\n\n${accessToken}`)
+    // }
 
-    await connectSockets({live: false, tvSocket: true, marketData:true, replay: false})
+    //     setTimeout(function() {//JSON string for midnight April 30th 2018
+    //         const startTimestamp = new Date('2023-08-08').toJSON()
+    //         myMarketReplaySocket.send(`replay/checkreplaysession\n1\n\n${JSON.stringify({startTimestamp})}`)
+    //         //listen for response
+    //         myMarketReplaySocket.addEventListener('message', (msg:any) => {
+    //             console.log(msg.data)
+    //             const datas:any = JSON.parse(msg.data.slice(1)) //chop off leading 'frame' char
+    //             //datas looks like this [{s: 200, i: 1, d: { checkStatus: 'OK' } }]
+    //             if(datas) {
+    //                 datas.forEach((r:any) => {
+    //                     if(r.i && r.i === 1)  { //id of our sent message is 1, response's `i` field will be 1.
+    //                         console.log(r.d) //=> { checkStatus: 'OK' }
+    //                         //if the status is OK we can send the initializeClock message
+    //                     }
+    //                 })
+    //             } 
+    //         })
+    //     }, 3000)
+    
+
+    
+
+    await connect(credentials)  
+
+    await connectSockets({live: false, tvSocket: !replay, marketData:!replay, replay: replay})
     const runsSnapshot = await db.collection('trade_runs').count().get()
+    const runId = runsSnapshot.data().count +1
+    console.log("[DevX Trader]: Run Id: " +runId)
 
     const stragetyParams:TrendStrategyParams ={
         contract:{name:"ESU3", id:2665267},
         timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
         timeRangeValue: 2,
-        devMode:false,
-        replayPeriods: {},
+        devMode:replay,
+        replayPeriods: [{
+            start: new Date(`2023-08-08T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
+            stop: new Date(`2023-08-08T10:00`).toJSON()
+        }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,
         elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
         withHistogram: false,
-        runId: runsSnapshot.data().count +1
+        runId: runId
     }
 
     // const stragetyParams:TrendStrategyParams ={
     //     contract:{name:"ESU3", id:2665267},
     //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
     //     timeRangeValue: 2,
-    //     devMode:false,
-    //     replayPeriods: {},
+    //     devMode:replay,
+    //     replayPeriods: [{
+    //         start: new Date(`2023-08-08T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
+    //         stop: new Date(`2023-08-08T09:30`).toJSON()
+    //     }],
     //     underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
     //     elementSize:1,
     //     elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
     //     withHistogram: false,
-    //     runId: runsSnapshot.data().count +1
+    //     runId: runId
     // }
 
     await db.collection("trade_runs").doc(stragetyParams.runId+"").set(stragetyParams)
@@ -86,7 +127,11 @@ app.get('/connect', async  (req: Request, res: Response) => {
 });
 
 app.get('/disconnect', async  (req: Request, res: Response) => {
-    await disconnectSockets()
+    if(replay) {
+        await disconnectReplaySocket()
+    } else {
+        await disconnectSockets()
+    }
     res.send('[DevX Trader]: Stopped');
 });
 
@@ -208,7 +253,7 @@ async function cancelOrders() {
     // const socket = getSocket()
     
 
-    // const brackets = getTestLongBracket(3,-20)
+    // const brackets = getLongBracket(3,-20)
     // const entryVersion = {
     //     orderQty: 3,
     //     orderType: 'Market',
