@@ -17,7 +17,7 @@ import WebSocket from 'ws';
 
 const app: Express = express();
 const port = 8080;
-const replay = true
+const replay = false
 
 setAccessToken(""," ", "")
 
