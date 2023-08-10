@@ -17,7 +17,7 @@ import WebSocket from 'ws';
 
 const app: Express = express();
 const port = 8080;
-const replay = false
+const replay = true
 
 setAccessToken(""," ", "")
 
@@ -69,8 +69,8 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start: new Date(`2023-08-08T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
-            stop: new Date(`2023-08-08T10:00`).toJSON()
+            start: new Date(`2023-08-09T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
+            stop: new Date(`2023-08-09T10:00`).toJSON()
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,
