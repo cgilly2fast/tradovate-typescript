@@ -132,7 +132,26 @@ export default class Strategy {
             await this.replaySocket.initializeClock({
                 startTimestamp: this.replayPeriods[0].start,
                 callback: (item:any) => {
-                    if(item) return
+                    if(item && item.e === "clock") {
+                        console.log
+                    }
+                    if(item && item.s === 0) {
+                        console.log(item)
+                        this.replaySocket.request({
+                            url:'replay/changespeed',
+                            body:{"speed": 400},
+                            onResponse: (id, r) => {
+                                if(id === r.i) {
+                                    if(r.s === 200) {
+                                        console.log(`[DevX Trader]: Replay socket speed restored`)
+                                    } else {
+                                        console.log('[DevX Trader]: Error Replay socket speed restoration ' +JSON.stringify(r, null, 2))
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    return
                     // Is this logic correct? Possiblly dont neeed this calback at all
                 }
             })
