@@ -121,7 +121,7 @@ export default class TradovateSocket {
     }
 
     private isSocketSubscribe(url:string):boolean {
-        const subscribeRoutes = ['md/getChart' , 'md/subscribeDOM' , 'md/subscribeQuote' , 'md/subscribeHistogram' , 'user/syncrequest']
+        const subscribeRoutes = ['md/getChart' , 'md/subscribeDOM' , 'md/subscribeQuote' , 'md/subscribeHistogram' , 'user/syncrequest', 'replay/initializeclock']
         return subscribeRoutes.includes(url)
     }
 

@@ -38,11 +38,14 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start: new Date(`2023-08-08T03:00`).toJSON(), //use your local time, .toJSON will transform it to universal
-            stop: new Date(`2023-08-08T10:00`).toJSON()
+            start: `2023-08-08T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
+            stop: `2023-08-08T13:00:00.000Z`
         },{
-            start: new Date(`2023-08-09T03:00`).toJSON(), //use your local time, .toJSON will transform it to universal
-            stop: new Date(`2023-08-09T10:00`).toJSON()
+            start: `2023-08-09T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
+            stop: `2023-08-09T20:00:00:000Z`
+        },{
+            start: `2023-08-10T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
+            stop: `2023-08-10T20:00:00.000Z`
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,
@@ -57,8 +60,8 @@ const main = async (symbol:string ="ES") => {
     //     timeRangeValue: 2,
     //     devMode:replay,
     //     replayPeriods: [{
-    //         start: new Date(`2023-08-08T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
-    //         stop: new Date(`2023-08-08T09:30`).toJSON()
+    //         start: new Date(`2023-08-08T03:30`), //use your local time, .toJSON will transform it to universal
+    //         stop: new Date(`2023-08-08T09:30`)
     //     }],
     //     underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
     //     elementSize:1,
@@ -115,22 +118,26 @@ app.get('/cancelOrders', async  (req: Request, res: Response) => {
 
 app.get('/speedUpReplay', async  (req: Request, res: Response) => {
     if(replay) {
+        const speed = (req.query.speed? parseInt(req.query.speed as string): 400)
         const replaySocket = getReplaySocket()
         const response = await replaySocket.request({
             url:'replay/changespeed',
-            body:{"speed": 400},
+            body:{"speed": speed},
             onResponse: (id, r) => {
                 if(id === r.i) {
                     if(r.s === 200) {
-                        console.log(`[DevX Trader]: Replay socket speed restored`)
+                        console.log(`[DevX Trader]: Replay socket speed changed to ${speed}`)
                     } else {
                         console.log('[DevX Trader]: Error Replay socket speed restoration ' +JSON.stringify(r, null, 2))
                     }
                 }
             }
         })
-        console.log(response)
-        res.send('[DevX Trader]: Replay speed updated to 400');
+        if(response.d.ok){
+            res.send('[DevX Trader]: Replay speed updated to 400');
+        } else {
+            
+        } 
     } else {
         console.log('[DevX Trader]: Not in replay mode')
         res.send('[DevX Trader]: Not in replay mode');

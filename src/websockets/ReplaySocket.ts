@@ -38,7 +38,7 @@ export default class ReplaySocket extends MarketDataSocket {
             url: 'replay/initializeclock',
             body: { startTimestamp, speed, initialBalance },
             onResponse: (id, item) => {
-                
+              
                 if(id === item.i && item.s === 200) {
                     callback()
                 }
