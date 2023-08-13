@@ -113,6 +113,30 @@ app.get('/cancelOrders', async  (req: Request, res: Response) => {
     res.send('[DevX Trader]: Orders Cancelled');
 });
 
+app.get('/speedUpReplay', async  (req: Request, res: Response) => {
+    if(replay) {
+        const replaySocket = getReplaySocket()
+        const response = await replaySocket.request({
+            url:'replay/changespeed',
+            body:{"speed": 400},
+            onResponse: (id, r) => {
+                if(id === r.i) {
+                    if(r.s === 200) {
+                        console.log(`[DevX Trader]: Replay socket speed restored`)
+                    } else {
+                        console.log('[DevX Trader]: Error Replay socket speed restoration ' +JSON.stringify(r, null, 2))
+                    }
+                }
+            }
+        })
+        console.log(response)
+        res.send('[DevX Trader]: Replay speed updated to 400');
+    } else {
+        console.log('[DevX Trader]: Not in replay mode')
+        res.send('[DevX Trader]: Not in replay mode');
+    }
+});
+
 app.listen(port, () => {
   console.log(`[DevX Trader]: ⚡️ Server is running at http://localhost:${port}`);
 });
