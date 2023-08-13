@@ -43,7 +43,7 @@ export default class ReplaySocket extends MarketDataSocket {
                     callback()
                 }
                 else if(item.e && item.e === 'clock') {
-                    callback(item.d)
+                    callback(item)
                 }
             },
         })

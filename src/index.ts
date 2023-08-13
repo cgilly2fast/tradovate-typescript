@@ -24,37 +24,6 @@ setAccessToken(""," ", "")
 
 const main = async (symbol:string ="ES") => {
     console.log('[DevX Trader]: Started')
-    
-    // const URL = 'wss://replay.tradovateapi.com/v1/websocket'
-
-    // const myMarketReplaySocket = new WebSocket(URL)
-    // const accessToken = "VgoK3TD0SJeeUtoKHNRUgI5FCdtNQrIdDVo6ASlcHRVUcNnBmmIiL-4REfSjkbK8q5L4HHZOuHcpImq2AfXRxCN32tZSUzJdgVzSH3SIJsr7U53tzCR93p1VqdKjugi0D0ZJb0yljXPz1xzY9rkhy7jLWuRKtl87QkKJNhLL0yBrf0iB2geCRLP7sz6VPV9SZyuilAHfQN1iW5Q"
-    // //simple WebSocket authorization procedure
-    // myMarketReplaySocket.onopen = function() {
-    //     myMarketReplaySocket.send(`authorize\n0\n\n${accessToken}`)
-    // }
-
-    //     setTimeout(function() {//JSON string for midnight April 30th 2018
-    //         const startTimestamp = new Date('2023-08-08').toJSON()
-    //         myMarketReplaySocket.send(`replay/checkreplaysession\n1\n\n${JSON.stringify({startTimestamp})}`)
-    //         //listen for response
-    //         myMarketReplaySocket.addEventListener('message', (msg:any) => {
-    //             console.log(msg.data)
-    //             const datas:any = JSON.parse(msg.data.slice(1)) //chop off leading 'frame' char
-    //             //datas looks like this [{s: 200, i: 1, d: { checkStatus: 'OK' } }]
-    //             if(datas) {
-    //                 datas.forEach((r:any) => {
-    //                     if(r.i && r.i === 1)  { //id of our sent message is 1, response's `i` field will be 1.
-    //                         console.log(r.d) //=> { checkStatus: 'OK' }
-    //                         //if the status is OK we can send the initializeClock message
-    //                     }
-    //                 })
-    //             } 
-    //         })
-    //     }, 3000)
-    
-
-    
 
     await connect(credentials)  
 
@@ -69,8 +38,11 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start: new Date(`2023-08-07T03:30`).toJSON(), //use your local time, .toJSON will transform it to universal
-            stop: new Date(`2023-08-07T10:00`).toJSON()
+            start: new Date(`2023-08-08T03:00`).toJSON(), //use your local time, .toJSON will transform it to universal
+            stop: new Date(`2023-08-08T10:00`).toJSON()
+        },{
+            start: new Date(`2023-08-09T03:00`).toJSON(), //use your local time, .toJSON will transform it to universal
+            stop: new Date(`2023-08-09T10:00`).toJSON()
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,

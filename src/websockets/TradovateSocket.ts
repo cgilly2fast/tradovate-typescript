@@ -100,7 +100,6 @@ export default class TradovateSocket {
                         }
                         
                     } else if(item.e && onResponse) { // for all messages for md socket after first responses
-                        
                         onResponse(id, item)
                     
                     } else if(item.s && item.s !== 200 && item.i && item.i === id) { // if error

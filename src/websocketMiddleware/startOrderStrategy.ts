@@ -35,10 +35,8 @@ export const startOrderStrategy = (state:{[k:string]:any}, action:Action) => {
             url: 'orderStrategy/startOrderStrategy',
             body,
             onResponse: (id, r) => {
-                
                  
                 if(id === r.i) {
-                    
                     if(r.d.orderStrategy) {
                         console.log(`[DevX Trader]: New Order Strategy: Status: ${r.s} Action: ${r.d.orderStrategy.action} Id: ${r.d.orderStrategy.id}` )
                     } else {

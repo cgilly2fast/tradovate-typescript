@@ -132,10 +132,7 @@ export default class Strategy {
             await this.replaySocket.initializeClock({
                 startTimestamp: this.replayPeriods[0].start,
                 callback: (item:any) => {
-                    if(item && item.e === "clock") {
-                        console.log
-                    }
-                    if(item && item.s === 0) {
+                    if(item && item.e === "clock" && item.d.s === 0) {
                         console.log(item)
                         this.replaySocket.request({
                             url:'replay/changespeed',
@@ -152,7 +149,6 @@ export default class Strategy {
                         })
                     }
                     return
-                    // Is this logic correct? Possiblly dont neeed this calback at all
                 }
             })
             await this.replaySocket.request({
