@@ -113,7 +113,7 @@ export default class Strategy {
                     this.D.dispatch(fx.url, {data: fx.payload, props:this.getProps()})
                 }
                 else if(fx.event) {
-                    console.log("[DevX Trader]: ", fx.event, fx.payload)
+                    console.log("[DevX Trader]: Side Event:", fx.event, fx.payload)
                     this.D.dispatch(fx.event, {data: fx.payload, props:this.getProps()})
                 }
             })

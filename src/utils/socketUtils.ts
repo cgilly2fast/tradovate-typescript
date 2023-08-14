@@ -37,11 +37,12 @@ export const connectSockets = async ( params: ConnectSocketsParams = {  live: fa
             (marketData? mdSocket.connect(MD_URL): null),
             (replay? replaySocket.connect(REPLAY_URL): null)
         ])
-
-        renewTokenInterval = setInterval(() => {
-            renewAccessToken(live)
-        }, 75*60*1000) 
-
+        
+        if(!replay) {
+            renewTokenInterval = setInterval(() => {
+                renewAccessToken(live)
+            }, 75*60*1000) 
+        }
     } catch(err) {
         console.log(err)
     }

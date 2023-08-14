@@ -38,13 +38,13 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start: `2023-08-08T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
-            stop: `2023-08-08T13:00:00.000Z`
+            start: `2023-08-08T13:30:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
+            stop: `2023-08-08T20:00:00.000Z`
         },{
-            start: `2023-08-09T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
+            start: `2023-08-09T13:00:00.000Z`, 
             stop: `2023-08-09T20:00:00:000Z`
         },{
-            start: `2023-08-10T13:00:00.000Z`, //use your local time, .toJSON will transform it to universal
+            start: `2023-08-10T13:00:00.000Z`, 
             stop: `2023-08-10T20:00:00.000Z`
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
