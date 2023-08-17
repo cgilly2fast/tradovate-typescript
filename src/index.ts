@@ -1,23 +1,17 @@
 import { URLs, credentials } from './config/tvCredentials'
 import { connect } from './endpoints/connect'
 import { setAccessToken, getCurrentAccount } from './utils/storage'
-import TradovateSocket  from './websockets/TradovateSocket'
-import MarketDataSocket from './websockets/MarketDataSocket'
-import {contractSuggest} from './endpoints/contractSuggest'
 import { ElementSizeUnit, BarType,TimeRangeType } from './utils/types'
 import TrendStrategy, { TrendStrategyParams } from './strageties/trendv2/trendStrategy'
-//import{getLongBracket} from "./strageties/test/onChart"
-import Strategy from './utils/stragety'
 import {connectSockets, disconnectReplaySocket, disconnectSockets, getSocket, getReplaySocket} from './utils/socketUtils'
 import express, { Express, Request, Response } from 'express';
 import {db} from "./config/fbCredentials"
 import { getLongBracket, adjustStoploss} from "./strageties/trendv2/onChart"
-import WebSocket from 'ws';
 
 
 const app: Express = express();
 const port = 8080;
-const replay = true 
+const replay = false
 
 setAccessToken(""," ", "")
 
@@ -38,14 +32,14 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start: `2023-08-08T13:30:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
-            stop: `2023-08-08T20:00:00.000Z`
+            start:  `2023-08-08T13:00:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
+            stop:   `2023-08-08T20:00:00.000Z`
         },{
-            start: `2023-08-09T13:00:00.000Z`, 
-            stop: `2023-08-09T20:00:00:000Z`
+            start:  `2023-08-09T13:00:00.000Z`, 
+            stop:   `2023-08-09T20:00:00:000Z`
         },{
-            start: `2023-08-10T13:00:00.000Z`, 
-            stop: `2023-08-10T20:00:00.000Z`
+            start:  `2023-08-10T13:00:00.000Z`, 
+            stop:   `2023-08-10T20:00:00.000Z`
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,
