@@ -20,8 +20,9 @@ export interface StrategyParams extends ChartDescription{
     contract:Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
-    devMode:any
-    replayPeriods: any
+    devMode:boolean
+    replayPeriods?: any[]
+    replaySpeed?:number
     dispatcher?: any
 }
 export default class Strategy {
@@ -39,8 +40,9 @@ export default class Strategy {
     private timeRangeType
     private timeRangeValue
     private withHistogram
-    private devMode?
-    private replayPeriods?
+    private devMode
+    private replaySpeed
+    private replayPeriods
     
 
     private shouldRun
@@ -52,8 +54,7 @@ export default class Strategy {
         this.mdSocket = getMdSocket()
         this.replaySocket =  getReplaySocket()
         this.shouldRun = true;
-        this.model = { ...props, current_period: this.devMode ? 0 : undefined }
-
+        
         this.underlyingType = props.underlyingType;
         this.elementSize = props.elementSize;
         this.contract  = props.contract;
@@ -61,9 +62,12 @@ export default class Strategy {
         this.timeRangeType = props.timeRangeType;
         this.timeRangeValue = props.timeRangeValue;
         this.withHistogram = props.withHistogram;
-        this.devMode = props.devMode;
-        this.replayPeriods = props.replayPeriods;
-
+        this.devMode = props.devMode
+        this.replayPeriods = (props.replayPeriods? props.replayPeriods: []);
+        this.replaySpeed = (props.replaySpeed? props.replaySpeed: 400)
+        
+        this.model = { ...props, current_period: this.devMode ? 0 : undefined }
+        
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
         this.model = { ...this.init(), current_period: this.devMode ? 0 : undefined }
@@ -131,19 +135,15 @@ export default class Strategy {
             })
             await this.replaySocket.initializeClock({
                 startTimestamp: this.replayPeriods[0].start,
-                callback: (item:any) => {
-                    if(item && item.d.s === 200) {
-                        console.log(item)
-                    }
-                    if(item && item.e === "clock" && item.d.s === 0) {
-                        console.log(item)
+                callback: (item:any) => {  
+                    if(item && item.e === "clock" && item.d.length < 40) {
                         this.replaySocket.request({
                             url:'replay/changespeed',
-                            body:{"speed": 400},
+                            body:{"speed": this.replaySpeed},
                             onResponse: (id, r) => {
                                 if(id === r.i) {
                                     if(r.s === 200) {
-                                        console.log(`[DevX Trader]: Replay socket speed restored`)
+                                        console.log(`[DevX Trader]: Replay socket speed restored to ${this.replaySpeed}`)
                                     } else {
                                         console.log('[DevX Trader]: Error Replay socket speed restoration ' +JSON.stringify(r, null, 2))
                                     }
@@ -169,7 +169,7 @@ export default class Strategy {
                 }
             })
         } catch (err) {
-            console.log("[DevX Trader]: devModeSetup:" + err)
+            console.log(`[DevX Trader]: devModeSetup: ${err}`)
             
         }
     }
