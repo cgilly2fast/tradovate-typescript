@@ -64,7 +64,7 @@ export default class Dispatcher {
     private reducer: any
     private mw: any
     private storeState: any
-    private storeEffects: any
+    private storeEffects: Action[]
     private dispatching: boolean
     private queue: Action[]
 

@@ -213,14 +213,18 @@ export interface BarPacket {
     td:number, // Trade date as a number with value YYYYMMDD
     bars: Bar[]
 }
-
-export type Action = {event?:string, url?:string, payload?:any} 
-
+export interface Payload  {
+    data:any, 
+    props: any
+}
+export interface Action {
+    event: string
+    payload: Payload
+}
 export interface EventHandlerResults {
     state: {[k:string]:any},
     effects: Action[]
 }
-
 export enum Trend {
     DOWN = -1,
     NA = 0,

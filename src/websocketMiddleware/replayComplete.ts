@@ -19,7 +19,7 @@ export const replayComplete = (state:{[k:string]:any}, action:Action) => {
     
         }
         
-        let disposeFillReq = socket.request({
+        socket.request({
             url: 'fillPair/list',
             onResponse: (id:any, item:any) => {
                 if(id === item.i) {
@@ -27,7 +27,6 @@ export const replayComplete = (state:{[k:string]:any}, action:Action) => {
                     results.fillPairs = item.d
                     console.log('[DISPATCHING SHOW STATS]')
                     dispatcher.dispatch('replay/showStats', { data: results, props })
-                    //disposeFillReq()                    
                 }
             }
         })

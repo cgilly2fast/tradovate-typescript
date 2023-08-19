@@ -10,7 +10,7 @@ export interface TradovateSocketSubscribeParams extends TradovateSocketRequestPa
 }
 
 export interface  TradovateSocketRequestParams{
-    url:string,
+    url: string,
     query?: string,
     body?: { [k:string]: any }
     onResponse?:(id: number, item: any) => void, 

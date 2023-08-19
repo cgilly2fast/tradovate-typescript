@@ -26,12 +26,11 @@ export const placeOrder = (state:{[k:string]:any}, action:Action):Action => {
 
         }
 
-        let dispose = socket.request({
+        socket.request({
             url: 'order/placeOrder',
             body,
             onResponse: (id, r) => {
                 console.log('Placed order successfully')
-                //dispose()
             }
         })
     }

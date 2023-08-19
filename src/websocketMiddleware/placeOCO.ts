@@ -34,7 +34,7 @@ export const placeOCO = (state:{[k:string]:any} , action:Action):Action => {
             other
         }
         
-        let dispose = socket.request({
+        socket.request({
             url: 'order/placeOCO',
             body,
             onResponse: (id, r) => {
