@@ -13,7 +13,6 @@ export const nextReplayPeriod = (state:{[k:string]:any}, action:Action): Action 
 
     if(event === 'replay/nextReplayPeriod') {
         console.log('[DevX Trader}: Go to next replay')
-        const { props } = payload
         const { current_period, position, realizedPnL, buffer, product } = state
         const { dispatcher, replayPeriods } = props
 
@@ -68,9 +67,10 @@ async function startNextReplayPeriod(props:any, replayPeriods:any[],  current_pe
             }
         }) 
 
+
         console.log( "[DevX Trader]: Valid replay period.")
         console.log( "[DevX Trader]: Initializing new replay clock...")
-        replaySocket.initializeClock({
+        const res1 = await replaySocket.initializeClock({
             startTimestamp: replayPeriods[current_period].start,
             callback: (item:any) => {
                 if(item && item.e === "clock" && item.d.length < 40) {
@@ -92,7 +92,7 @@ async function startNextReplayPeriod(props:any, replayPeriods:any[],  current_pe
                 return
             }
         })
-        
+       console.log("res1", res1) 
         console.log( "[DevX Trader]: Initializing clock complete.")
         await replaySocket.request({
             url: 'account/list',
@@ -101,7 +101,7 @@ async function startNextReplayPeriod(props:any, replayPeriods:any[],  current_pe
                 if(id === item.i) {
                     const accounts = item.d
                     const account = accounts.find((acct:any) => acct.active)
-                    console.log("[DevX Trader]: account" + JSON.stringify(account, null, 2))
+                    console.log("[DevX Trader]: account: " + JSON.stringify(account, null, 2))
 
                     setAvailableAccounts([account])
 

@@ -73,47 +73,45 @@ export default class TradovateSocket {
         return new Promise((res, rej) => {
             const id = this.increment()
             try {
-            this.ws.addEventListener('message', function onEvent(msg: any) {
-                self.checkHeartbeats()
-                const [T, data] = self.prepareMessage(msg.data)
-    
-                if(T !== 'a') { return }    
-    
-                data.forEach((item:any) => {
-                    
-                    if(item.s === 200 && item.i === id) {  //if first call of md socket or a request that has only one response
-                       
-                        if(onResponse) {
-                            onResponse(id, item)
-                        }
-                        if(self.isSocketSubscribe(url)) {
-                            res(async () => {
-                                if(disposer && typeof disposer === 'function'){
-                                    await disposer()
-                                }
-                                //self.ws.removeEventListener('message', onEvent)
-                                
-                            })
-                        } else {
-                            self.ws.removeEventListener('message', onEvent)
-                            res(item)
-                        }
+                this.ws.addEventListener('message', function onEvent(msg: any) {
+                    self.checkHeartbeats()
+                    const [T, data] = self.prepareMessage(msg.data)
+        
+                    if(T !== 'a') { return }    
+        
+                    data.forEach((item:any) => {
                         
-                    } else if(item.e && onResponse) { // for all messages for md socket after first responses
-                        onResponse(id, item)
-                    
-                    } else if(item.s && item.s !== 200 && item.i && item.i === id) { // if error
-                    
-                        self.ws.removeEventListener('message', onEvent)
-                        if(onReject) onReject()
-                        rej(`[DevX Trader]:\nFAILED:\n\toperation '${url}'\n\tquery ${query ? JSON.stringify(query, null, 2) : ''}\n\tbody ${body ? JSON.stringify(body, null, 2) : ''}\n\treason '${JSON.stringify(item?.d, null, 2) || 'unknown'}'\n\titem '${item ? JSON.stringify(item):''}'`)
-                    } 
-                })  
-            })
-        } catch (err) {
-            console.log(`[DevX Trader]: WS request parmas: ${JSON.stringify(params, null, 2)}`)
-            throw err
-        }
+                        if(item.s === 200 && item.i === id) {  //if first call of md socket or a request that has only one response
+                        
+                            if(onResponse) {
+                                onResponse(id, item)
+                            }
+                            if(self.isSocketSubscribe(url)) {
+                                res(async () => {
+                                    if(disposer && typeof disposer === 'function'){
+                                        await disposer()
+                                    }
+                                })
+                            } else {
+                                self.ws.removeEventListener('message', onEvent)
+                                res(item)
+                            }
+                            
+                        } else if(item.e && onResponse) { // for all messages for md socket after first responses
+                            onResponse(id, item)
+                        
+                        } else if(item.s && item.s !== 200 && item.i && item.i === id) { // if error
+                        
+                            self.ws.removeEventListener('message', onEvent)
+                            if(onReject) onReject()
+                            rej(`[DevX Trader]:\nFAILED:\n\toperation '${url}'\n\tquery ${query ? JSON.stringify(query, null, 2) : ''}\n\tbody ${body ? JSON.stringify(body, null, 2) : ''}\n\treason '${JSON.stringify(item?.d, null, 2) || 'unknown'}'\n\titem '${item ? JSON.stringify(item):''}'`)
+                        } 
+                    })  
+                })
+            } catch (err) {
+                console.log(`[DevX Trader]: WS request parmas: ${JSON.stringify(params, null, 2)}`)
+                throw err
+            }
             
             this.ws.send(`${url}\n${id}\n${query || ''}\n${JSON.stringify(body)}`)
         })
@@ -172,7 +170,6 @@ export default class TradovateSocket {
                             }
                             this.ws.send('[]')
                         }, 2500)
-                        
                         break
                     case 'h':
                         this.ws.send('[]')

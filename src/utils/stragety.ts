@@ -8,7 +8,7 @@ import { startOrderStrategy }                        from "../websocketMiddlewar
 import Dispatcher, {  pipeMiddleware  }        from "./dispatcher"
 import { getSocket, getMdSocket, getReplaySocket }   from "./socketUtils" //remove
 import { URLs } from '../config/tvCredentials'
-import {TdEvent, BarType, TimeRangeType, Contract, ChartDescription, Action}   from "./types"
+import {TdEvent, BarType, TimeRangeType, Contract, ChartDescription, Action, EventHandlerResults}   from "./types"
 import TradovateSocket from "../websockets/TradovateSocket"
 import MarketDataSocket from "../websockets/MarketDataSocket"
 import ReplaySocket from "../websockets/ReplaySocket"
@@ -66,8 +66,6 @@ export default class Strategy {
         this.replayPeriods = (props.replayPeriods? props.replayPeriods: []);
         this.replaySpeed = (props.replaySpeed? props.replaySpeed: 400)
         
-        this.model = { ...props, current_period: this.devMode ? 0 : undefined }
-        
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
         this.model = { ...this.init(), current_period: this.devMode ? 0 : undefined }
@@ -109,8 +107,8 @@ export default class Strategy {
         
         if(effects && effects.length && effects.length > 0) {
             effects.forEach((fx: Action) => {
-                console.log("[DevX Trader]: Side Effect:",fx.event, fx.payload)
-                this.D.dispatch(fx.event, {data: fx.payload, props:this.getProps()})
+                console.log("[DevX Trader]: Side Effect:",fx.event, JSON.stringify(fx.payload.data, null, 2))
+                this.D.dispatch(fx.event, {data: fx.payload.data, props:fx.payload.props})
             })
         }
     }  
@@ -210,7 +208,7 @@ export default class Strategy {
                     throw new Error(err)
                 }
                 data.forEach((item:any) => {
-                    if(item.e && item.e === 'clock') {
+                    if(item.e && item.e === TdEvent.Clock) {
                         if(!this.shouldRun) return
                         this.runSideFx()
                         D.dispatch(TdEvent.Clock, { data: item.d, props })
@@ -279,12 +277,9 @@ export default class Strategy {
         
     }
 
-    catchReplaySessionsDefault(prevState:any, action:Action) {
+    catchReplaySessionsDefault(prevState:any, action:Action):EventHandlerResults {
             const {event, payload} = action
             const {data, props} = payload
-            if(event !==TdEvent.DOM && event !== TdEvent.Quote && event !== TdEvent.Clock) {
-                console.log("catchReplaySessionsDefault", event, "payload", payload)
-            }
             if(event === 'stop') {
                 console.log("LOOK AT WHEN event === stop")
                 // const socket = getReplaySocket()
@@ -292,13 +287,13 @@ export default class Strategy {
                 // ws.close()
                 // ws.removeAllListeners('message')
                 this.shouldRun = false
-                return
+                return {state:prevState, effects:[]}
             }
             
             if(event === TdEvent.ReplayReset) {
                 const replaySocket = getReplaySocket()
                 this.setupEventCatcher(props.dispatcher, replaySocket, replaySocket, props)
-                return { state: prevState }
+                return {state:prevState, effects:[]}
             }
 
             if(event === TdEvent.Clock) {
@@ -313,10 +308,11 @@ export default class Strategy {
                 if(curStop && new Date(t) > new Date(curStop)) {
                     return { 
                         state: { ...prevState, current_period: current_period+1 },
-                        effects: [{ event: TdEvent.NextReplay, payload: { props } }]
+                        effects: [{ event: TdEvent.NextReplay, payload: { data: {}, props } }]
                     }   
                 }
             }
+            return {state:prevState, effects:[]}
     }
    
 }

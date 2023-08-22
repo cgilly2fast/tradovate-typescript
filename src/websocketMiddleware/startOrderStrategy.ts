@@ -2,7 +2,7 @@ import { getReplaySocket, getSocket } from "../utils/socketUtils"
 import {getCurrentAccount} from '../utils/storage'
 import { Action } from "../utils/types"
 
-export const startOrderStrategy = (state:{[k:string]:any}, action:Action) => {
+export const startOrderStrategy = (state:{[k:string]:any}, action:Action): Action => {
 
     const {event, payload} = action
     

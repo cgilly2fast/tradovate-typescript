@@ -11,7 +11,7 @@ import { getLongBracket, adjustStoploss} from "./strageties/trendv2/onChart"
 
 const app: Express = express();
 const port = 8080;
-const replay = false
+const replay = true
 
 setAccessToken(""," ", "")
 
@@ -32,14 +32,20 @@ const main = async (symbol:string ="ES") => {
         timeRangeValue: 2,
         devMode:replay,
         replayPeriods: [{
-            start:  `2023-08-08T13:00:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
-            stop:   `2023-08-08T20:00:00.000Z`
+            start:  `2023-08-14T13:00:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
+            stop:   `2023-08-14T20:05:00.000Z`
         },{
-            start:  `2023-08-09T13:00:00.000Z`, 
-            stop:   `2023-08-09T20:00:00:000Z`
+            start:  `2023-08-15T13:00:00.000Z`, 
+            stop:   `2023-08-15T20:00:00.000Z`
         },{
-            start:  `2023-08-10T13:00:00.000Z`, 
-            stop:   `2023-08-10T20:00:00.000Z`
+            start:  `2023-08-16T13:00:00.000Z`, 
+            stop:   `2023-08-16T20:00:00:000Z`
+        },{
+            start:  `2023-08-17T13:00:00.000Z`, 
+            stop:   `2023-08-17T20:00:00:000Z`
+        },{
+            start:  `2023-08-18T13:00:00.000Z`, 
+            stop:   `2023-08-1820:00:00.000Z`
         }],
         underlyingType:BarType.TICK, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
         elementSize:1000,
@@ -77,12 +83,6 @@ const main = async (symbol:string ="ES") => {
  
 }
 
-// To-do's
-// Confirm operation local testing
-    // Adjust to breakeven,
-    // Test with custom chart
-// Crash reports
-// Deploy to vm
 
 main()
 
@@ -128,7 +128,7 @@ app.get('/speedUpReplay', async  (req: Request, res: Response) => {
             }
         })
         if(response.d.ok){
-            res.send('[DevX Trader]: Replay speed updated to 400');
+            res.send(`[DevX Trader]: Replay speed updated to ${speed}`);
         } else {
             
         } 
