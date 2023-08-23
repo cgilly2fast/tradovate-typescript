@@ -15,17 +15,14 @@ export const connect = async (data: any) => {
         return await handleRetry(data, authResponse) 
     } else {
         const { errorText, accessToken, mdAccessToken, userId, userStatus, name, expirationTime } = authResponse
-        //console.log(authResponse)
         if(errorText) {
-            console.error("[DevX Trader]: " +errorText)
+            console.error(`[DevX Trader]: P-Ticket Error: ${errorText}`)
             return
         }
       
         setAccessToken(accessToken, mdAccessToken, expirationTime)
 
         const accounts = await tvGet('/account/list')
-
-        //console.log("[DevX Trader]: " +JSON.stringify(accounts))
 
         setAvailableAccounts(accounts)
 
