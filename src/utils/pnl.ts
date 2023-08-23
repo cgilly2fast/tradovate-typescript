@@ -8,9 +8,9 @@ export function calculatePnL(params:CalculatePnLParams) {
     const {price, position, product} = params
     if(!position || !product || !price) return 0
 
-    let vpp = product?.valuePerPoint 
+    const vpp = product?.valuePerPoint 
 
-    let buy = position?.netPrice || position?.prevPrice
+    const buy = position?.netPrice || position?.prevPrice
 
     return (price - buy) * vpp * (position.netPos || position.prevPos || 0)    
 }

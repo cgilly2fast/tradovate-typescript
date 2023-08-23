@@ -2,10 +2,10 @@ import { Bar, Tick, TickPacket, BarPacket } from "./types"
 
 export function BarsTransformer(response:BarPacket):Bar[] {
     const {bars} = response
-    let results: Bar[] = []
+    const results: Bar[] = []
     if(bars) {
         bars.forEach((bar:Bar) => {
-            let result = bar
+            const result = bar
             results.push(result)
         })
     }
@@ -18,7 +18,7 @@ export function BarsTransformer(response:BarPacket):Bar[] {
 
 export function TicksTransformer(response:TickPacket):Tick[] {
     const {id: subId, bp, bt, ts, tks} = response
-    let result:Tick[] = []
+    const result:Tick[] = []
     if(tks) { 
         tks.forEach(({t, p, s, b, a, bs, as: asks, id}) => {
             result.push({

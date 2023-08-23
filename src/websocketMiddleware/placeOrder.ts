@@ -1,11 +1,11 @@
-import { getReplaySocket, getSocket } from "../utils/socketUtils"
-import {getCurrentAccount} from '../utils/storage'
-import { Action } from "../utils/types"
+import { getReplaySocket, getSocket } from '../utils/socketUtils'
+import { getCurrentAccount } from '../utils/storage'
+import { Action, Dictionary } from '../utils/types'
 
-export const placeOrder = (state:{[k:string]:any}, action:Action):Action => {
-    const {event, payload} = action
+export const placeOrder = (state: Dictionary, action: Action): Action => {
+    const { event, payload } = action
 
-    if(event === '/order/placeOrder') {
+    if (event === '/order/placeOrder') {
         const { data, props } = payload
         const { devMode } = props
         const { contract, orderType, action, orderQty, price } = data
@@ -22,19 +22,23 @@ export const placeOrder = (state:{[k:string]:any}, action:Action):Action => {
             action,
             price,
             orderType,
-            isAutomated: true
-
+            isAutomated: true,
         }
 
         socket.request({
             url: 'order/placeOrder',
             body,
-            onResponse: (id, r) => {
-                console.log('Placed order successfully')
-            }
+            onResponse: (id, item) => {
+                if (id === item.i && item.s === 200) {
+                    console.log(
+                        `[DevX Trade]: Placed order successfully ${item.d}`,
+                    )
+                } else {
+                    console.log(`[DevX Trade]: Order failed ${item.d}`)
+                }
+            },
         })
     }
-    
 
     return action
 }

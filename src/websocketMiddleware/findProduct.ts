@@ -1,29 +1,30 @@
-import { getReplaySocket, getSocket } from "../utils/socketUtils"
-import {getCurrentAccount} from '../utils/storage'
-import { Action } from "../utils/types"
+import { getReplaySocket, getSocket } from '../utils/socketUtils'
+import { Action, Dictionary } from '../utils/types'
 
-export const productFind = (state:{[k:string]:any}, action:Action): Action => {
-    const { event, payload} = action
+export const productFind = (state: Dictionary, action: Action): Action => {
+    const { event, payload } = action
 
-    if(event === 'product/find') {
+    if (event === 'product/find') {
         const { data, props } = payload
         const { devMode, dispatcher } = props
         const { name } = data
 
         const socket = devMode ? getReplaySocket() : getSocket()
 
-        let dispose = socket.request({
+        socket.request({
             url: 'product/find',
             query: `name=${name}`,
             onResponse: (id, r) => {
-                if(r.i === id) { 
+                if (r.i === id) {
                     //console.log("[DevX Trader]: Product Found: " + JSON.stringify(r))
-                    dispatcher.dispatch('product/found', { data: { entity: r.d }, props })
-                    
+                    dispatcher.dispatch('product/found', {
+                        data: { entity: r.d },
+                        props,
+                    })
                 }
-            }
+            },
         })
-    }    
+    }
 
     return action
 }

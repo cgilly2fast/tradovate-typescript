@@ -1,11 +1,12 @@
-import MarketDataSocket from "./MarketDataSocket"
+import MarketDataSocket from './MarketDataSocket'
 
 export interface ReplaySocketCheckReplaySessionParams {
-    startTimestamp:any, 
-    callback:any
+    startTimestamp: string
+    callback: any
 }
 
-export interface ReplaySocketInitializeClockParams extends ReplaySocketCheckReplaySessionParams {
+export interface ReplaySocketInitializeClockParams
+    extends ReplaySocketCheckReplaySessionParams {
     speed?: number
     initialBalance?: number
 }
@@ -15,34 +16,33 @@ export default class ReplaySocket extends MarketDataSocket {
         super()
     }
 
-    checkReplaySession(params:ReplaySocketCheckReplaySessionParams) {
-        const {startTimestamp, callback} = params
+    checkReplaySession(params: ReplaySocketCheckReplaySessionParams) {
+        const { startTimestamp, callback } = params
         return this.request({
             url: 'replay/checkreplaysession',
             body: { startTimestamp },
             onResponse: (id, item) => {
-                if(item.i === id) {
+                if (item.i === id) {
                     callback(item.d)
                 }
-            }
+            },
         })
     }
 
     initializeClock(params: ReplaySocketInitializeClockParams) {
-        let {startTimestamp, callback, speed, initialBalance} = params
+        const { callback, startTimestamp, speed, initialBalance } = params
 
-        speed = speed ?? 400
-        initialBalance = (initialBalance === undefined? 50000:initialBalance )
-        
         return this.request({
             url: 'replay/initializeclock',
-            body: { startTimestamp, speed, initialBalance },
+            body: {
+                startTimestamp,
+                speed: speed ?? 400,
+                initialBalance: initialBalance ?? 50000,
+            },
             onResponse: (id, item) => {
-              
-                if(id === item.i && item.s === 200) {
+                if (id === item.i && item.s === 200) {
                     callback()
-                }
-                else if(item.e && item.e === 'clock') {
+                } else if (item.e && item.e === 'clock') {
                     callback(item)
                 }
             },

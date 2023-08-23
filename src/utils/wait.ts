@@ -1,16 +1,21 @@
-export const waitForMs = (t:any) => {
-    return new Promise((res:any) => {
+export const waitForMs = (t: any) => {
+    return new Promise((res: any) => {
         setTimeout(() => {
             res()
         }, t)
     })
 }
 
-export const waitUntil =  (pred:any) =>{
-    return new Promise(async (res:any) =>{
-        while(!pred()) {
-            await waitForMs(100)
+export const waitUntil = (pred: () => boolean): Promise<void> => {
+    return new Promise((res: any) => {
+        const checkPredicate = () => {
+            if (pred()) {
+                res() // Resolve the outer promise when the predicate is true
+            } else {
+                setTimeout(checkPredicate, 100) // Check again after 100ms
+            }
         }
-        res()
+
+        checkPredicate() // Start checking the predicate
     })
 }

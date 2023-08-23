@@ -1,88 +1,96 @@
-import  MarketDataSocket from "../websockets/MarketDataSocket";
-import ReplaySocket from "../websockets/ReplaySocket";
-import TradovateSocket from "../websockets/TradovateSocket";
+import MarketDataSocket from '../websockets/MarketDataSocket'
+import ReplaySocket from '../websockets/ReplaySocket'
+import TradovateSocket from '../websockets/TradovateSocket'
 import { URLs } from '../config/tvCredentials'
-import { renewAccessToken } from "../endpoints/renewAccessToken";
+import { renewAccessToken } from '../endpoints/renewAccessToken'
+import { ReplaySessionResults } from './types'
 
-const { DEMO_URL, LIVE_URL, MD_URL, WS_DEMO_URL, WS_LIVE_URL, REPLAY_URL } = URLs
+const { MD_URL, WS_DEMO_URL, WS_LIVE_URL, REPLAY_URL } = URLs
 
 const socket = new TradovateSocket()
 const mdSocket = new MarketDataSocket()
 const replaySocket = new ReplaySocket()
 let renewTokenInterval: NodeJS.Timer
 
-const replaySessionResults: {[k:string |number]:any} = {}
-
+const replaySessionResults: ReplaySessionResults[] = []
 export interface ConnectSocketsParams {
-    live:boolean , 
-    tvSocket:boolean ,             
-    marketData:boolean , 
-    replay:boolean 
+    live: boolean
+    tvSocket: boolean
+    marketData: boolean
+    replay: boolean
 }
 
-export const connectSockets = async ( params: ConnectSocketsParams = {  live: false, 
-                                                                        tvSocket: true,
-                                                                        marketData: true, 
-                                                                        replay: false}  ) => {
+export const connectSockets = async (
+    params: ConnectSocketsParams = {
+        live: false,
+        tvSocket: true,
+        marketData: true,
+        replay: false,
+    },
+) => {
+    const { live, tvSocket, marketData, replay } = params
+    if (live === undefined) {
+        return Error('[DevX Trader]: live not specified in connectSockets()')
+    }
+    if (!tvSocket && !marketData && !replay)
+        return Error(
+            '[DevX Trader]: No sockets marked as true in connectSockets()',
+        )
 
-    let {live, tvSocket, marketData, replay} = params
-    if(!tvSocket && !marketData && !replay) return Error('[DevX Trader]: No sockets marked as true in connectSockets()')                                                                        
-    if(live === undefined) live = false
+    const url = live ? WS_LIVE_URL : WS_DEMO_URL
 
-    const url = (live? WS_LIVE_URL:WS_DEMO_URL)
-
-    try{
+    try {
         await Promise.all([
-            (tvSocket? socket.connect(url): null),
-            (marketData? mdSocket.connect(MD_URL): null),
-            (replay? replaySocket.connect(REPLAY_URL): null)
+            tvSocket ? socket.connect(url) : null,
+            marketData ? mdSocket.connect(MD_URL) : null,
+            replay ? replaySocket.connect(REPLAY_URL) : null,
         ])
-        
-        if(!replay) {
+
+        if (!replay) {
             renewTokenInterval = setInterval(() => {
                 renewAccessToken(live)
-            }, 75*60*1000) 
+            }, 75 * 60 * 1000)
         }
-    } catch(err) {
+    } catch (err) {
         console.log(err)
     }
 }
 
-export const connectAllSockets = async (live:boolean = false) =>  {
-    const url = (live? WS_LIVE_URL:WS_DEMO_URL)
-    try{
+export const connectAllSockets = async (live: boolean = false) => {
+    const url = live ? WS_LIVE_URL : WS_DEMO_URL
+    try {
         await Promise.all([
             socket.connect(url),
             mdSocket.connect(MD_URL),
-            replaySocket.connect(MD_URL)
+            replaySocket.connect(MD_URL),
         ])
 
         renewTokenInterval = setInterval(() => {
             renewAccessToken(live)
-        }, 75*60*1000) 
-    } catch(err) {
+        }, 75 * 60 * 1000)
+    } catch (err) {
         console.log(err)
     }
 }
 
 export const disconnectSockets = async () => {
-    try{
+    try {
         await Promise.all([
-            (mdSocket.isConnected()?mdSocket.disconnect(): null),
-            (socket.isConnected()? socket.disconnect(): null)
+            mdSocket.isConnected() ? mdSocket.disconnect() : null,
+            socket.isConnected() ? socket.disconnect() : null,
         ])
         clearInterval(renewTokenInterval)
-    } catch(err) {
+    } catch (err) {
         console.log(err)
     }
     console.log('[DevX Trader]: Stopped')
 }
 
 export const disconnectReplaySocket = async () => {
-    try{
-        (replaySocket.isConnected()? await replaySocket.disconnect(): null),
-        clearInterval(renewTokenInterval)
-    } catch(err) {
+    try {
+        replaySocket.isConnected() ? await replaySocket.disconnect() : null,
+            clearInterval(renewTokenInterval)
+    } catch (err) {
         console.log(err)
     }
     console.log('[DevX Trader]: Stopped')
