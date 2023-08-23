@@ -63,8 +63,8 @@ export default class Strategy {
         this.timeRangeValue = props.timeRangeValue;
         this.withHistogram = props.withHistogram;
         this.devMode = props.devMode
-        this.replayPeriods = (props.replayPeriods? props.replayPeriods: []);
-        this.replaySpeed = (props.replaySpeed? props.replaySpeed: 400)
+        this.replayPeriods = props.replayPeriods ?? []
+        this.replaySpeed = props.replaySpeed ?? 400
         
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
@@ -81,16 +81,12 @@ export default class Strategy {
             ...this.mws
         )
 
-        
-
         //builds a dispatcher from our model, using subclass' next function as the reducer,
         //and the above middleware composition for side effecting functions (websocket reqs, etc)
         this.D = new Dispatcher({ model:this.model, reducer: this.next.bind(this), mw:this.mw })
 
         props.dispatcher = this.D //add dispatcher to 'props' dependencies object.
 
-            
-        
         if(this.devMode) {
             this.devModeSetup(props)
         } else {

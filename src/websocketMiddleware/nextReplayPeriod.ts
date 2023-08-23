@@ -55,29 +55,33 @@ async function startNextReplayPeriod(props:any, replayPeriods:any[],  current_pe
     try {
         await replaySocket.connect(REPLAY_URL)  
         
-        originalSocket.removeAllListeners('message')
-        originalSocket.close(1000, `Client initiated disconnect.`)
-
+        try {
+            originalSocket.removeAllListeners('message')
+            originalSocket.close(1000, `Client initiated disconnect.`)
+        } catch (e:any) {
+            console.log("socket remove", e)
+        }
         console.log( "[DevX Trader]: Checking new replay period...")
-        await replaySocket.checkReplaySession({ // callback hell, find a fix
+        const res1 = await replaySocket.checkReplaySession({ 
             startTimestamp: replayPeriods[current_period].start,
             callback: (item:any) => {
                 if(!item.checkStatus && item.checkStatus !== 'OK') 
-                throw new Error('Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.')
+                    throw new Error('Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.')
             }
         }) 
 
 
         console.log( "[DevX Trader]: Valid replay period.")
         console.log( "[DevX Trader]: Initializing new replay clock...")
-        const res1 = await replaySocket.initializeClock({
+        await replaySocket.initializeClock({
             startTimestamp: replayPeriods[current_period].start,
+            speed: props.replaySpeed,
             callback: (item:any) => {
                 if(item && item.e === "clock" && item.d.length < 40) {
                     console.log("current speed", item)
                     replaySocket.request({
                         url:'replay/changespeed',
-                        body:{"speed": props.replaySpeed },
+                        body:{"speed": props.replaySpeed ?? 400},
                         onResponse: (id, r) => {
                             if(id === r.i) {
                                 if(r.s === 200) {
@@ -92,7 +96,6 @@ async function startNextReplayPeriod(props:any, replayPeriods:any[],  current_pe
                 return
             }
         })
-       console.log("res1", res1) 
         console.log( "[DevX Trader]: Initializing clock complete.")
         await replaySocket.request({
             url: 'account/list',

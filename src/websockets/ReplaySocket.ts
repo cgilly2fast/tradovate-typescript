@@ -31,7 +31,7 @@ export default class ReplaySocket extends MarketDataSocket {
     initializeClock(params: ReplaySocketInitializeClockParams) {
         let {startTimestamp, callback, speed, initialBalance} = params
 
-        speed = (speed === undefined? 400: speed)
+        speed = speed ?? 400
         initialBalance = (initialBalance === undefined? 50000:initialBalance )
         
         return this.request({
