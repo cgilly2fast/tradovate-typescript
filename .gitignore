@@ -1,7 +1,6 @@
 # dependencies
 /node_modules
 /lib
-tvCredentials.ts
 fbCredentials.ts
 .env
 
