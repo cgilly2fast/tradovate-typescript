@@ -149,9 +149,7 @@ export default class Strategy {
                     if(id === item.i) {
                         const accounts = item.d
                         const account = accounts.find((acct:any) => acct.active)
-
                         setAvailableAccounts([account])
-
                         this.setupEventCatcher(this.D, this.replaySocket, this.replaySocket, props)
                     
                     }

@@ -28,8 +28,6 @@ export default class TradovateSocket {
     public listeningURL: string
     public debugLabel: string
     private curTime: Date
-   // public listeners: any[]
-    
 
     constructor(debugLabel = "tvSocket") {
         this.counter = 0 
@@ -44,9 +42,7 @@ export default class TradovateSocket {
         this.counter += 1
         return this.counter
     }
-
     
-
     disconnect() {
         console.log('[DevX Trader]: Closing '+this.constructor.name+' connection...')
         this.ws.removeAllListeners('message')

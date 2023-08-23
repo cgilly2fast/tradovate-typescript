@@ -33,7 +33,7 @@ const main = async (symbol:string ="ES") => {
         devMode:replay,
         replayPeriods: [{
             start:  `2023-08-14T13:00:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
-            stop:   `2023-08-14T20:05:00.000Z`
+            stop:   `2023-08-14T20:00:00.000Z`
         },{
             start:  `2023-08-15T13:00:00.000Z`, 
             stop:   `2023-08-15T20:00:00.000Z`

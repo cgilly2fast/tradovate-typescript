@@ -18,8 +18,6 @@ export const startOrderStrategy = (state:{[k:string]:any}, action:Action): Actio
             brackets
         }
 
-        //console.log("[DevX Trader]: " +JSON.stringify(orderData, null, 2))
-
         const { id, name } = getCurrentAccount()
         
         const body = {
