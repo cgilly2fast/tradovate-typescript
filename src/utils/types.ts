@@ -22,7 +22,16 @@ export enum TIME_IN_FORCE {
     IOC = 'IOC',
 }
 
-export enum TdEvent {
+export enum STORAGE_KEYS {
+    STORAGE_KEY = 'tradovate-api-access-token',
+    EXPIRATION_KEY = 'tradovate-api-access-expiration',
+    DEVICE_ID_KEY = 'tradovate-device-id',
+    AVAIL_ACCTS_KEY = 'tradovate-api-available-accounts',
+    USER_DATA_KEY = 'tradovate-user-data',
+}
+
+export enum TdEventType {
+    MD = 'md',
     DOM = 'dom',
     UserSync = 'usersyncinit',
     Quote = 'quote',
@@ -90,12 +99,12 @@ export enum TimeRangeType {
     CLOSEST_TIMESTAMP = 'closestTimestamp',
     CLOSEST_TICK_ID = 'closestTickId',
 }
-export interface Contract {
+export type Contract = {
     id: number //123456
     name: string //ESU3
 }
 
-export interface Bar {
+export type Bar = {
     timestamp: Date
     open: number
     high: number
@@ -109,7 +118,7 @@ export interface Bar {
     offerVolume: number
 }
 
-export interface Tick {
+export type Tick = {
     subscriptionId: number
     id: number
     contractTickSize: number
@@ -122,11 +131,11 @@ export interface Tick {
     askSize: number
 }
 
-export interface Price {
+export type Price = {
     price: number
     size: number
 }
-export interface Quote {
+export type Quote = {
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
     contractId: number // ID of the quote contract
     entries: {
@@ -144,15 +153,15 @@ export interface Quote {
         EmptyBook: Price
     }
 }
-
-export interface DOM {
+export type QuoteEvent = {}
+export type DOM = {
     contractId: number // ID of the DOM contract
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
     bids: Price[] // Actual depth of bids may varies depending on available data
     offers: Price[] // Actual depth of "offers" may varies depending on available data
 }
 
-export interface Histogram {
+export type Histogram = {
     contractId: number // ID of the histogram contract
     timestamp: string //example: 2017-04-13T11:33:57.412Z
     tradeDate: {
@@ -165,7 +174,7 @@ export interface Histogram {
     refresh: boolean
 }
 
-export interface ChartRequest {
+export type ChartRequest = {
     symbol: string | number //ESM7 | 123456,
     chartDescription: ChartDescription
     timeRange: {
@@ -177,14 +186,14 @@ export interface ChartRequest {
     }
 }
 
-export interface ChartDescription {
+export type ChartDescription = {
     underlyingType: BarType // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
     elementSize: number
     elementSizeUnit: ElementSizeUnit // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
     withHistogram: boolean
 }
 
-export interface TickPacket {
+export type TickPacket = {
     id: number // Subscription ID, the same as historical/real-time subscription IDs from request response.
     eoh?: boolean // End-of-history used in historical data loads indicates that historical ticks are loaded and further packets will contain real-time ticks
     s: string // Source of packet data.
@@ -195,7 +204,7 @@ export interface TickPacket {
     tks: TickRaw[]
 }
 
-export interface TickRaw {
+export type TickRaw = {
     id: number // Tick ID
     t: number // Tick relative timestamp. Actual tick timestamp is packet.bt + tick.t
     p: number // Tick relative price (in contract tick sizes). Actual tick price is packet.bp + tick.p
@@ -206,20 +215,20 @@ export interface TickRaw {
     as: number // Ask size (optional).
 }
 
-export interface BarPacket {
+export type BarPacket = {
     id: number // id matches either historicalId or realtimeId values from response
     td: number // Trade date as a number with value YYYYMMDD
     bars: Bar[]
 }
-export interface Payload {
+export type Payload = {
     data: any
     props: { [k: string]: any }
 }
-export interface Action {
+export type Action = {
     event: string
     payload: Payload
 }
-export interface EventHandlerResults {
+export type EventHandlerResults = {
     state: Dictionary
     effects: Action[]
 }
@@ -229,27 +238,69 @@ export enum Trend {
     UP = 1,
 }
 
-export interface AccessToken {
+export type AccessToken = {
     token?: string
     expiration?: string
 }
 
-export interface Item {
-    e?: string
-    d?: any
+export type ClockEvent = {}
+
+export type ServerEvent<T extends keyof EndpointResponseMap<T>> = {
+    e: TdEventType
+    d: ServerEventMessageMap<T>
+}
+export type ServerEventMessageMap<T> = {
+    'replay/initializeclock': SimpleResponse
+}
+
+export function isServerEvent<T extends keyof ServerEventMessageMap<T>>(
+    item: ResponseMessage<T> | ServerEvent<T>,
+): item is ServerEvent<T> {
+    return 'e' in item
+}
+
+export type ErrorResponse = {
+    d: string
     i: number
     s: number
 }
 
-export interface Dictionary {
-    [k: string]: any
+export type ResponseMessage<T extends keyof EndpointResponseMap<T>> =
+    | {
+          d: EndpointResponseMap<T>
+          i: number
+          s: number
+      }
+    | ErrorResponse
+export type EndpointResponseMap<T> = {
+    'order/list': OrderListResponse
+    'order/item': OrderItemResponse
+    'replay/checkreplaysession': CheckReplaySessionResponse
+    'replay/initializeclock': SimpleResponse
+    'order/cancelorder': CancelOrderResponse
+    // ... other endpoint URLs and their response types
 }
-export interface ReplayPeriod {
+export function isResponseMessage<T extends keyof EndpointResponseMap<T>>(
+    item: ResponseMessage<T> | ServerEvent<T>,
+): item is ResponseMessage<T> {
+    return 's' in item
+}
+
+export function isErrorResponse<T extends keyof EndpointResponseMap<T>>(
+    msg: ResponseMessage<T>,
+): msg is ErrorResponse {
+    return msg.s !== 200
+}
+
+export type ReplayPeriod = {
     start: string
     stop: string
 }
 
-export interface ReplaySessionResults {
+export type Dictionary = {
+    [k: string]: any
+}
+export type ReplaySessionResults = {
     start: string
     stop: string
     finalPos: number
@@ -257,4 +308,111 @@ export interface ReplaySessionResults {
     sold: number
     realizedPnL: string
     openPnL: string
+}
+export type CheckReplaySessionResponse = {
+    checkStatus: CheckStatus
+    startTimestamp: string | undefined
+}
+
+export enum CheckStatus {
+    INELIGIBLE = 'Ineligible',
+    OK = 'OK',
+    START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted',
+}
+export type CancelOrderResponse = CommandResponse
+
+export type CommandResponse = {
+    failureReason?: string
+    failureText?: string
+    commandId?: number
+}
+
+export enum FailureReason {
+    ACCOUNT_CLOSED = 'AccountClosed',
+    ADVANCED_TRAILING_STOP_UNSUPPORTED = 'AdvancedTrailingStopUnsupported',
+    ANOTHER_COMMAND_PENDING = 'AnotherCommandPending',
+    BACK_MONTH_PENDING = 'BackMonthProhibited',
+    EXECUTION_PROVIDER_NOT_CONFIGURED = 'ExecutionProviderNotConfigured',
+    EXECUTION_PROVIDER_UNAVAILABLE = 'ExecutionProviderUnavailable',
+    INVALID_CONTRACT = 'InvalidContract',
+    INVALID_PRICE = 'InvalidPrice',
+    LIQUIDATION_ONLY = 'LiquidationOnly',
+    LIQUIDATION_ONLY_BEFORE_EXPIRATION = 'LiquidationOnlyBeforeExpiration',
+    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified',
+    //complete later
+}
+
+export type SimpleResponse = {
+    ok: boolean
+    errorText?: string
+}
+export type ChangeSpeedResponse = SimpleResponse
+
+export type Order = {
+    id?: string
+    accountId: number
+    contractId?: number
+    spreadDefinitionId?: number
+    timestamp: string
+    action: OrderAction
+    ordStatus: OrderStatus
+    executionProviderId?: number
+    ocoId?: number
+    parentId?: number
+    linkedId?: number
+    admin: boolean
+}
+
+export enum OrderAction {
+    BUY = 'Buy',
+    SELL = 'Sell',
+}
+
+export enum OrderStatus {
+    CANCELED = 'Canceled',
+    COMPLETE = 'Completed',
+    EXPIRED = 'Expired',
+    FILLED = 'Filled',
+    PENDING_CANCELLED = 'PendingCancel',
+    PENDING_NEW = 'PendingNew',
+    PENDING_REPLACE = 'PendingReplace',
+    REJECTED = 'Rejected',
+    SUSPENDED = 'Suspended',
+    UNKNOWN = 'Unknown',
+    WORKING = 'Working',
+}
+
+export type OrderItemResponse = Order
+export type OrderListResponse = Order[]
+export type OrderItemsResponse = Order[]
+export type OrderDependentsResponse = Order[]
+export type OrderLDependentsResponse = Order[]
+
+export type SyncMessage = {
+    users: any[]
+    accounts?: any[]
+    accountRiskStatus?: any[]
+    marginRiskStatuses?: any[]
+    userAccountAutoLiqs?: any[]
+    cashBalances?: any[]
+    currencies?: any[]
+    positions?: any[]
+    fillPairs?: any[]
+    orders?: any[]
+    contracts?: any[]
+    contractMaturities?: any[]
+    products?: any[]
+    exchanges?: any[]
+    spreadDefinitions?: any[]
+    commands?: any[]
+    commandReports?: any[]
+    executionReports?: any[]
+    orderVersions?: any[]
+    fills?: any[]
+    orderStrategies?: any[]
+    orderStrategyLinks?: any[]
+    userProperties?: any[]
+    userPlugins?: any[]
+    conractGroups: any[]
+    orderStrategyTypes?: any[]
 }

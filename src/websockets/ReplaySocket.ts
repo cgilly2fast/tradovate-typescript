@@ -1,14 +1,26 @@
+import {
+    ResponseMessage,
+    ServerEvent,
+    isResponseMessage,
+    isServerEvent,
+    EndpointResponseMap,
+} from '../utils/types'
 import MarketDataSocket from './MarketDataSocket'
 
-export interface ReplaySocketCheckReplaySessionParams {
+export type ReplaySocketCheckReplaySessionParams<
+    T extends keyof EndpointResponseMap<T>,
+> = {
     startTimestamp: string
-    callback: any
+    callback: (item: ResponseMessage<T>) => void
 }
 
-export interface ReplaySocketInitializeClockParams
-    extends ReplaySocketCheckReplaySessionParams {
+export type ReplaySocketInitializeClockParams<
+    T extends keyof EndpointResponseMap<T>,
+> = {
     speed?: number
     initialBalance?: number
+    startTimestamp: string
+    callback: (item?: ServerEvent<T>) => void
 }
 
 export default class ReplaySocket extends MarketDataSocket {
@@ -16,23 +28,27 @@ export default class ReplaySocket extends MarketDataSocket {
         super()
     }
 
-    checkReplaySession(params: ReplaySocketCheckReplaySessionParams) {
+    checkReplaySession(
+        params: ReplaySocketCheckReplaySessionParams<'replay/checkreplaysession'>,
+    ) {
         const { startTimestamp, callback } = params
         return this.request({
             url: 'replay/checkreplaysession',
             body: { startTimestamp },
             onResponse: (id, item) => {
                 if (item.i === id) {
-                    callback(item.d)
+                    callback(item)
                 }
             },
         })
     }
 
-    initializeClock(params: ReplaySocketInitializeClockParams) {
+    initializeClock(
+        params: ReplaySocketInitializeClockParams<'replay/initializeclock'>,
+    ) {
         const { callback, startTimestamp, speed, initialBalance } = params
 
-        return this.request({
+        return this.subscribe({
             url: 'replay/initializeclock',
             body: {
                 startTimestamp,
@@ -40,12 +56,11 @@ export default class ReplaySocket extends MarketDataSocket {
                 initialBalance: initialBalance ?? 50000,
             },
             onResponse: (id, item) => {
-                if (id === item.i && item.s === 200) {
-                    callback()
-                } else if (item.e && item.e === 'clock') {
+                if (isServerEvent(item) && item.e === 'clock') {
                     callback(item)
                 }
             },
+            disposer: () => {},
         })
     }
 }
