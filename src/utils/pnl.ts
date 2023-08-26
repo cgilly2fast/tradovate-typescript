@@ -1,4 +1,4 @@
-export interface CalculatePnLParams {
+export type  CalculatePnLParams {
     price: number, 
     position:any, 
     product:any

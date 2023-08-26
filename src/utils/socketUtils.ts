@@ -13,7 +13,7 @@ const replaySocket = new ReplaySocket()
 let renewTokenInterval: NodeJS.Timer
 
 const replaySessionResults: ReplaySessionResults[] = []
-export interface ConnectSocketsParams {
+export type  ConnectSocketsParams {
     live: boolean
     tvSocket: boolean
     marketData: boolean

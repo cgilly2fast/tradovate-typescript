@@ -1,12 +1,6 @@
-import { AccessToken } from './types'
+import { AccessToken, STORAGE_KEYS } from './types'
 
-const STORAGE_KEY = 'tradovate-api-access-token'
-const EXPIRATION_KEY = 'tradovate-api-access-expiration'
-const DEVICE_ID_KEY = 'tradovate-device-id'
-const AVAIL_ACCTS_KEY = 'tradovate-api-available-accounts'
-const USER_DATA_KEY = 'tradovate-user-data'
-
-export interface TradovateAccount {
+export type TradovateAccount = {
     id: number
     name: string
     userId: number
@@ -21,18 +15,18 @@ export interface TradovateAccount {
     timestamp: string
 }
 
-export interface TradovateAccountMini {
+export type TradovateAccountMini = {
     id: number
     name: string
     userId: number
 }
 
 export const setDeviceId = (id: string) => {
-    sessionStorage.setItem(DEVICE_ID_KEY, id)
+    sessionStorage.setItem(STORAGE_KEYS.DEVICE_ID_KEY, id)
 }
 
 export const getDeviceId = () => {
-    return sessionStorage.getItem(DEVICE_ID_KEY)
+    return sessionStorage.getItem(STORAGE_KEYS.DEVICE_ID_KEY)
 }
 
 export const setAvailableAccounts = (accounts: TradovateAccount[]) => {

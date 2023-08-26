@@ -2,7 +2,7 @@
 import { getAccessToken, getCurrentAccount } from '../utils/storage'
 import { tvPost } from '../utils/service'
 
-export interface OrderParams {
+export type  OrderParams {
     accountSpec?: string
     accountId?: number
     clOrdId?: string

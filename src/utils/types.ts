@@ -153,7 +153,6 @@ export type Quote = {
         EmptyBook: Price
     }
 }
-export type QuoteEvent = {}
 export type DOM = {
     contractId: number // ID of the DOM contract
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
@@ -245,18 +244,18 @@ export type AccessToken = {
 
 export type ClockEvent = {}
 
-export type ServerEvent<T extends keyof EndpointResponseMap<T>> = {
-    e: TdEventType
-    d: ServerEventMessageMap<T>
-}
-export type ServerEventMessageMap<T> = {
-    'replay/initializeclock': SimpleResponse
+export type QuoteEvent = {
+    quotes: Quote[]
 }
 
-export function isServerEvent<T extends keyof ServerEventMessageMap<T>>(
-    item: ResponseMessage<T> | ServerEvent<T>,
-): item is ServerEvent<T> {
-    return 'e' in item
+export type ServerEvent<T extends keyof ServerEventMessageMap> = {
+    e: TdEventType
+    d: ServerEventMessageMap[T]
+}
+export type ServerEventMessageMap = {
+    'replay/initializeclock': SimpleResponse
+    'user/syncrequest': SyncRequestResponse
+    'md/subscribeQuote': QuoteEvent
 }
 
 export type ErrorResponse = {
@@ -265,31 +264,46 @@ export type ErrorResponse = {
     s: number
 }
 
-export type ResponseMessage<T extends keyof EndpointResponseMap<T>> =
-    | {
-          d: EndpointResponseMap<T>
-          i: number
-          s: number
-      }
-    | ErrorResponse
-export type EndpointResponseMap<T> = {
+export type ResponseMsg<T extends keyof EndpointResponseMap> = {
+    d: EndpointResponseMap[T]
+    i: number
+    s: number
+}
+
+export type EndpointResponseMap = {
     'order/list': OrderListResponse
     'order/item': OrderItemResponse
     'replay/checkreplaysession': CheckReplaySessionResponse
     'replay/initializeclock': SimpleResponse
+    'md/getChart': SimpleResponse
+    'md/subscribeHistogram': SimpleResponse
+    'md/subscribeQuote': SimpleResponse
+    'md/subscribeDOM': SimpleResponse
     'order/cancelorder': CancelOrderResponse
+    simple: SimpleResponse
+    authorize: undefined
     // ... other endpoint URLs and their response types
 }
-export function isResponseMessage<T extends keyof EndpointResponseMap<T>>(
-    item: ResponseMessage<T> | ServerEvent<T>,
-): item is ResponseMessage<T> {
-    return 's' in item
+export function isErrorResponse<T extends keyof EndpointResponseMap>(
+    item: ResponseMsg<T> | ErrorResponse,
+): item is ErrorResponse
+
+export function isErrorResponse<T extends keyof ServerEventMessageMap>(
+    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent<T>,
+): item is ErrorResponse {
+    return (item as ErrorResponse).s !== 200
 }
 
-export function isErrorResponse<T extends keyof EndpointResponseMap<T>>(
-    msg: ResponseMessage<T>,
-): msg is ErrorResponse {
-    return msg.s !== 200
+export function isServerEvent<T extends keyof ServerEventMessageMap>(
+    item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse,
+): item is ServerEvent<T> {
+    return 'e' in item
+}
+
+export function isResponseMsg<T extends keyof EndpointResponseMap>(
+    item: ResponseMsg<T> | ErrorResponse,
+): item is ResponseMsg<T> {
+    return item.s === 200
 }
 
 export type ReplayPeriod = {
@@ -388,7 +402,7 @@ export type OrderItemsResponse = Order[]
 export type OrderDependentsResponse = Order[]
 export type OrderLDependentsResponse = Order[]
 
-export type SyncMessage = {
+export type SyncRequestResponse = {
     users: any[]
     accounts?: any[]
     accountRiskStatus?: any[]
@@ -416,3 +430,43 @@ export type SyncMessage = {
     conractGroups: any[]
     orderStrategyTypes?: any[]
 }
+// export type PropsEvent = {
+//     entityType: EntityType
+//     eventType: EventType
+//     entity: PropsEntity
+// }
+
+
+export type SubscribeBody = {
+    symbol: string | number
+    contractId?: number
+    chartDescription?: ChartDescription
+    timeRange?: {
+        // For md/getChart All fields in timeRange are optional, but at least any one is required
+        closestTimestamp?: string
+        closestTickId?: number
+        asFarAsTimestamp?: string
+        asMuchAsElements?: number
+    }
+}
+
+export type MarketDataSocketSubscribeParams = {
+  url: string
+  body: SubscribeBody
+  onSubscription: (item: any) => void
+}
+
+export type SubscribeQuoteParams = {symbol: string | number, onSubscription:(item: any) => void}
+export type SubscribeDOMParams = {symbol: string | number, onSubscription:(item: any) => void}
+export type SubscribeHistogramParams = {symbol: string | number, onSubscription:(item: any) => void}
+export type SubscribeChartParams = { 
+    symbol: string | number
+    chartDescription: ChartDescription
+    timeRange: {
+        // All fields in timeRange are optional, but at least any one is required
+        closestTimestamp?: string
+        closestTickId?: number
+        asFarAsTimestamp?: string
+        asMuchAsElements?: number
+    }, 
+    onSubscription:(item: any) => void}

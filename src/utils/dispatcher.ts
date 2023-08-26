@@ -33,14 +33,14 @@ export const pipeMiddleware =
  * @template T
  * @typedef {{ id: string, state: () => any, dispatch: (action: string, data: unknown) => void}} Store
  */
-export interface Store {
+export type  Store {
     id?: string
     state: () => any
     effects: any
     dispatch: (action: string, data: any) => void
 }
 
-export interface DispatcherParams {
+export type  DispatcherParams {
     id?: string
     model?: any
     reducer?: any

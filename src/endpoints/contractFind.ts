@@ -1,6 +1,6 @@
 import { tvGet } from '../utils/service'
 
-export const accountList = async (name: string) => {
+export const contractFind = async (name: string) => {
     let res
 
     try {
