@@ -1,66 +1,77 @@
+import { URLs } from '../config/tvCredentials'
 import {
-    ResponseMessage,
+    ResponseMsg,
     ServerEvent,
-    isResponseMessage,
+    isResponseMsg,
     isServerEvent,
     EndpointResponseMap,
+    ServerEventMessageMap,
 } from '../utils/types'
-import MarketDataSocket from './MarketDataSocket'
-
-export type ReplaySocketCheckReplaySessionParams<
-    T extends keyof EndpointResponseMap<T>,
-> = {
+import TradovateSocket from './TradovateSocket'
+export type ReplaySocketCheckReplaySessionParams = {
     startTimestamp: string
-    callback: (item: ResponseMessage<T>) => void
+    callback: (item: ResponseMsg<'replay/checkreplaysession'>) => void
 }
 
-export type ReplaySocketInitializeClockParams<
-    T extends keyof EndpointResponseMap<T>,
-> = {
+export type ReplaySocketInitializeClockParams = {
     speed?: number
     initialBalance?: number
     startTimestamp: string
-    callback: (item?: ServerEvent<T>) => void
+    onSubscription?: (item?: ResponseMsg<'replay/initializeclock'>) => void
 }
 
-export default class ReplaySocket extends MarketDataSocket {
+export default class ReplaySocket {
+    private tradovateSocket: TradovateSocket
     constructor() {
-        super()
+        this.tradovateSocket = new TradovateSocket()
+    }
+
+    async connect() {
+        return this.tradovateSocket.connect(URLs.REPLAY_URL)
+    }
+
+    isConnected() {
+        return this.tradovateSocket.isConnected()
     }
 
     checkReplaySession(
-        params: ReplaySocketCheckReplaySessionParams<'replay/checkreplaysession'>,
+        params: ReplaySocketCheckReplaySessionParams,
     ) {
         const { startTimestamp, callback } = params
-        return this.request({
+        return this.tradovateSocket.request({
             url: 'replay/checkreplaysession',
             body: { startTimestamp },
-            onResponse: (id, item) => {
-                if (item.i === id) {
-                    callback(item)
-                }
-            },
+            onResponse: callback
         })
     }
 
-    initializeClock(
-        params: ReplaySocketInitializeClockParams<'replay/initializeclock'>,
+    async initializeClock(
+        params: ReplaySocketInitializeClockParams,
     ) {
-        const { callback, startTimestamp, speed, initialBalance } = params
 
-        return this.subscribe({
-            url: 'replay/initializeclock',
-            body: {
-                startTimestamp,
-                speed: speed ?? 400,
-                initialBalance: initialBalance ?? 50000,
-            },
-            onResponse: (id, item) => {
-                if (isServerEvent(item) && item.e === 'clock') {
-                    callback(item)
+
+        const { startTimestamp, speed, initialBalance, onSubscription } = params
+
+        let removeListener: () => void
+    
+         await this.tradovateSocket.request(
+            {  url: 'user/syncrequest',body:{
+            startTimestamp,
+            speed: speed ?? 400,
+            initialBalance: initialBalance ?? 50000,
+        }})
+        return new Promise((res, rej) => {
+
+           if(onSubscription) { 
+            removeListener = this.tradovateSocket.addListener((data: any) => {
+                if (data?.d?.users || data?.e === 'props') {
+                  onSubscription(data.d)
                 }
-            },
-            disposer: () => {},
+              })
+           }
+            res(async () => {
+                removeListener()
+            })
         })
     }
 }

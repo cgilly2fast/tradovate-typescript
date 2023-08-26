@@ -1,26 +1,41 @@
 import TradovateSocket from './TradovateSocket'
-import { Quote, DOM, Histogram, ChartRequest, Item } from '../utils/types'
+import {
+    Quote,
+    DOM,
+    Histogram,
+    ChartDescription,
+    isResponseMsg,
+    isServerEvent,
+    ServerEvent,
+    ServerEventMessageMap,
+    ResponseMsg,
+    QuoteEvent,
+    SubscribeChartParams,
+    SubscribeDOMParams,
+    SubscribeHistogramParams,
+    SubscribeQuoteParams,
+    MarketDataSocketSubscribeParams
+} from '../utils/types'
+import { URLs } from '../config/tvCredentials'
 
-export interface MarketDataSocketSubscribeParams {
-    symbol: string
-    contractId: number
-    callback: (value: any, index: number, array: any[]) => void
-}
 
-export interface MarketDataSocketGetChartParams extends ChartRequest {
-    callback?: (value: any, index: number, array: any[]) => void
-}
-
-export default class MarketDataSocket extends TradovateSocket {
-    public subscriptions: Array<{
+export default class MarketDataSocket {
+    private tradovateSocket: TradovateSocket
+    private subscriptions: Array<{
         symbol: string | number
         subscription: () => Promise<void>
     }>
 
     constructor() {
-        super()
+        this.tradovateSocket = new TradovateSocket()
+        
         this.subscriptions = []
     }
+
+    async connect() {
+        return await this.tradovateSocket.connect(URLs.MD_URL)
+    }
+    
 
     unsubscribe(symbol: string | number) {
         this.subscriptions
@@ -38,153 +53,156 @@ export default class MarketDataSocket extends TradovateSocket {
     disconnect(): void {
         this.subscriptions.forEach(({ subscription }) => subscription())
         this.subscriptions = []
-        super.disconnect()
+        this.tradovateSocket.disconnect()
     }
 
-    async subscribeQuote(params: MarketDataSocketSubscribeParams) {
-        const { symbol, contractId, callback } = params
-        const isQuote = (data: any) =>
-            data.e && data.e === 'md' && data.d && data.d.quotes
+    isConnected() {
+        return this.tradovateSocket.isConnected()
+    }
 
-        // if contract id is undefined then look up?
+    async subscribe<T extends keyof ServerEventMessageMap>(
+        params: MarketDataSocketSubscribeParams,
+      ): Promise<() => Promise<void>> {
+        const { url, body, onSubscription } = params
+    
+        let removeListener: () => void
+        let cancelUrl: string
+        let cancelBody: Object
+        let contractId: number
+    
+        let response: any = await this.tradovateSocket.request({ url, body })
+        const realtimeId = response?.d?.realtimeId || response?.d?.subscriptionId
+        return new Promise((res, rej) => {
+          switch (url.toLowerCase()) {
+            case 'md/getchart': {
+              cancelUrl = 'md/cancelChart'
+              cancelBody = { subscriptionId: realtimeId }
+              removeListener = this.tradovateSocket.addListener((data: any) => {
+                if (data.d.charts) {
+                  data.d.charts.forEach((chart: any) =>
+                    chart.id === realtimeId ? onSubscription(chart) : null,
+                  )
+                }
+              })
+              break
+            }
+            case 'md/subscribedom': {
+              cancelUrl = 'md/unsubscribedom'
+              cancelBody = { symbol: body.symbol }
+              removeListener = this.tradovateSocket.addListener((data: any) => {
+                if (data.d.doms) {
+                  data.d.doms.forEach((dom: any) =>
+                    dom.contractId === contractId ? onSubscription(dom) : null,
+                  )
+                }
+              })
+              break
+            }
+            case 'md/subscribequote': {
+              cancelUrl = 'md/unsubscribequote'
+              cancelBody = { symbol: body.symbol }
+              removeListener = this.tradovateSocket.addListener((data: any) => {
+                if (data.d.quotes) {
+                  data.d.quotes.forEach((quote: any) =>
+                    quote.contractId === contractId ? onSubscription(quote) : null,
+                  )
+                }
+              })
+              break
+            }
+            case 'md/subscribehistogram': {
+              cancelUrl = 'md/unsubscribehistogram'
+              cancelBody = { symbol: body.symbol }
+              removeListener = this.tradovateSocket.addListener((data: any) => {
+                if (data.d.histograms) {
+                  data.d.histograms.forEach((histogram: any) =>
+                    histogram.contractId === contractId
+                      ? onSubscription(histogram)
+                      : null,
+                  )
+                }
+              })
+              break
+            }
+            default:
+              rej('[DevX Trader]: Not a subscribe endpoint.')
+              break
+          }
+    
+          res(async () => {
+            removeListener()
+            if (cancelUrl && cancelUrl !== '') {
+              await this.tradovateSocket.request({ url: cancelUrl, body: cancelBody })
+            }
+          })
+        })
+      }
+      
+    async subscribeQuote(
+        params: SubscribeQuoteParams,
+    ) {
+        const {symbol, onSubscription} = params
 
-        const sendCallback = (id: number, item: Item) => {
-            if (!isQuote(item)) return
-
-            const quotes: Quote[] = item.d.quotes
-
-            quotes
-                .filter((quote: Quote) => {
-                    return quote.contractId === contractId
-                })
-                .forEach(callback!)
-        }
-
-        const subscription = await this.request({
+        const subscription = await this.subscribe({
             url: 'md/subscribeQuote',
             body: { symbol },
-            onResponse: sendCallback,
-            disposer: () => {
-                this.request({
-                    url: 'md/unsubscribeQuote',
-                    body: {
-                        symbol,
-                    },
-                })
-            },
+            onSubscription
         })
 
         this.subscriptions.push({ symbol, subscription })
         return subscription
     }
 
-    async subscribeDOM(params: MarketDataSocketSubscribeParams) {
-        const { symbol, contractId, callback } = params
-        const isDom = (data: any) =>
-            data.e && data.e === 'md' && data.d && data.d.doms
+    async subscribeDOM(
+        params: SubscribeDOMParams,
+    ) {
+        const {symbol, onSubscription} = params
 
-        const subscription = await this.request({
-            url: 'md/subscribeDOM',
+        const subscription = await this.subscribe({
+            url: 'md/subscribeDOM', 
             body: { symbol },
-            onResponse: (id, item) => {
-                if (!isDom(item)) return
-                const doms: DOM[] = item.d.doms
-                doms.filter(dom => {
-                    return dom.contractId === contractId
-                }).forEach(callback!)
-            },
-            disposer: () => {
-                this.request({
-                    url: 'md/unsubscribeDOM',
-                    body: {
-                        symbol,
-                    },
-                })
-            },
+            onSubscription
         })
 
         this.subscriptions.push({ symbol, subscription })
-
         return subscription
+    
     }
 
-    async subscribeHistogram(params: MarketDataSocketSubscribeParams) {
-        const { symbol, contractId, callback } = params
+    async subscribeHistogram(
+        params: SubscribeHistogramParams,
+    ) {
+        const {symbol, onSubscription} = params
 
-        const isHistogram = (data: any) =>
-            data.e && data.e === 'md' && data.d && data.d.histograms
-
-        const subscription = await this.request({
-            url: 'md/subscribeHistogram',
+        const subscription = await this.subscribe({
+            url: 'md/subscribeDOM', 
             body: { symbol },
-            onResponse: (id, item) => {
-                if (!isHistogram(item)) return
-
-                const histograms: Histogram[] = item.d.histograms
-                histograms
-                    .filter(histogram => {
-                        return histogram.contractId === contractId
-                    })
-                    .forEach(callback!)
-            },
-            disposer: () => {
-                this.request({
-                    url: 'md/unsubscribeHistogram',
-                    body: {
-                        symbol,
-                    },
-                })
-            },
+            onSubscription
         })
 
         this.subscriptions.push({ symbol, subscription })
-
         return subscription
+    
     }
 
-    async getChart(params: MarketDataSocketGetChartParams) {
-        const { symbol, chartDescription, timeRange, callback } = params
-        const isChart = (data: any) => data.e && data.e === 'chart'
+    async subscribeChart(
+        params: SubscribeChartParams,
+    ) {
+        const { symbol, chartDescription, timeRange, onSubscription} = params 
 
-        let realtimeId: number
-        let historicalId: number
-
-        const subscription = await this.request({
+        // check if onSubscription chart id is item.d.realtimeId or item.d.historicalId
+        const subscription = await this.subscribe({
             url: 'md/getChart',
             body: {
                 symbol,
                 chartDescription,
                 timeRange,
             },
-            onResponse: (id, item) => {
-                if (item.i === id) {
-                    realtimeId = item.d.realtimeId
-                    historicalId = item.d.historicalId
-                }
-
-                if (!isChart(item)) return
-
-                const charts: any[] = item.d.charts // TickPacket[] | BarPacket[]
-
-                charts
-                    .filter(chart => {
-                        return (
-                            chart.id === realtimeId || chart.id === historicalId
-                        )
-                    })
-                    .forEach(callback!)
-            },
-            disposer: () => {
-                this.request({
-                    url: 'md/cancelChart',
-                    body: {
-                        subscriptionId: historicalId,
-                    },
-                })
-            },
+            onSubscription
         })
-        this.subscriptions.push({ symbol, subscription })
 
+        this.subscriptions.push({ symbol, subscription })
         return subscription
+    
     }
 }
