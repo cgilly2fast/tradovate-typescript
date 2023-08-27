@@ -1,77 +1,119 @@
-import { URLs } from '../config/tvCredentials'
 import {
     ResponseMsg,
     ServerEvent,
     isResponseMsg,
     isServerEvent,
-    EndpointResponseMap,
-    ServerEventMessageMap,
+    EndpointURLs,
+    RequestParams,
+    Socket,
+    URLs,
+    TvSocket,
+    MdSocket,
+    TradovateSocketSynchronizeParams,
+    ChartDescription,
+    TimeRange,
 } from '../utils/types'
 import TradovateSocket from './TradovateSocket'
-export type ReplaySocketCheckReplaySessionParams = {
-    startTimestamp: string
-    callback: (item: ResponseMsg<'replay/checkreplaysession'>) => void
-}
+import MarketDataSocket from './MarketDataSocket'
+import RequestSocket from './RequestSocket'
+import {log} from 'console'
 
-export type ReplaySocketInitializeClockParams = {
-    speed?: number
-    initialBalance?: number
-    startTimestamp: string
-    onSubscription?: (item?: ResponseMsg<'replay/initializeclock'>) => void
-}
-
-export default class ReplaySocket {
+export default class ReplaySocket implements TvSocket, MdSocket{
+    private marketDataSocket: MarketDataSocket
     private tradovateSocket: TradovateSocket
-    constructor() {
-        this.tradovateSocket = new TradovateSocket()
+    private socket: RequestSocket
+
+    constructor(socket?:RequestSocket) {
+        this.socket = socket ?? new RequestSocket(URLs.REPLAY_URL)
+        this.marketDataSocket = new MarketDataSocket(this.socket)
+        this.tradovateSocket = new TradovateSocket(false, this.socket)
     }
 
     async connect() {
-        return this.tradovateSocket.connect(URLs.REPLAY_URL)
+        return this.socket.connect()
     }
 
     isConnected() {
-        return this.tradovateSocket.isConnected()
+        return this.socket.isConnected()
+    }
+
+    removeListeners() {
+        return this.socket.removeListeners()
+    }
+
+    async disconnect() {
+        log('[DevX Trader]: Closing ReplaySocket connection...')
+        await this.marketDataSocket.disposeSubscriptions()
+        this.socket.disconnect()
+        log('[DevX Trader]: ReplaySocket removed.')
     }
 
     checkReplaySession(
-        params: ReplaySocketCheckReplaySessionParams,
+        startTimestamp: string
     ) {
-        const { startTimestamp, callback } = params
-        return this.tradovateSocket.request({
+        return this.socket.request({
             url: 'replay/checkreplaysession',
-            body: { startTimestamp },
-            onResponse: callback
+            body: { startTimestamp }
         })
     }
 
+
     async initializeClock(
-        params: ReplaySocketInitializeClockParams,
-    ) {
+        startTimestamp: string,
+        speed?: number,
+        initialBalance?: number,
+        onSubscription?: (item?: ServerEvent<'replay/initializeclock'>) => void,
+    ):Promise<()=>void> {
 
-
-        const { startTimestamp, speed, initialBalance, onSubscription } = params
 
         let removeListener: () => void
     
-         await this.tradovateSocket.request(
-            {  url: 'user/syncrequest',body:{
-            startTimestamp,
-            speed: speed ?? 400,
-            initialBalance: initialBalance ?? 50000,
-        }})
+         await this.socket.request(
+            {  url: 'replay/initializeclock',
+               body:{
+                    startTimestamp,
+                    speed: speed ?? 400,
+                    initialBalance: initialBalance ?? 50000,
+                }
+            })
         return new Promise((res, rej) => {
 
            if(onSubscription) { 
-            removeListener = this.tradovateSocket.addListener((data: any) => {
-                if (data?.d?.users || data?.e === 'props') {
-                  onSubscription(data.d)
-                }
-              })
+                removeListener = this.socket.addListener((data: any) => {
+                    if (data?.d?.users || data?.e === 'props') {
+                    onSubscription(data.d)
+                    }
+                })
+                res(async () => {
+                    removeListener()
+                })
+           } else {
+                res(async () => {})
            }
-            res(async () => {
-                removeListener()
-            })
         })
+    }
+
+    synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void> {
+        return this.tradovateSocket.synchronize(params)
+    }
+
+    subscribeChart(symbol: string, chartDescription: ChartDescription, timeRange: TimeRange, onSubscription: (item: any) => void): Promise<() => void> {
+        return this.marketDataSocket.subscribeChart(symbol, chartDescription, timeRange, onSubscription)
+    }
+
+    subscribeHistogram( symbol: string , onSubscription:(item: any) => void):Promise<()=>void> {
+        return this.marketDataSocket.subscribeHistogram(symbol, onSubscription)
+    }
+
+    subscribeDOM(symbol: string, onSubscription: (item: any) => void): Promise<() => void> {
+        return this.marketDataSocket.subscribeDOM(symbol, onSubscription)
+    }
+
+    subscribeQuote(symbol: string, onSubscription: (item: any) => void): Promise<() => void> {
+        return this.marketDataSocket.subscribeQuote(symbol, onSubscription)
+    }
+
+    request<T extends EndpointURLs>(params:RequestParams<T>): Promise<ResponseMsg<T>> { 
+        return this.socket.request(params)
     }
 }

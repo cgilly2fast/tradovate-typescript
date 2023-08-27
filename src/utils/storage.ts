@@ -1,19 +1,6 @@
-import { AccessToken, STORAGE_KEYS } from './types'
+import { AccessToken, STORAGE_KEYS, Account } from './types'
 
-export type TradovateAccount = {
-    id: number
-    name: string
-    userId: number
-    accountType: string
-    active: boolean
-    clearingHouseId: number
-    riskCategoryId: number
-    autoLiqProfileId: number
-    marginAccountType: string
-    legalStatus: string
-    archived: boolean
-    timestamp: string
-}
+
 
 export type TradovateAccountMini = {
     id: number
@@ -29,7 +16,7 @@ export const getDeviceId = () => {
     return sessionStorage.getItem(STORAGE_KEYS.DEVICE_ID_KEY)
 }
 
-export const setAvailableAccounts = (accounts: TradovateAccount[]) => {
+export const setAvailableAccounts = (accounts: Account[]) => {
     process.env.AVAIL_ACCTS = JSON.stringify(accounts)
     process.env.ID = accounts[0].id as unknown as string
     process.env.SPEC = accounts[0].name
@@ -40,7 +27,7 @@ export const setAvailableAccounts = (accounts: TradovateAccount[]) => {
  * Returns and array of available accounts or undefined.
  * @returns Account[]
  */
-export const getAvailableAccounts = (): TradovateAccount[] => {
+export const getAvailableAccounts = (): Account[] => {
     return JSON.parse(process.env.AVAIL_ACCTS!)
 }
 
@@ -104,3 +91,7 @@ export const setUserData = (data: any) =>
 export const getUserData = (): any => {
     return JSON.parse(process.env.USER_DATA!)
 }
+
+export function stringify(...obj:any[]) {
+    return JSON.stringify(obj, null, 2);
+  }

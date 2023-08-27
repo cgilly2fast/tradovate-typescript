@@ -1,19 +1,19 @@
 import MarketDataSocket from '../websockets/MarketDataSocket'
 import ReplaySocket from '../websockets/ReplaySocket'
 import TradovateSocket from '../websockets/TradovateSocket'
-import { URLs } from '../config/tvCredentials'
 import { renewAccessToken } from '../endpoints/renewAccessToken'
-import { ReplaySessionResults } from './types'
+import { ReplaySessionResults, URLs } from './types'
 
 const { MD_URL, WS_DEMO_URL, WS_LIVE_URL, REPLAY_URL } = URLs
 
+//need to deal with live condition
 const socket = new TradovateSocket()
 const mdSocket = new MarketDataSocket()
 const replaySocket = new ReplaySocket()
 let renewTokenInterval: NodeJS.Timer
 
 const replaySessionResults: ReplaySessionResults[] = []
-export type  ConnectSocketsParams {
+export type  ConnectSocketsParams = {
     live: boolean
     tvSocket: boolean
     marketData: boolean
@@ -21,38 +21,25 @@ export type  ConnectSocketsParams {
 }
 
 export const connectSockets = async (
-    params: ConnectSocketsParams = {
-        live: false,
-        tvSocket: true,
-        marketData: true,
-        replay: false,
-    },
+    replay: boolean,live:boolean = false
 ) => {
-    const { live, tvSocket, marketData, replay } = params
-    if (live === undefined) {
-        return Error('[DevX Trader]: live not specified in connectSockets()')
-    }
-    if (!tvSocket && !marketData && !replay)
-        return Error(
-            '[DevX Trader]: No sockets marked as true in connectSockets()',
-        )
-
-    const url = live ? WS_LIVE_URL : WS_DEMO_URL
 
     try {
-        await Promise.all([
-            tvSocket ? socket.connect(url) : null,
-            marketData ? mdSocket.connect(MD_URL) : null,
-            replay ? replaySocket.connect(REPLAY_URL) : null,
-        ])
-
-        if (!replay) {
+        if(replay) {
+            await replaySocket.connect()
+        } else {
+            await Promise.all([
+                socket.connect() ,
+                mdSocket.connect(),
+            ])
+    
             renewTokenInterval = setInterval(() => {
                 renewAccessToken(live)
             }, 75 * 60 * 1000)
         }
     } catch (err) {
-        console.log(err)
+        console.log(`[DevX Trader]: connectSockets: ${err}`)
+        throw err
     }
 }
 
@@ -60,9 +47,9 @@ export const connectAllSockets = async (live: boolean = false) => {
     const url = live ? WS_LIVE_URL : WS_DEMO_URL
     try {
         await Promise.all([
-            socket.connect(url),
-            mdSocket.connect(MD_URL),
-            replaySocket.connect(MD_URL),
+            socket.connect(),
+            mdSocket.connect(),
+            replaySocket.connect(),
         ])
 
         renewTokenInterval = setInterval(() => {

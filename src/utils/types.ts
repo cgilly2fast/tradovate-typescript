@@ -1,3 +1,5 @@
+import { subscribe } from "diagnostics_channel"
+
 export enum ORDER_TYPE {
     Limit = 'Limit',
     MIT = 'MIT',
@@ -248,15 +250,12 @@ export type QuoteEvent = {
     quotes: Quote[]
 }
 
-export type ServerEvent<T extends keyof ServerEventMessageMap> = {
+export type ServerEvent<T extends keyof SubscribeEventResponse> = {
     e: TdEventType
-    d: ServerEventMessageMap[T]
+    d: SubscribeEventResponse[T]
 }
-export type ServerEventMessageMap = {
-    'replay/initializeclock': SimpleResponse
-    'user/syncrequest': SyncRequestResponse
-    'md/subscribeQuote': QuoteEvent
-}
+
+
 
 export type ErrorResponse = {
     d: string
@@ -264,43 +263,148 @@ export type ErrorResponse = {
     s: number
 }
 
-export type ResponseMsg<T extends keyof EndpointResponseMap> = {
-    d: EndpointResponseMap[T]
+export type ResponseMsg<T extends keyof EndpointResponse> = {
+    d: EndpointResponse[T]
     i: number
     s: number
 }
 
-export type EndpointResponseMap = {
+
+
+export interface SimpleRequest<T extends EndpointURLs> {
+    url:string
+    onResponse?: (item: ResponseMsg<T>) => void
+    onReject?: () => void
+}
+
+export type OrderListRequest = {
+    url?: 'order/list'
+    onResponse?: (item: ResponseMsg<'order/list'>) => void
+    onReject?: () => void
+}
+
+export type OrderItemRequest = {
+    url:string
+    query:{id:number}
+    onResponse?: (item: ResponseMsg<'order/item'>) => void
+    onReject?: () => void
+}
+
+export type EndpointURLs =  keyof EndpointResponse & keyof EndpointRequestBody & keyof EndpointRequestQuery 
+export type SubscribeURLs = keyof SubscribeEventResponse & keyof SubscribeRequestBody 
+
+export type EndpointRequestBody =  {
+    'account/list':undefined
+    'order/list': undefined
+    'order/item': undefined
+    'order/cancelorder': {orderId: number}
+    'authorize': {token:string}
+    'replay/checkreplaysession': {startTimestamp:string}
+    'replay/initializeclock': {startTimestamp: string, speed:number, initialBalance: number} 
+    'replay/changespeed': {speed:number}
+    'user/syncrequest': {accounts: number[]}
+    'md/subscribequote': {symbol:string }
+    'md/getchart': {symbol:string, chartDescription:ChartDescription, timeRange:TimeRange }
+    'md/subscribehistogram': {symbol:string }
+    'md/subscribedom': {symbol:string}
+    'md/unsubscribehistogram': {symbol:string}
+    'md/unsubscribequote':{symbol:string }
+    'md/unsubscribedom':{symbol:string }
+    'md/cancelchart': { subscriptionId: number}  
+} 
+
+export type EndpointRequestQuery = {
+    'account/list': undefined,
+    'order/list': undefined
+    'order/item': {id:number}
+    'order/cancelorder': {orderId: number}
+    'authorize': undefined
+    'user/syncrequest': undefined
+    'replay/checkreplaysession': undefined
+    'replay/initializeclock': undefined
+    'replay/changespeed': undefined
+    'md/getchart': undefined
+    'md/subscribehistogram': undefined
+    'md/subscribequote': undefined
+    'md/subscribedom': undefined
+    'md/unsubscribehistogram': undefined
+    'md/unsubscribequote':undefined
+    'md/unsubscribedom':undefined
+    'md/cancelchart': undefined
+}
+export type EndpointResponse = {
+    'account/list':AccountListResponse
     'order/list': OrderListResponse
     'order/item': OrderItemResponse
+    'order/cancelorder': CancelOrderResponse
+    'authorize': undefined
+    'user/syncrequest': SyncRequestResponse
     'replay/checkreplaysession': CheckReplaySessionResponse
     'replay/initializeclock': SimpleResponse
+    'replay/changespeed': SimpleResponse
+    'md/getchart': GetChartResponse
+    'md/subscribehistogram': SimpleResponse
+    'md/subscribequote': SimpleResponse
+    'md/subscribedom': SimpleResponse
+    'simple': SimpleResponse
+    'md/unsubscribehistogram': SimpleResponse
+    'md/unsubscribequote':SimpleResponse
+    'md/unsubscribedom':SimpleResponse
+    'md/cancelchart':SimpleResponse
+}
+
+export type SubscribeRequestBody = {
+    'replay/initializeclock': {startTimestamp: string, speed:number, initialBalance: number} 
+    'user/syncrequest': {accounts: number[]}
+    'md/subscribeQuote': { "symbol": string }
+    'md/getChart':{ symbol: string 
+                    chartDescription: ChartDescription
+                    timeRange: {
+                        // All fields in timeRange are optional, but at least any one is required
+                        closestTimestamp?: string
+                        closestTickId?: number
+                        asFarAsTimestamp?: string
+                        asMuchAsElements?: number
+                    }}
+    'md/subscribeHistogram': { "symbol": string }
+    'md/subscribeDOM': { "symbol": string }
+}
+
+export type SubscribeEventResponse = {
+    'replay/initializeclock': SimpleResponse
+    'user/syncrequest': SyncRequestResponse
+    'md/subscribeQuote': QuoteEvent
     'md/getChart': SimpleResponse
     'md/subscribeHistogram': SimpleResponse
-    'md/subscribeQuote': SimpleResponse
     'md/subscribeDOM': SimpleResponse
-    'order/cancelorder': CancelOrderResponse
-    simple: SimpleResponse
-    authorize: undefined
-    // ... other endpoint URLs and their response types
 }
-export function isErrorResponse<T extends keyof EndpointResponseMap>(
+
+export type SubscribeMap = {
+    'replay/initializeclock':'replay/initializeclock' 
+    'user/syncrequest':'user/syncrequest' 
+    'md/subscribeQuote':'md/subscribeQuote' 
+    'md/getChart':'md/getChart' 
+    'md/subscribeHistogram':'md/subscribeHistogram' 
+    'md/subscribeDOM':'md/subscribeDOM' 
+}
+
+export function isErrorResponse<T extends EndpointURLs>(
     item: ResponseMsg<T> | ErrorResponse,
 ): item is ErrorResponse
 
-export function isErrorResponse<T extends keyof ServerEventMessageMap>(
+export function isErrorResponse<T extends keyof SubscribeEventResponse>(
     item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent<T>,
 ): item is ErrorResponse {
     return (item as ErrorResponse).s !== 200
 }
 
-export function isServerEvent<T extends keyof ServerEventMessageMap>(
+export function isServerEvent<T extends keyof SubscribeEventResponse>(
     item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse,
 ): item is ServerEvent<T> {
     return 'e' in item
 }
 
-export function isResponseMsg<T extends keyof EndpointResponseMap>(
+export function isResponseMsg<T extends EndpointURLs>(
     item: ResponseMsg<T> | ErrorResponse,
 ): item is ResponseMsg<T> {
     return item.s === 200
@@ -356,11 +460,66 @@ export enum FailureReason {
     //complete later
 }
 
+
 export type SimpleResponse = {
     ok: boolean
     errorText?: string
 }
+
+export type GetChartResponse = {
+    subscriptionId:number,
+    realtimeId:number
+  }
 export type ChangeSpeedResponse = SimpleResponse
+
+export type AccountDependentsResponse = Account
+export type AccountFindResponse = Account
+export type AccountItemResponse = Account
+export type AccountItemsResponse = Account[]
+export type AccountListDependentsResponse = Account[] 
+export type AccountListResponse = Account[] 
+export type AccountSuggestResponse = Account
+
+export type Account = {
+    id?: number
+    name: string
+    userId: number
+    accountType: AccountType
+    active: boolean
+    clearingHouseId: number
+    riskCategoryId: number
+    autoLiqProfileId: number
+    marginAccountType: MarginAccountype
+    legalStatus: LegalStatus
+    archived: boolean
+    timestamp: string
+    readonly?: boolean
+}
+
+export enum AccountType {
+    CUSTOMER='Customer',
+    GIVEUP='Giveup',
+    HOUSE='HOUSE',
+    OMNIBUS='Omnibus',
+    WASH='Wash',
+}
+
+export enum MarginAccountype {
+    HEDGER='Hedger',
+    SPECULATOR='Speculator'
+}
+
+export enum LegalStatus {
+    CORPORATION='Corporation',
+    GP='GP',
+    INDIVIDUAL='Individual',
+    JOINT='Joint',
+    LLC='LLC',
+    LLP='LLP',
+    LP='LP',
+    PTR='PTR',
+    TRUST='Trust'
+}
 
 export type Order = {
     id?: string
@@ -438,26 +597,11 @@ export type SyncRequestResponse = {
 
 
 export type SubscribeBody = {
-    symbol: string | number
-    contractId?: number
-    chartDescription?: ChartDescription
-    timeRange?: {
-        // For md/getChart All fields in timeRange are optional, but at least any one is required
-        closestTimestamp?: string
-        closestTickId?: number
-        asFarAsTimestamp?: string
-        asMuchAsElements?: number
-    }
+   
 }
 
-export type MarketDataSocketSubscribeParams = {
-  url: string
-  body: SubscribeBody
-  onSubscription: (item: any) => void
-}
-
-export type SubscribeQuoteParams = {symbol: string | number, onSubscription:(item: any) => void}
-export type SubscribeDOMParams = {symbol: string | number, onSubscription:(item: any) => void}
+export type SubscribeQuoteParams = {symbol: string , onSubscription:(item: any) => void}
+export type SubscribeDOMParams = {}
 export type SubscribeHistogramParams = {symbol: string | number, onSubscription:(item: any) => void}
 export type SubscribeChartParams = { 
     symbol: string | number
@@ -470,3 +614,59 @@ export type SubscribeChartParams = {
         asMuchAsElements?: number
     }, 
     onSubscription:(item: any) => void}
+
+export interface Socket {
+    connect(url:string):Promise<void>,
+    disconnect():void
+    isConnected():boolean,
+    removeListeners():void
+}
+
+export type RequestParams<T extends EndpointURLs> = {
+    url: T,
+    body?: EndpointRequestBody[T],
+    query?: EndpointRequestQuery[T]
+}
+export type TradovateSocketConnectParams = {
+    url: string
+    token: string
+}
+
+export type TradovateSocketSynchronizeParams = {
+    onSubscription: (data: any) => void
+}
+export interface TvSocket extends Socket {
+    synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void>
+}
+
+export type MarketDataSocketSubscribeParams<T extends SubscribeURLs> = {
+    url: T
+    body: SubscribeRequestBody[T]
+    onSubscription: (item: ServerEvent<T>) => void
+  }
+
+export interface MdSocket extends Socket {
+    //subscribe<T extends SubscribeURLs>(params: MarketDataSocketSubscribeParams<T>): Promise<() => Promise<void>>
+    subscribeQuote(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
+    subscribeDOM(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
+    subscribeHistogram(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
+    subscribeChart(symbol: string, chartDescription:ChartDescription, timeRange: TimeRange, onSubscription:(item: any) => void):Promise<()=>void>
+   
+}
+export enum URLs {
+    DEMO_URL= 'https://demo.tradovateapi.com/v1',
+    LIVE_URL= 'https://live.tradovateapi.com/v1',
+    MD_URL= 'wss://md.tradovateapi.com/v1/websocket',
+    WS_DEMO_URL= 'wss://demo.tradovateapi.com/v1/websocket',
+    WS_LIVE_URL= 'wss://live.tradovateapi.com/v1/websocket',
+    REPLAY_URL= 'wss://replay.tradovateapi.com/v1/websocket',
+}
+
+export type TimeRange = {
+        // All fields in timeRange are optional, but at least any one is required
+        closestTimestamp?: string
+        closestTickId?: number
+        asFarAsTimestamp?: string
+        asMuchAsElements?: number
+    
+}
