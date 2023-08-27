@@ -619,7 +619,6 @@ export interface Socket {
     connect(url:string):Promise<void>,
     disconnect():void
     isConnected():boolean,
-    removeListeners():void
 }
 
 export type RequestParams<T extends EndpointURLs> = {

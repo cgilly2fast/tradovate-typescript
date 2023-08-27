@@ -27,9 +27,6 @@ export default class TradovateSocket implements Socket {
         log(`[DevX Trader]: TradovateSocket connected`)
     }
 
-    removeListeners() {
-        return this.socket.removeListeners()
-    }
     disconnect() {
         log('[DevX Trader]: Closing TradovateSocket connection...')
         this.socket.disconnect()
