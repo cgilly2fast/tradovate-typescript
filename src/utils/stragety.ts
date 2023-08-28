@@ -32,46 +32,47 @@ export default class Strategy {
     private mw
     private mws: any[]
 
-    private underlyingType: BarType
-    private elementSize
-    private contract: Contract
-    private elementSizeUnit
-    private timeRangeType
-    private timeRangeValue
-    private withHistogram
-    private devMode
-    private replaySpeed
-    private replayPeriods
+    // private underlyingType: BarType
+    // private elementSize
+    // private contract: Contract
+    // private elementSizeUnit
+    // private timeRangeType
+    // private timeRangeValue
+    // private withHistogram
+    private replayMode
+    // private replaySpeed
+    // private replayPeriods
 
-    private shouldRun
+    private props: StrategyProps
+
     private D: Dispatcher
 
-    constructor(props: StrategyParams) {
-        if (props.devMode && (!props.replaySpeed || !props.replayPeriods))
+    constructor(params: StrategyParams) {
+        if (params.replayMode && !params.replayPeriods)
             throw new Error(
-                'Strategy: tried to enter devMode but replaySpeed or replayPeriods not passed'
+                'Strategy: tried to enter replayMode but replaySpeed or replayPeriods not passed'
             )
         this.socket = getSocket()
         this.mdSocket = getMdSocket()
         this.replaySocket = getReplaySocket()
-        this.shouldRun = true
 
-        this.underlyingType = props.underlyingType
-        this.elementSize = props.elementSize
-        this.contract = props.contract
-        this.elementSizeUnit = props.elementSizeUnit
-        this.timeRangeType = props.timeRangeType
-        this.timeRangeValue = props.timeRangeValue
-        this.withHistogram = props.withHistogram
-        this.devMode = props.devMode
-        this.replayPeriods = props.replayPeriods ?? []
-        this.replaySpeed = props.replaySpeed ?? 400
+        this.replayMode = params.replayMode
+        // this.underlyingType = props.underlyingType
+        // this.elementSize = props.elementSize
+        // this.contract = props.contract
+        // this.elementSizeUnit = props.elementSizeUnit
+        // this.timeRangeType = props.timeRangeType
+        // this.timeRangeValue = props.timeRangeValue
+        // this.withHistogram = props.withHistogram
+        // this.replayMode = props.replayMode
+        // this.replayPeriods = props.replayPeriods ?? []
+        // this.replaySpeed = props.replaySpeed ?? 400
 
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
         this.model = {
             ...this.init(),
-            current_period: this.devMode ? 0 : undefined
+            current_period: this.replayMode ? 0 : undefined
         }
 
         this.mw = pipeMiddleware(
@@ -90,15 +91,17 @@ export default class Strategy {
             mw: this.mw
         })
 
-        if (this.devMode) {
-            this.devModeSetup(this.getProps(props))
+        this.props = {
+            ...params,
+            replayPeriods: params.replayPeriods ?? [],
+            replaySpeed: params.replaySpeed ?? 400,
+            dispatcher: this.D
+        }
+
+        if (this.replayMode) {
+            this.replayModeSetup()
         } else {
-            this.setupEventCatcher(
-                this.D,
-                this.socket,
-                this.mdSocket,
-                this.getProps(props)
-            )
+            this.setupEventCatcher(this.socket, this.mdSocket)
         }
     }
 
@@ -124,50 +127,47 @@ export default class Strategy {
         }
     }
 
-    private async devModeSetup(props: StrategyProps) {
-        try {
-            try {
-                log('[DevX Trader]: Checking new replay period...')
-                await this.replaySocket.checkReplaySession(this.replayPeriods[0].start)
-            } catch (err) {
-                log(
-                    '[DevX Trader]: Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.'
-                )
-                throw err
-            }
-            await this.replaySocket.initializeClock(
-                this.replayPeriods[0].start,
-                undefined,
-                undefined,
-                item => {
-                    if (item.e === 'clock' && item.d.length < 40) {
-                        log('current speed', item)
-                        try {
-                            this.replaySocket.request({
-                                url: 'replay/changespeed',
-                                body: {speed: (props.replaySpeed as number) ?? 400}
-                            })
+    private async nextReplayPeriod() {
+        await this.replaySocket.connect()
+        await this.replayModeSetup()
+    }
 
-                            log(
-                                `[DevX Trader]: Replay socket speed restored to ${props.replaySpeed}`
-                            )
-                        } catch (err) {
-                            log(
-                                `[DevX Trader]: Error Replay socket speed restoration ${stringify(
-                                    item
-                                )}`
-                            )
-                            log(err)
-                        }
+    private async replayModeSetup() {
+        const {replayPeriods} = this.props
+        try {
+            log('[DevX Trader]: Checking new replay period...')
+            await this.replaySocket.checkReplaySession(replayPeriods[0].start)
+
+            const subscription = (item: any) => {
+                if (item.e === 'clock' && item.d.length < 40) {
+                    log('current speed', item)
+                    try {
+                        this.replaySocket.request({
+                            url: 'replay/changespeed',
+                            body: {speed: (this.props.replaySpeed as number) ?? 400}
+                        })
+
+                        log(`[DevX Trader]: Replay socket speed restored to ${this.props.replaySpeed}`)
+                    } catch (err) {
+                        log(`[DevX Trader]: Error Replay socket speed restoration ${stringify(item)}`)
+                        log(err)
                     }
                 }
+            }
+
+            await this.replaySocket.initializeClock(
+                replayPeriods[0].start,
+                undefined,
+                undefined,
+                subscription
+                
             )
             const accountRes = await this.replaySocket.request({
                 url: 'account/list'
             })
 
             const account = accountRes.d.find(account => account.active)
-
+            await this.setupEventCatcher(this.replaySocket, this.replaySocket)
             setAvailableAccounts([account!])
 
             log(`[DevX Trader]: account: ${stringify(account)}`)
@@ -175,29 +175,8 @@ export default class Strategy {
             log(`[DevX Trader]: devModeSetup: ${err}`)
         }
     }
-    private getProps(props: StrategyParams): StrategyProps {
-        return {
-            ...props,
-            underlyingType: this.underlyingType,
-            elementSize: this.elementSize,
-            contract: this.contract,
-            elementSizeUnit: this.elementSizeUnit,
-            timeRangeType: this.timeRangeType,
-            timeRangeValue: this.timeRangeValue,
-            withHistogram: this.withHistogram,
-            devMode: this.devMode,
-            replaySpeed: this.replaySpeed,
-            replayPeriods: this.replayPeriods,
-            dispatcher: this.D
-        }
-    }
 
-    private async setupEventCatcher(
-        D: Dispatcher,
-        socket: TvSocket,
-        mdSocket: MdSocket,
-        props: StrategyProps
-    ) {
+    private async setupEventCatcher(socket: TvSocket, mdSocket: MdSocket) {
         const {
             contract,
             underlyingType,
@@ -205,54 +184,9 @@ export default class Strategy {
             elementSizeUnit,
             timeRangeType,
             timeRangeValue,
-            withHistogram
-        } = props
-
-        socket.synchronize({
-            onSubscription: data => {
-                if (data.users) {
-                    if (!this.shouldRun) return
-                    this.runSideFx()
-                    D.dispatch(TdEventType.UserSync, {
-                        data,
-                        props
-                    })
-                } else if (data.entityType) {
-                    if (!this.shouldRun) return
-                    this.runSideFx()
-                    D.dispatch(TdEventType.Props, {
-                        data,
-                        props
-                    })
-                }
-            }
-        })
-
-        socket.addListener((item: any) => {
-            if (isServerEvent(item) && item.e === TdEventType.Clock) {
-                if (!this.shouldRun) return
-                this.runSideFx()
-                D.dispatch(TdEventType.Clock, {data: item.d, props})
-            }
-        })
-
-        mdSocket.subscribeDOM(contract.name, (data: any) => {
-            if (!this.shouldRun) return
-            this.runSideFx()
-            D.dispatch(TdEventType.DOM, {
-                data,
-                props
-            })
-        })
-
-        mdSocket.subscribeQuote(contract.name, (data: any) => {
-            if (!this.shouldRun) return
-            this.runSideFx()
-            D.dispatch(TdEventType.Quote, {
-                data,
-                props
-            })
-        })
+            withHistogram,
+            dispatcher
+        } = this.props
 
         const chartDescription = {
             underlyingType: underlyingType,
@@ -272,15 +206,52 @@ export default class Strategy {
             contract.name,
             chartDescription,
             timeRange,
-            (data: any) => {
-                if (!this.shouldRun) return
-                this.runSideFx()
-                D.dispatch(TdEventType.Chart, {
-                    data,
-                    props
-                })
-            }
+            this.generateSubscription(TdEventType.Chart, this.props)
         )
+        mdSocket.subscribeDOM(
+            contract.name,
+            this.generateSubscription(TdEventType.DOM, this.props)
+        )
+
+        mdSocket.subscribeQuote(
+            contract.name,
+            this.generateSubscription(TdEventType.Quote, this.props)
+        )
+        socket.synchronize({
+            onSubscription: data => {
+                if (data.users) {
+                    this.runSideFx()
+                    dispatcher.dispatch(TdEventType.UserSync, {
+                        data,
+                        props: this.props
+                    })
+                } else if (data.entityType) {
+                    this.runSideFx()
+                    dispatcher.dispatch(TdEventType.Props, {
+                        data,
+                        props: this.props
+                    })
+                }
+            }
+        })
+
+        socket.addListener((item: any) => {
+            if (isServerEvent(item) && item.e === TdEventType.Clock) {
+                this.runSideFx()
+                dispatcher.dispatch(TdEventType.Clock, {data: item.d, props: this.props})
+            }
+        })
+    }
+
+    generateSubscription(eventType: TdEventType, props: StrategyProps) {
+        const subscription = (data: any) => {
+            this.runSideFx()
+            this.D.dispatch(eventType, {
+                data,
+                props
+            })
+        }
+        return subscription
     }
 
     addMiddleware(...mws: any[]) {
@@ -297,19 +268,19 @@ export default class Strategy {
     ): EventHandlerResults {
         const {event, payload} = action
         const {data, props} = payload
+
         if (event === 'stop') {
             log('LOOK AT WHEN event === stop')
             // const socket = getReplaySocket()
             // const ws = socket.getSocket()
             // ws.close()
             // ws.removeAllListeners('message')
-            this.shouldRun = false
+            //this.shouldRun = false
             return {state: prevState, effects: []}
         }
 
         if (event === TdEventType.ReplayReset) {
-            const replaySocket = getReplaySocket()
-            this.setupEventCatcher(props.dispatcher, replaySocket, replaySocket, props)
+            this.nextReplayPeriod
             return {state: prevState, effects: []}
         }
 
@@ -321,6 +292,20 @@ export default class Strategy {
             const curStop = new Date(replayPeriods[current_period!]?.stop)?.toJSON()
 
             if (curStop && new Date(t) > new Date(curStop)) {
+                log('[DevX Trader}: Go to next replay')
+                if (current_period === replayPeriods.length) {
+                    log('[DevX Trader]: Dispatched replay complete]')
+                    return {
+                        state: prevState,
+                        effects: [
+                            {
+                                event: TdEventType.ReplayComplete,
+                                payload: {data: {}, props}
+                            }
+                        ]
+                    }
+                }
+
                 return {
                     state: {...prevState, current_period: current_period! + 1},
                     effects: [

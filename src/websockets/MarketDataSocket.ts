@@ -1,5 +1,16 @@
 import {log} from 'console'
-import {ChartDescription, MdSocket, TimeRange, URLs} from '../utils/types'
+import {
+    ChartDescription,
+    ServerEvent,
+    MdSocket,
+    ResponseMsg,
+    TimeRange,
+    URLs,
+    isServerEvent,
+    isDomEventMsg,
+    isHistogramEventMsg,
+    isChartEventMsg
+} from '../utils/types'
 import {tvGet} from '../utils/service'
 import RequestSocket from './RequestSocket'
 export default class MarketDataSocket implements MdSocket {
@@ -63,7 +74,7 @@ export default class MarketDataSocket implements MdSocket {
             body: {symbol}
         })
 
-        const listener = (data: any) => {
+        const listener = (data: ResponseMsg<any> | ServerEvent<any>) => {
             if (data.d.quotes) {
                 data.d.quotes.forEach((quote: any) =>
                     quote.contractId === contract.id ? onSubscription(quote) : null
@@ -99,9 +110,9 @@ export default class MarketDataSocket implements MdSocket {
             body: {symbol}
         })
 
-        const listener = (data: any) => {
-            if (data.d.doms) {
-                data.d.doms.forEach((dom: any) =>
+        const listener = (data: ResponseMsg<any> | ServerEvent<any>) => {
+            if (isServerEvent(data) && isDomEventMsg(data.d)) {
+                data.d.doms.forEach(dom =>
                     dom.contractId === contract.id ? onSubscription(dom) : null
                 )
             }
@@ -133,9 +144,9 @@ export default class MarketDataSocket implements MdSocket {
             body: {symbol}
         })
 
-        const listener = (data: any) => {
-            if (data.d.histograms) {
-                data.d.histograms.forEach((histogram: any) =>
+        const listener = (data: ResponseMsg<any> | ServerEvent<any>) => {
+            if (isServerEvent(data) && isHistogramEventMsg(data.d)) {
+                data.d.histograms.forEach(histogram =>
                     histogram.contractId === contract.id
                         ? onSubscription(histogram)
                         : null
@@ -175,8 +186,8 @@ export default class MarketDataSocket implements MdSocket {
 
         const realtimeId: number = response.d.realtimeId || response.d.subscriptionId
 
-        const listener = (data: any) => {
-            if (data.d.charts) {
+        const listener = (data: ResponseMsg<any> | ServerEvent<any>) => {
+            if (isServerEvent(data) && isChartEventMsg(data.d)) {
                 data.d.charts.forEach((chart: any) =>
                     chart.id === realtimeId ? onSubscription(chart) : null
                 )

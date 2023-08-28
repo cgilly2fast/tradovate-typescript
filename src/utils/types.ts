@@ -155,6 +155,77 @@ export type Quote = {
         EmptyBook: Price
     }
 }
+
+export type QuoteEvent = {
+    e: string
+    d: QuoteEventMsg
+}
+
+export type HistogramEvent = {
+    e: string
+    d: HistogramEventMsg
+}
+
+export type DomEvent = { 
+    e:string,
+    doms: DomEventMsg
+}
+
+
+export type ChartEvent = {
+    e: string
+    d: ChartEventMsg
+}
+
+export type QuoteEventMsg = {
+    quotes: Quote[]
+}
+
+export type HistogramEventMsg = {
+    histograms: Histogram[]
+}
+
+export type DomEventMsg = {
+    doms: DOM[]
+}
+
+export type ChartEventMsg = {
+    charts: BarPacket[] | TickPacket[]
+}
+
+export function isQuoteEventMsg(obj: any): obj is QuoteEventMsg {
+    return 'quotes' in obj && Array.isArray(obj.quotes);
+}
+
+export function isHistogramEventMsg(obj: any): obj is HistogramEventMsg {
+    return 'histograms' in obj && Array.isArray(obj.histograms);
+}
+
+export function isDomEventMsg(obj: any): obj is DomEventMsg {
+    return 'doms' in obj && Array.isArray(obj.doms);
+}
+
+export function isChartEventMsg(obj: any): obj is ChartEventMsg {
+    return 'charts' in obj && (Array.isArray(obj.charts) || obj.charts instanceof Array);
+}
+
+export function isQuoteEvent(obj: any): obj is QuoteEvent {
+    return obj && obj.e === 'string' && 'd' in obj && 'quotes' in obj.d;
+}
+
+export function isHistogramEvent(obj: any): obj is HistogramEvent {
+return obj && obj.e === 'string' && 'd' in obj && 'histograms' in obj.d;
+}
+
+export function isDomEvent(obj: any): obj is DomEvent {
+return obj && obj.e === 'string' && 'd' in obj && 'doms' in obj.d;
+}
+
+export function isChartEvent(obj: any): obj is ChartEvent {
+return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d;
+}
+
+export type Chart = BarPacket[] | TickPacket[]
 export type DOM = {
     contractId: number // ID of the DOM contract
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
@@ -244,23 +315,16 @@ export type AccessToken = {
     expiration?: string
 }
 
-// export type ClockEvent = {}
-
-export type QuoteEvent = {
-    quotes: Quote[]
-}
-
-export type ServerEvent<T extends keyof SubscribeEventResponse> = {
-    e: TdEventType
-    d: SubscribeEventResponse[T]
-}
-
 export type ErrorResponse = {
     d: string
     i: number
     s: number
 }
 
+export type ServerEvent<T extends keyof SubscribeEventResponse> = {
+    e: TdEventType
+    d: SubscribeEventResponse[T]
+}
 export type ResponseMsg<T extends keyof EndpointResponse> = {
     d: EndpointResponse[T]
     i: number
@@ -385,7 +449,7 @@ export type SubscribeRequestBody = {
 export type SubscribeEventResponse = {
     'replay/initializeclock': string
     'user/syncrequest': SyncRequestResponse
-    'md/subscribeQuote': QuoteEvent
+    'md/subscribeQuote': {quotes: Quote[]}
     'md/getChart': SimpleResponse
     'md/subscribeHistogram': SimpleResponse
     'md/subscribeDOM': SimpleResponse
@@ -410,16 +474,24 @@ export function isErrorResponse<T extends keyof SubscribeEventResponse>(
     return (item as ErrorResponse).s !== 200
 }
 
-export function isServerEvent<T extends keyof SubscribeEventResponse>(
-    item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse
-): item is ServerEvent<T> {
-    return 'e' in item
-}
+// export function isServerEvent<T extends keyof SubscribeEventResponse>(
+//     item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse
+// ): item is ServerEvent<T> {
+//     return 'e' in item
+// }
 
-export function isResponseMsg<T extends EndpointURLs>(
+export function isValidResponseMsg<T extends EndpointURLs>(
     item: ResponseMsg<T> | ErrorResponse
 ): item is ResponseMsg<T> {
-    return item.s === 200
+    return isResponseMsg(item) && item.s === 200
+}
+
+export const isServerEvent = (data: any): data is ServerEvent<any> => {
+    return 'e' in data
+}
+
+export const isResponseMsg = (data: any): data is ResponseMsg<any> => {
+    return 'i' in data && 's' in data
 }
 
 export type ReplayPeriod = {
@@ -690,7 +762,7 @@ export interface StrategyParams {
     contract: Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
-    devMode: boolean
+    replayMode: boolean
     replayPeriods?: ReplayPeriod[]
     replaySpeed?: number
     underlyingType: BarType
@@ -704,7 +776,7 @@ export type StrategyProps = {
     contract: Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
-    devMode: boolean
+    replayMode: boolean
     replayPeriods: ReplayPeriod[]
     replaySpeed: number
     underlyingType: BarType
@@ -717,3 +789,5 @@ export type StrategyProps = {
 export type Dictionary = {[key: string]: unknown}
 
 export type Listener = (item: any) => void
+
+
