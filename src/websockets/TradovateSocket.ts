@@ -71,4 +71,8 @@ export default class TradovateSocket implements Socket {
     request<T extends EndpointURLs>(params:RequestParams<T>): Promise<ResponseMsg<T>> {
         return this.socket.request(params)
     }
+
+    addListener(listeners: (item:any)=>void) {
+        return this.socket.addListener(listeners)
+    }
 }

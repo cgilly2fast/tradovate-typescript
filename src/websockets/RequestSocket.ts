@@ -1,7 +1,7 @@
 import {getCurrentAccount} from '../utils/storage'
 import WebSocket, {MessageEvent, Data} from 'ws'
 import {log} from 'console'
-import { stringify } from '../utils/storage'
+import { stringify } from '../utils/stringify'
 import {
     ResponseMsg,
     ErrorResponse,
@@ -10,6 +10,7 @@ import {
     URLs,
     Socket,
     EndpointURLs,
+    Listener,
 } from '../utils/types'
 
 
@@ -19,7 +20,7 @@ export default class RequestSocket implements Socket {
     private ws: WebSocket
     private listeningURL: string
     private curTime: Date
-    private listeners: any[]
+    private listeners: Listener[]
 
     constructor(url: URLs) {
         this.counter = 0
@@ -109,7 +110,7 @@ export default class RequestSocket implements Socket {
                 this.ws.readyState !== undefined
     }
 
-    addListener(listener: any) {
+    addListener(listener: (item: any) => void) {
         this.listeners.push(listener)
         return () => this.listeners.splice(this.listeners.indexOf(listener), 1)
     }

@@ -1,4 +1,4 @@
-import { subscribe } from "diagnostics_channel"
+import Dispatcher from "./dispatcher"
 
 export enum ORDER_TYPE {
     Limit = 'Limit',
@@ -222,15 +222,15 @@ export type BarPacket = {
     bars: Bar[]
 }
 export type Payload = {
-    data: any
-    props: { [k: string]: any }
+    data: {[k:string]: unknown} | string
+    props: StrategyProps
 }
 export type Action = {
     event: string
     payload: Payload
 }
 export type EventHandlerResults = {
-    state: Dictionary
+    state: StrategyState
     effects: Action[]
 }
 export enum Trend {
@@ -371,7 +371,7 @@ export type SubscribeRequestBody = {
 }
 
 export type SubscribeEventResponse = {
-    'replay/initializeclock': SimpleResponse
+    'replay/initializeclock': string
     'user/syncrequest': SyncRequestResponse
     'md/subscribeQuote': QuoteEvent
     'md/getChart': SimpleResponse
@@ -415,8 +415,9 @@ export type ReplayPeriod = {
     stop: string
 }
 
-export type Dictionary = {
-    [k: string]: any
+export type StrategyState = {
+    current_period?: number
+    [k: string]: unknown
 }
 export type ReplaySessionResults = {
     start: string
@@ -636,6 +637,7 @@ export type TradovateSocketSynchronizeParams = {
 }
 export interface TvSocket extends Socket {
     synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void>
+    addListener(fn: (item:any)=> void): ()=>Listener[]
 }
 
 export type MarketDataSocketSubscribeParams<T extends SubscribeURLs> = {
@@ -669,3 +671,35 @@ export type TimeRange = {
         asMuchAsElements?: number
     
 }
+
+export interface StrategyParams {
+    contract: Contract
+    timeRangeType: TimeRangeType
+    timeRangeValue: number
+    devMode: boolean
+    replayPeriods?: ReplayPeriod[]
+    replaySpeed?: number
+    underlyingType: BarType
+    elementSize: number
+    elementSizeUnit: ElementSizeUnit
+    withHistogram: boolean
+    dispatcher?: Dispatcher
+}
+
+export type StrategyProps = {
+    contract: Contract
+    timeRangeType: TimeRangeType
+    timeRangeValue: number
+    devMode: boolean
+    replayPeriods: ReplayPeriod[]
+    replaySpeed: number
+    underlyingType: BarType
+    elementSize: number
+    elementSizeUnit: ElementSizeUnit
+    withHistogram: boolean
+    dispatcher: Dispatcher
+}
+
+export type Dictionary = { [key: string]: unknown }
+
+export type Listener = (item:any)=>void

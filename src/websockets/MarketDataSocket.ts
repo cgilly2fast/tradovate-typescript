@@ -27,10 +27,6 @@ export default class MarketDataSocket  implements MdSocket {
         return await this.socket.connect()
     }
     
-    removeListeners() {
-        return this.socket.removeListeners()
-    } 
-    
     async disconnect(): Promise<void> {
         log('[DevX Trader]: Closing MarketDataSocket connection...')
         await this.disposeSubscriptions()

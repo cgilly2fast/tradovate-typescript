@@ -88,10 +88,8 @@ export const tokenNearExpiry = (expiration: string): boolean => {
 
 export const setUserData = (data: any) =>
     (process.env.USER_DATA = JSON.stringify(data))
+    
 export const getUserData = (): any => {
     return JSON.parse(process.env.USER_DATA!)
 }
 
-export function stringify(...obj:any[]) {
-    return JSON.stringify(obj, null, 2);
-  }

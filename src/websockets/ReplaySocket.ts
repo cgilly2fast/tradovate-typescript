@@ -12,6 +12,7 @@ import {
     TradovateSocketSynchronizeParams,
     ChartDescription,
     TimeRange,
+    Listener,
 } from '../utils/types'
 import TradovateSocket from './TradovateSocket'
 import MarketDataSocket from './MarketDataSocket'
@@ -62,7 +63,7 @@ export default class ReplaySocket implements TvSocket, MdSocket{
         startTimestamp: string,
         speed?: number,
         initialBalance?: number,
-        onSubscription?: (item?: ServerEvent<'replay/initializeclock'>) => void,
+        onSubscription?: (item: ServerEvent<'replay/initializeclock'>) => void,
     ):Promise<()=>void> {
 
 
@@ -79,10 +80,8 @@ export default class ReplaySocket implements TvSocket, MdSocket{
         return new Promise((res, rej) => {
 
            if(onSubscription) { 
-                removeListener = this.socket.addListener((data: any) => {
-                    if (data?.d?.users || data?.e === 'props') {
-                    onSubscription(data.d)
-                    }
+                removeListener = this.socket.addListener((item: any) => {
+                    onSubscription(item)
                 })
                 res(async () => {
                     removeListener()
@@ -115,5 +114,9 @@ export default class ReplaySocket implements TvSocket, MdSocket{
 
     request<T extends EndpointURLs>(params:RequestParams<T>): Promise<ResponseMsg<T>> { 
         return this.socket.request(params)
+    }
+
+    addListener(listener: (item: any) => void): () => Listener[] {
+        return this.socket.addListener(listener)
     }
 }

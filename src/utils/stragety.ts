@@ -1,4 +1,3 @@
-import { drawReplayStats } from '../websocketMiddleware/drawReplayStats'
 import { nextReplayPeriod } from '../websocketMiddleware/nextReplayPeriod'
 import { placeOCO } from '../websocketMiddleware/placeOCO'
 import { placeOrder } from '../websocketMiddleware/placeOrder'
@@ -6,32 +5,36 @@ import { productFind } from '../websocketMiddleware/findProduct'
 import { replayComplete } from '../websocketMiddleware/replayComplete'
 import { startOrderStrategy } from '../websocketMiddleware/startOrderStrategy'
 import Dispatcher, { pipeMiddleware } from './dispatcher'
-import { getSocket, getMdSocket, getReplaySocket } from './socketUtils' //remove
+import { getSocket, getMdSocket, getReplaySocket } from './socketUtils'
+import { MessageEvent } from 'ws'
 import {
-    TdEvent,
+    TdEventType,
     BarType,
     TimeRangeType,
     Contract,
-    ChartDescription,
+    ElementSizeUnit,
     Action,
     EventHandlerResults,
-    Item,
     Dictionary,
     ReplayPeriod,
+    isResponseMsg,
+    isServerEvent,
+    ResponseMsg,
+    ServerEvent,
+    StrategyProps,
+    TvSocket,
+    MdSocket,
+    TimeRange,
+    StrategyParams,
+    StrategyState,
 } from './types'
 import TradovateSocket from '../websockets/TradovateSocket'
 import MarketDataSocket from '../websockets/MarketDataSocket'
-import { TradovateAccount, setAvailableAccounts } from './storage'
+import { setAvailableAccounts } from './storage'
+import {log} from 'console'
+import { stringify } from '../utils/stringify'
 
-export interface StrategyParams extends ChartDescription {
-    contract: Contract
-    timeRangeType: TimeRangeType
-    timeRangeValue: number
-    devMode: boolean
-    replayPeriods?: ReplayPeriod[]
-    replaySpeed?: number
-    dispatcher?: Dispatcher
-}
+
 export default class Strategy {
     private socket
     private mdSocket
@@ -55,6 +58,8 @@ export default class Strategy {
     private D: Dispatcher
 
     constructor(props: StrategyParams) {
+        if(props.devMode && (!props.replaySpeed || !props.replayPeriods))
+            throw new Error('Strategy: tried to enter devMode but replaySpeed or replayPeriods not passed')
         this.socket = getSocket()
         this.mdSocket = getMdSocket()
         this.replaySocket = getReplaySocket()
@@ -85,28 +90,23 @@ export default class Strategy {
             productFind,
             nextReplayPeriod,
             replayComplete,
-            drawReplayStats,
             ...this.mws,
         )
-
-        //builds a dispatcher from our model, using subclass' next function as the reducer,
-        //and the above middleware composition for side effecting functions (websocket reqs, etc)
+        
         this.D = new Dispatcher({
             model: this.model,
             reducer: this.next.bind(this),
             mw: this.mw,
         })
 
-        props.dispatcher = this.D //add dispatcher to 'props' dependencies object.
-
         if (this.devMode) {
-            this.devModeSetup(props)
+            this.devModeSetup(this.getProps(props))
         } else {
-            this.setupEventCatcher(this.D, this.socket, this.mdSocket, props)
+            this.setupEventCatcher(this.D, this.socket, this.mdSocket, this.getProps(props))
         }
     }
 
-    init(): Dictionary {
+    init(): StrategyState {
         return {}
     }
 
@@ -115,7 +115,7 @@ export default class Strategy {
 
         if (effects && effects.length && effects.length > 0) {
             effects.forEach((fx: Action) => {
-                console.log(
+                log(
                     '[DevX Trader]: Side Effect:',
                     fx.event,
                     JSON.stringify(fx.payload.data, null, 2),
@@ -128,69 +128,56 @@ export default class Strategy {
         }
     }
 
-    private async devModeSetup(props: StrategyParams) {
+    private async devModeSetup(props: StrategyProps) {
         try {
-            await this.replaySocket.checkReplaySession({
-                startTimestamp: this.replayPeriods[0].start,
-                callback: async (item: Item) => {
-                    //TODO: cb hell, this should be reorganized eventually
-                    if (item.s && item.s !== 200) {
-                        throw new Error(
-                            'Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.',
-                        )
+            try{
+                log('[DevX Trader]: Checking new replay period...')
+                await this.replaySocket.checkReplaySession(
+                    this.replayPeriods[0].start,
+                )
+            } catch(err) {
+                log('[DevX Trader]: Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.')
+                throw err
+            }
+            await this.replaySocket.initializeClock(
+                this.replayPeriods[0].start,
+                undefined,
+                undefined,
+                (item) => {
+                    if (
+                        item.e === 'clock' &&
+                        item.d.length < 40
+                    ) {
+                        log('current speed', item)
+                        try {
+                            const speedRes = this.replaySocket.request({
+                                url: 'replay/changespeed',
+                                body: { speed: props.replaySpeed as number ?? 400 }
+                            })
+    
+                            log(`[DevX Trader]: Replay socket speed restored to ${props.replaySpeed}`)
+                        } catch (err) {
+                            log(`[DevX Trader]: Error Replay socket speed restoration ${stringify(item)}`)
+                            log(err) 
+                        }
                     }
-                },
-            })
-            await this.replaySocket.initializeClock({
-                startTimestamp: this.replayPeriods[0].start,
-                callback: (item: Item) => {
-                    if (item && item.e === 'clock' && item.d.length < 40) {
-                        this.replaySocket.request({
-                            url: 'replay/changespeed',
-                            body: { speed: this.replaySpeed },
-                            onResponse: (id, r) => {
-                                if (id === r.i) {
-                                    if (r.s === 200) {
-                                        console.log(
-                                            `[DevX Trader]: Replay socket speed restored to ${this.replaySpeed}`,
-                                        )
-                                    } else {
-                                        console.log(
-                                            '[DevX Trader]: Error Replay socket speed restoration ' +
-                                                JSON.stringify(r, null, 2),
-                                        )
-                                    }
-                                }
-                            },
-                        })
-                    }
-                    return
-                },
-            })
-            await this.replaySocket.request({
-                url: 'account/list',
-                onResponse: (id: number, item: Item) => {
-                    if (id === item.i) {
-                        const accounts = item.d
-                        const account = accounts.find(
-                            (acct: TradovateAccount) => acct.active,
-                        )
-                        setAvailableAccounts([account])
-                        this.setupEventCatcher(
-                            this.D,
-                            this.replaySocket,
-                            this.replaySocket,
-                            props,
-                        )
-                    }
-                },
-            })
+                })
+                const accountRes = await this.replaySocket.request({
+                    url: 'account/list'
+                })
+                
+                const account = accountRes.d.find(account => account.active)
+                
+                setAvailableAccounts([account!])
+                
+                log(`[DevX Trader]: account: ${stringify(account)}`)
         } catch (err) {
-            console.log(`[DevX Trader]: devModeSetup: ${err}`)
+            log(`[DevX Trader]: devModeSetup: ${err}`)
         }
     }
-    private getProps(): StrategyParams {
+    private getProps(props:StrategyParams): StrategyProps {
         return {
+            ...props,
             underlyingType: this.underlyingType,
             elementSize: this.elementSize,
             contract: this.contract,
@@ -199,6 +186,7 @@ export default class Strategy {
             timeRangeValue: this.timeRangeValue,
             withHistogram: this.withHistogram,
             devMode: this.devMode,
+            replaySpeed: this.replaySpeed,
             replayPeriods: this.replayPeriods,
             dispatcher: this.D,
         }
@@ -206,9 +194,9 @@ export default class Strategy {
 
     private async setupEventCatcher(
         D: Dispatcher,
-        socket: TradovateSocket,
-        mdSocket: MarketDataSocket,
-        props: StrategyParams,
+        socket: TvSocket,
+        mdSocket: MdSocket,
+        props: StrategyProps,
     ) {
         const {
             contract,
@@ -220,104 +208,106 @@ export default class Strategy {
             withHistogram,
         } = props
 
-        socket.synchronize((data: any) => {
-            if (data.users) {
+        socket.synchronize({
+            onSubscription: data => {
+                if (data.users) {
+                    if (!this.shouldRun) return
+                    this.runSideFx()
+                    D.dispatch(TdEventType.UserSync, {
+                        data,
+                        props,
+                    })
+                } else if (data.entityType) {
+                    if (!this.shouldRun) return
+                    this.runSideFx()
+                    D.dispatch(TdEventType.Props, {
+                        data,
+                        props,
+                    })
+                }
+            },
+        })
+
+        socket.addListener(
+            (item:any)=> {
+                if (isServerEvent(item) && item.e === TdEventType.Clock) {
+                    if (!this.shouldRun) return
+                    this.runSideFx()
+                    D.dispatch(TdEventType.Clock, { data: item.d, props })
+                }
+            }
+        )
+
+        mdSocket.subscribeDOM(
+            contract.name,
+             (data: any) => {
                 if (!this.shouldRun) return
                 this.runSideFx()
-                D.dispatch(TdEvent.UserSync, {
+                D.dispatch(TdEventType.DOM, {
                     data,
                     props,
                 })
-            } else if (data.entityType) {
+            },
+        )
+
+        mdSocket.subscribeQuote(
+            contract.name,
+            (data: any) => {
                 if (!this.shouldRun) return
                 this.runSideFx()
-                D.dispatch(TdEvent.Props, {
+                D.dispatch(TdEventType.Quote, {
                     data,
                     props,
                 })
             }
-        })
+        )
+            
+        const chartDescription = {
+            underlyingType: underlyingType,
+            elementSize: elementSize,
+            elementSizeUnit,
+            withHistogram,
+        }
 
-        socket.ws.addEventListener('message', (msg: any) => {
-            if (msg.data.slice(1)) {
-                let data
-                data = JSON.parse(msg.data.slice(1))
-                data.forEach((item: Item) => {
-                    if (item.e && item.e === TdEvent.Clock) {
-                        if (!this.shouldRun) return
-                        this.runSideFx()
-                        D.dispatch(TdEvent.Clock, { data: item.d, props })
-                    }
-                })
-            }
-        })
+        const timeRange:TimeRange = {
+            [timeRangeType]:
+                timeRangeType === 'asMuchAsElements' ||
+                timeRangeType === 'closestTickId'
+                    ? timeRangeValue
+                    : timeRangeValue.toString(),
+        }
 
-        mdSocket.subscribeDOM({
-            symbol: contract.name,
-            contractId: contract.id,
-            callback: (data: any) => {
+        mdSocket.subscribeChart(
+            contract.name,
+            chartDescription,
+            timeRange,
+            (data: any) => {
                 if (!this.shouldRun) return
                 this.runSideFx()
-                D.dispatch(TdEvent.DOM, {
+                D.dispatch(TdEventType.Chart, {
                     data,
                     props,
                 })
             },
-        })
-
-        mdSocket.subscribeQuote({
-            symbol: contract.name,
-            contractId: contract.id,
-            callback: (data: any) => {
-                if (!this.shouldRun) return
-                this.runSideFx()
-                D.dispatch(TdEvent.Quote, {
-                    data,
-                    props,
-                })
-            },
-        })
-
-        mdSocket.getChart({
-            symbol: contract.name,
-            chartDescription: {
-                underlyingType: underlyingType,
-                elementSize: elementSize,
-                elementSizeUnit,
-                withHistogram,
-            },
-            timeRange: {
-                [timeRangeType]:
-                    timeRangeType === 'asMuchAsElements' ||
-                    timeRangeType === 'closestTickId'
-                        ? timeRangeValue
-                        : timeRangeValue.toString(),
-            },
-            callback: (data: any) => {
-                if (!this.shouldRun) return
-                this.runSideFx()
-                D.dispatch(TdEvent.Chart, {
-                    data,
-                    props,
-                })
-            },
-        })
+        )
     }
 
     addMiddleware(...mws: any[]) {
         mws.forEach((mw: any) => this.mws.push(mw))
     }
 
-    next(prevState: Dictionary, action: Action) {}
+    next(prevState: StrategyState, action: Action) {
+        log(prevState, action)
+    }
 
     catchReplaySessionsDefault(
-        prevState: Dictionary,
+        prevState: StrategyState,
         action: Action,
     ): EventHandlerResults {
         const { event, payload } = action
         const { data, props } = payload
         if (event === 'stop') {
-            console.log('LOOK AT WHEN event === stop')
+            log('LOOK AT WHEN event === stop')
             // const socket = getReplaySocket()
             // const ws = socket.getSocket()
             // ws.close()
@@ -326,32 +316,32 @@ export default class Strategy {
             return { state: prevState, effects: [] }
         }
 
-        if (event === TdEvent.ReplayReset) {
+        if (event === TdEventType.ReplayReset) {
             const replaySocket = getReplaySocket()
             this.setupEventCatcher(
                 props.dispatcher,
                 replaySocket,
                 replaySocket,
-                props as StrategyParams,
+                props,
             )
             return { state: prevState, effects: [] }
         }
 
-        if (event === TdEvent.Clock) {
+        if (event === TdEventType.Clock) {
             const { current_period } = prevState
             const { replayPeriods } = props
-            const { t } = JSON.parse(data)
+            const { t } = JSON.parse(data as string)
 
             const curStop = new Date(
-                replayPeriods[current_period]?.stop,
+                replayPeriods[current_period!]?.stop,
             )?.toJSON()
 
             if (curStop && new Date(t) > new Date(curStop)) {
                 return {
-                    state: { ...prevState, current_period: current_period + 1 },
+                    state: { ...prevState, current_period: current_period! + 1 },
                     effects: [
                         {
-                            event: TdEvent.NextReplay,
+                            event: TdEventType.NextReplay,
                             payload: { data: {}, props },
                         },
                     ],
