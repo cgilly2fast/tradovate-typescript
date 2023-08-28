@@ -1,10 +1,8 @@
 import MarketDataSocket from '../websockets/MarketDataSocket'
 import ReplaySocket from '../websockets/ReplaySocket'
 import TradovateSocket from '../websockets/TradovateSocket'
-import { renewAccessToken } from '../endpoints/renewAccessToken'
-import { ReplaySessionResults, URLs } from './types'
-
-const { MD_URL, WS_DEMO_URL, WS_LIVE_URL, REPLAY_URL } = URLs
+import {renewAccessToken} from '../endpoints/renewAccessToken'
+import {ReplaySessionResults, URLs} from './types'
 
 //need to deal with live condition
 const socket = new TradovateSocket()
@@ -13,26 +11,20 @@ const replaySocket = new ReplaySocket()
 let renewTokenInterval: NodeJS.Timer
 
 const replaySessionResults: ReplaySessionResults[] = []
-export type  ConnectSocketsParams = {
+export type ConnectSocketsParams = {
     live: boolean
     tvSocket: boolean
     marketData: boolean
     replay: boolean
 }
 
-export const connectSockets = async (
-    replay: boolean,live:boolean = false
-) => {
-
+export const connectSockets = async (replay: boolean, live: boolean = false) => {
     try {
-        if(replay) {
+        if (replay) {
             await replaySocket.connect()
         } else {
-            await Promise.all([
-                socket.connect() ,
-                mdSocket.connect(),
-            ])
-    
+            await Promise.all([socket.connect(), mdSocket.connect()])
+
             renewTokenInterval = setInterval(() => {
                 renewAccessToken(live)
             }, 75 * 60 * 1000)
@@ -44,13 +36,8 @@ export const connectSockets = async (
 }
 
 export const connectAllSockets = async (live: boolean = false) => {
-    const url = live ? WS_LIVE_URL : WS_DEMO_URL
     try {
-        await Promise.all([
-            socket.connect(),
-            mdSocket.connect(),
-            replaySocket.connect(),
-        ])
+        await Promise.all([socket.connect(), mdSocket.connect(), replaySocket.connect()])
 
         renewTokenInterval = setInterval(() => {
             renewAccessToken(live)
@@ -64,7 +51,7 @@ export const disconnectSockets = async () => {
     try {
         await Promise.all([
             mdSocket.isConnected() ? mdSocket.disconnect() : null,
-            socket.isConnected() ? socket.disconnect() : null,
+            socket.isConnected() ? socket.disconnect() : null
         ])
         clearInterval(renewTokenInterval)
     } catch (err) {

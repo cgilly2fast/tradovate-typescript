@@ -1,4 +1,4 @@
-import Dispatcher from "./dispatcher"
+import Dispatcher from './dispatcher'
 
 export enum ORDER_TYPE {
     Limit = 'Limit',
@@ -8,12 +8,12 @@ export enum ORDER_TYPE {
     Stop = 'Stop',
     StopLimit = 'StopLimit',
     TrailingStop = 'TralingStop',
-    TrailingStopLimit = 'TrailingStopLimit',
+    TrailingStopLimit = 'TrailingStopLimit'
 }
 
 export enum ORDER_ACTION {
     Buy = 'Buy',
-    Sell = 'Sell',
+    Sell = 'Sell'
 }
 
 export enum TIME_IN_FORCE {
@@ -21,7 +21,7 @@ export enum TIME_IN_FORCE {
     FOK = 'FOK',
     GTC = 'GTC',
     GTD = 'GTD',
-    IOC = 'IOC',
+    IOC = 'IOC'
 }
 
 export enum STORAGE_KEYS {
@@ -29,7 +29,7 @@ export enum STORAGE_KEYS {
     EXPIRATION_KEY = 'tradovate-api-access-expiration',
     DEVICE_ID_KEY = 'tradovate-device-id',
     AVAIL_ACCTS_KEY = 'tradovate-api-available-accounts',
-    USER_DATA_KEY = 'tradovate-user-data',
+    USER_DATA_KEY = 'tradovate-user-data'
 }
 
 export enum TdEventType {
@@ -45,7 +45,7 @@ export enum TdEventType {
     NextReplay = 'replay/nextReplayPeriod',
     ReplayDrawStats = 'replay/drawStats', //the draw effect
     ReplayComplete = 'replay/complete', //the event that says replay is done
-    ProductFound = 'product/found',
+    ProductFound = 'product/found'
 }
 
 export enum EntityType {
@@ -67,7 +67,7 @@ export enum EntityType {
     Fill = 'fill',
     OrderStrategy = 'orderStrategy',
     OrderStrategyLink = 'orderStrategyLink',
-    ContractGroup = 'contractGroup',
+    ContractGroup = 'contractGroup'
 }
 
 export enum LongShortMode {
@@ -75,7 +75,7 @@ export enum LongShortMode {
     Short = '[LongShortMode] Short',
     Watch = '[LongShortMode] Watch',
     Setup = '[LongShortMode] Setup', // Looking for a technical set up to occur
-    Entry = '[LongShortMode] Entry', // When a technical set up occurs and looking for desired price to enter
+    Entry = '[LongShortMode] Entry' // When a technical set up occurs and looking for desired price to enter
 }
 
 export enum BarType {
@@ -83,7 +83,7 @@ export enum BarType {
     TICK = 'Tick',
     DOM = 'DOM',
     DAILY = 'DailyBar',
-    CUSTOM = 'Custom',
+    CUSTOM = 'Custom'
 }
 export enum ElementSizeUnit {
     UNDERLYING_UNITS = 'UnderlyingUnits',
@@ -92,14 +92,14 @@ export enum ElementSizeUnit {
     RENKO = 'Renko',
     MOMENTUM_RANGE = 'MomentumRange',
     POINT_AND_FIGURE = 'PointAndFigure',
-    OFA_Range = 'OFARange',
+    OFA_Range = 'OFARange'
 }
 
 export enum TimeRangeType {
     AS_MUCH_AS_ELEMENTS = 'asMuchAsElements',
     AS_FAR_AS_TIMESTAMP = 'asFarAsTimestamp',
     CLOSEST_TIMESTAMP = 'closestTimestamp',
-    CLOSEST_TICK_ID = 'closestTickId',
+    CLOSEST_TICK_ID = 'closestTickId'
 }
 export type Contract = {
     id: number //123456
@@ -171,7 +171,7 @@ export type Histogram = {
         day: number // DD
     }
     base: number //2338.75
-    items: { [k: string]: number } // Example: "-14":5906.67 Actual number of histogram items may depend on data
+    items: {[k: string]: number} // Example: "-14":5906.67 Actual number of histogram items may depend on data
     refresh: boolean
 }
 
@@ -222,7 +222,7 @@ export type BarPacket = {
     bars: Bar[]
 }
 export type Payload = {
-    data: {[k:string]: unknown} | string
+    data: {[k: string]: unknown} | string
     props: StrategyProps
 }
 export type Action = {
@@ -236,7 +236,7 @@ export type EventHandlerResults = {
 export enum Trend {
     DOWN = -1,
     NA = 0,
-    UP = 1,
+    UP = 1
 }
 
 export type AccessToken = {
@@ -244,7 +244,7 @@ export type AccessToken = {
     expiration?: string
 }
 
-export type ClockEvent = {}
+// export type ClockEvent = {}
 
 export type QuoteEvent = {
     quotes: Quote[]
@@ -254,8 +254,6 @@ export type ServerEvent<T extends keyof SubscribeEventResponse> = {
     e: TdEventType
     d: SubscribeEventResponse[T]
 }
-
-
 
 export type ErrorResponse = {
     d: string
@@ -269,10 +267,8 @@ export type ResponseMsg<T extends keyof EndpointResponse> = {
     s: number
 }
 
-
-
 export interface SimpleRequest<T extends EndpointURLs> {
-    url:string
+    url: string
     onResponse?: (item: ResponseMsg<T>) => void
     onReject?: () => void
 }
@@ -284,41 +280,51 @@ export type OrderListRequest = {
 }
 
 export type OrderItemRequest = {
-    url:string
-    query:{id:number}
+    url: string
+    query: {id: number}
     onResponse?: (item: ResponseMsg<'order/item'>) => void
     onReject?: () => void
 }
 
-export type EndpointURLs =  keyof EndpointResponse & keyof EndpointRequestBody & keyof EndpointRequestQuery 
-export type SubscribeURLs = keyof SubscribeEventResponse & keyof SubscribeRequestBody 
+export type EndpointURLs = keyof EndpointResponse &
+    keyof EndpointRequestBody &
+    keyof EndpointRequestQuery
+export type SubscribeURLs = keyof SubscribeEventResponse & keyof SubscribeRequestBody
 
-export type EndpointRequestBody =  {
-    'account/list':undefined
+export type EndpointRequestBody = {
+    'account/list': undefined
     'order/list': undefined
     'order/item': undefined
     'order/cancelorder': {orderId: number}
-    'authorize': {token:string}
-    'replay/checkreplaysession': {startTimestamp:string}
-    'replay/initializeclock': {startTimestamp: string, speed:number, initialBalance: number} 
-    'replay/changespeed': {speed:number}
+    authorize: {token: string}
+    'replay/checkreplaysession': {startTimestamp: string}
+    'replay/initializeclock': {
+        startTimestamp: string
+        speed: number
+        initialBalance: number
+    }
+    'replay/changespeed': {speed: number}
     'user/syncrequest': {accounts: number[]}
-    'md/subscribequote': {symbol:string }
-    'md/getchart': {symbol:string, chartDescription:ChartDescription, timeRange:TimeRange }
-    'md/subscribehistogram': {symbol:string }
-    'md/subscribedom': {symbol:string}
-    'md/unsubscribehistogram': {symbol:string}
-    'md/unsubscribequote':{symbol:string }
-    'md/unsubscribedom':{symbol:string }
-    'md/cancelchart': { subscriptionId: number}  
-} 
+    'md/subscribequote': {symbol: string}
+    'md/getchart': {
+        symbol: string
+        chartDescription: ChartDescription
+        timeRange: TimeRange
+    }
+    'md/subscribehistogram': {symbol: string}
+    'md/subscribedom': {symbol: string}
+    'md/unsubscribehistogram': {symbol: string}
+    'md/unsubscribequote': {symbol: string}
+    'md/unsubscribedom': {symbol: string}
+    'md/cancelchart': {subscriptionId: number}
+}
 
 export type EndpointRequestQuery = {
-    'account/list': undefined,
+    'account/list': undefined
     'order/list': undefined
-    'order/item': {id:number}
+    'order/item': {id: number}
     'order/cancelorder': {orderId: number}
-    'authorize': undefined
+    authorize: undefined
     'user/syncrequest': undefined
     'replay/checkreplaysession': undefined
     'replay/initializeclock': undefined
@@ -328,16 +334,16 @@ export type EndpointRequestQuery = {
     'md/subscribequote': undefined
     'md/subscribedom': undefined
     'md/unsubscribehistogram': undefined
-    'md/unsubscribequote':undefined
-    'md/unsubscribedom':undefined
+    'md/unsubscribequote': undefined
+    'md/unsubscribedom': undefined
     'md/cancelchart': undefined
 }
 export type EndpointResponse = {
-    'account/list':AccountListResponse
+    'account/list': AccountListResponse
     'order/list': OrderListResponse
     'order/item': OrderItemResponse
     'order/cancelorder': CancelOrderResponse
-    'authorize': undefined
+    authorize: undefined
     'user/syncrequest': SyncRequestResponse
     'replay/checkreplaysession': CheckReplaySessionResponse
     'replay/initializeclock': SimpleResponse
@@ -346,28 +352,34 @@ export type EndpointResponse = {
     'md/subscribehistogram': SimpleResponse
     'md/subscribequote': SimpleResponse
     'md/subscribedom': SimpleResponse
-    'simple': SimpleResponse
+    simple: SimpleResponse
     'md/unsubscribehistogram': SimpleResponse
-    'md/unsubscribequote':SimpleResponse
-    'md/unsubscribedom':SimpleResponse
-    'md/cancelchart':SimpleResponse
+    'md/unsubscribequote': SimpleResponse
+    'md/unsubscribedom': SimpleResponse
+    'md/cancelchart': SimpleResponse
 }
 
 export type SubscribeRequestBody = {
-    'replay/initializeclock': {startTimestamp: string, speed:number, initialBalance: number} 
+    'replay/initializeclock': {
+        startTimestamp: string
+        speed: number
+        initialBalance: number
+    }
     'user/syncrequest': {accounts: number[]}
-    'md/subscribeQuote': { "symbol": string }
-    'md/getChart':{ symbol: string 
-                    chartDescription: ChartDescription
-                    timeRange: {
-                        // All fields in timeRange are optional, but at least any one is required
-                        closestTimestamp?: string
-                        closestTickId?: number
-                        asFarAsTimestamp?: string
-                        asMuchAsElements?: number
-                    }}
-    'md/subscribeHistogram': { "symbol": string }
-    'md/subscribeDOM': { "symbol": string }
+    'md/subscribeQuote': {symbol: string}
+    'md/getChart': {
+        symbol: string
+        chartDescription: ChartDescription
+        timeRange: {
+            // All fields in timeRange are optional, but at least any one is required
+            closestTimestamp?: string
+            closestTickId?: number
+            asFarAsTimestamp?: string
+            asMuchAsElements?: number
+        }
+    }
+    'md/subscribeHistogram': {symbol: string}
+    'md/subscribeDOM': {symbol: string}
 }
 
 export type SubscribeEventResponse = {
@@ -380,32 +392,32 @@ export type SubscribeEventResponse = {
 }
 
 export type SubscribeMap = {
-    'replay/initializeclock':'replay/initializeclock' 
-    'user/syncrequest':'user/syncrequest' 
-    'md/subscribeQuote':'md/subscribeQuote' 
-    'md/getChart':'md/getChart' 
-    'md/subscribeHistogram':'md/subscribeHistogram' 
-    'md/subscribeDOM':'md/subscribeDOM' 
+    'replay/initializeclock': 'replay/initializeclock'
+    'user/syncrequest': 'user/syncrequest'
+    'md/subscribeQuote': 'md/subscribeQuote'
+    'md/getChart': 'md/getChart'
+    'md/subscribeHistogram': 'md/subscribeHistogram'
+    'md/subscribeDOM': 'md/subscribeDOM'
 }
 
 export function isErrorResponse<T extends EndpointURLs>(
-    item: ResponseMsg<T> | ErrorResponse,
+    item: ResponseMsg<T> | ErrorResponse
 ): item is ErrorResponse
 
 export function isErrorResponse<T extends keyof SubscribeEventResponse>(
-    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent<T>,
+    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent<T>
 ): item is ErrorResponse {
     return (item as ErrorResponse).s !== 200
 }
 
 export function isServerEvent<T extends keyof SubscribeEventResponse>(
-    item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse,
+    item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse
 ): item is ServerEvent<T> {
     return 'e' in item
 }
 
 export function isResponseMsg<T extends EndpointURLs>(
-    item: ResponseMsg<T> | ErrorResponse,
+    item: ResponseMsg<T> | ErrorResponse
 ): item is ResponseMsg<T> {
     return item.s === 200
 }
@@ -436,7 +448,7 @@ export type CheckReplaySessionResponse = {
 export enum CheckStatus {
     INELIGIBLE = 'Ineligible',
     OK = 'OK',
-    START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted',
+    START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted'
 }
 export type CancelOrderResponse = CommandResponse
 
@@ -457,10 +469,9 @@ export enum FailureReason {
     INVALID_PRICE = 'InvalidPrice',
     LIQUIDATION_ONLY = 'LiquidationOnly',
     LIQUIDATION_ONLY_BEFORE_EXPIRATION = 'LiquidationOnlyBeforeExpiration',
-    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified',
+    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified'
     //complete later
 }
-
 
 export type SimpleResponse = {
     ok: boolean
@@ -468,17 +479,17 @@ export type SimpleResponse = {
 }
 
 export type GetChartResponse = {
-    subscriptionId:number,
-    realtimeId:number
-  }
+    subscriptionId: number
+    realtimeId: number
+}
 export type ChangeSpeedResponse = SimpleResponse
 
 export type AccountDependentsResponse = Account
 export type AccountFindResponse = Account
 export type AccountItemResponse = Account
 export type AccountItemsResponse = Account[]
-export type AccountListDependentsResponse = Account[] 
-export type AccountListResponse = Account[] 
+export type AccountListDependentsResponse = Account[]
+export type AccountListResponse = Account[]
 export type AccountSuggestResponse = Account
 
 export type Account = {
@@ -498,28 +509,28 @@ export type Account = {
 }
 
 export enum AccountType {
-    CUSTOMER='Customer',
-    GIVEUP='Giveup',
-    HOUSE='HOUSE',
-    OMNIBUS='Omnibus',
-    WASH='Wash',
+    CUSTOMER = 'Customer',
+    GIVEUP = 'Giveup',
+    HOUSE = 'HOUSE',
+    OMNIBUS = 'Omnibus',
+    WASH = 'Wash'
 }
 
 export enum MarginAccountype {
-    HEDGER='Hedger',
-    SPECULATOR='Speculator'
+    HEDGER = 'Hedger',
+    SPECULATOR = 'Speculator'
 }
 
 export enum LegalStatus {
-    CORPORATION='Corporation',
-    GP='GP',
-    INDIVIDUAL='Individual',
-    JOINT='Joint',
-    LLC='LLC',
-    LLP='LLP',
-    LP='LP',
-    PTR='PTR',
-    TRUST='Trust'
+    CORPORATION = 'Corporation',
+    GP = 'GP',
+    INDIVIDUAL = 'Individual',
+    JOINT = 'Joint',
+    LLC = 'LLC',
+    LLP = 'LLP',
+    LP = 'LP',
+    PTR = 'PTR',
+    TRUST = 'Trust'
 }
 
 export type Order = {
@@ -539,7 +550,7 @@ export type Order = {
 
 export enum OrderAction {
     BUY = 'Buy',
-    SELL = 'Sell',
+    SELL = 'Sell'
 }
 
 export enum OrderStatus {
@@ -553,7 +564,7 @@ export enum OrderStatus {
     REJECTED = 'Rejected',
     SUSPENDED = 'Suspended',
     UNKNOWN = 'Unknown',
-    WORKING = 'Working',
+    WORKING = 'Working'
 }
 
 export type OrderItemResponse = Order
@@ -590,21 +601,14 @@ export type SyncRequestResponse = {
     conractGroups: any[]
     orderStrategyTypes?: any[]
 }
-// export type PropsEvent = {
-//     entityType: EntityType
-//     eventType: EventType
-//     entity: PropsEntity
-// }
 
-
-export type SubscribeBody = {
-   
+export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: any) => void}
+export type SubscribeDOMParams = {symbol: string; onSubscription: (item: any) => void}
+export type SubscribeHistogramParams = {
+    symbol: string | number
+    onSubscription: (item: any) => void
 }
-
-export type SubscribeQuoteParams = {symbol: string , onSubscription:(item: any) => void}
-export type SubscribeDOMParams = {}
-export type SubscribeHistogramParams = {symbol: string | number, onSubscription:(item: any) => void}
-export type SubscribeChartParams = { 
+export type SubscribeChartParams = {
     symbol: string | number
     chartDescription: ChartDescription
     timeRange: {
@@ -613,18 +617,19 @@ export type SubscribeChartParams = {
         closestTickId?: number
         asFarAsTimestamp?: string
         asMuchAsElements?: number
-    }, 
-    onSubscription:(item: any) => void}
+    }
+    onSubscription: (item: any) => void
+}
 
 export interface Socket {
-    connect(url:string):Promise<void>,
-    disconnect():void
-    isConnected():boolean,
+    connect(url: string): Promise<void>
+    disconnect(): void
+    isConnected(): boolean
 }
 
 export type RequestParams<T extends EndpointURLs> = {
-    url: T,
-    body?: EndpointRequestBody[T],
+    url: T
+    body?: EndpointRequestBody[T]
     query?: EndpointRequestQuery[T]
 }
 export type TradovateSocketConnectParams = {
@@ -636,40 +641,49 @@ export type TradovateSocketSynchronizeParams = {
     onSubscription: (data: any) => void
 }
 export interface TvSocket extends Socket {
-    synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void>
-    addListener(fn: (item:any)=> void): ()=>Listener[]
+    synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void>
+    addListener(fn: (item: any) => void): () => Listener[]
 }
 
 export type MarketDataSocketSubscribeParams<T extends SubscribeURLs> = {
     url: T
     body: SubscribeRequestBody[T]
     onSubscription: (item: ServerEvent<T>) => void
-  }
+}
 
 export interface MdSocket extends Socket {
     //subscribe<T extends SubscribeURLs>(params: MarketDataSocketSubscribeParams<T>): Promise<() => Promise<void>>
-    subscribeQuote(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
-    subscribeDOM(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
-    subscribeHistogram(symbol: string , onSubscription:(item: any) => void):Promise<()=>void>
-    subscribeChart(symbol: string, chartDescription:ChartDescription, timeRange: TimeRange, onSubscription:(item: any) => void):Promise<()=>void>
-   
+    subscribeQuote(
+        symbol: string,
+        onSubscription: (item: any) => void
+    ): Promise<() => void>
+    subscribeDOM(symbol: string, onSubscription: (item: any) => void): Promise<() => void>
+    subscribeHistogram(
+        symbol: string,
+        onSubscription: (item: any) => void
+    ): Promise<() => void>
+    subscribeChart(
+        symbol: string,
+        chartDescription: ChartDescription,
+        timeRange: TimeRange,
+        onSubscription: (item: any) => void
+    ): Promise<() => void>
 }
 export enum URLs {
-    DEMO_URL= 'https://demo.tradovateapi.com/v1',
-    LIVE_URL= 'https://live.tradovateapi.com/v1',
-    MD_URL= 'wss://md.tradovateapi.com/v1/websocket',
-    WS_DEMO_URL= 'wss://demo.tradovateapi.com/v1/websocket',
-    WS_LIVE_URL= 'wss://live.tradovateapi.com/v1/websocket',
-    REPLAY_URL= 'wss://replay.tradovateapi.com/v1/websocket',
+    DEMO_URL = 'https://demo.tradovateapi.com/v1',
+    LIVE_URL = 'https://live.tradovateapi.com/v1',
+    MD_URL = 'wss://md.tradovateapi.com/v1/websocket',
+    WS_DEMO_URL = 'wss://demo.tradovateapi.com/v1/websocket',
+    WS_LIVE_URL = 'wss://live.tradovateapi.com/v1/websocket',
+    REPLAY_URL = 'wss://replay.tradovateapi.com/v1/websocket'
 }
 
 export type TimeRange = {
-        // All fields in timeRange are optional, but at least any one is required
-        closestTimestamp?: string
-        closestTickId?: number
-        asFarAsTimestamp?: string
-        asMuchAsElements?: number
-    
+    // All fields in timeRange are optional, but at least any one is required
+    closestTimestamp?: string
+    closestTickId?: number
+    asFarAsTimestamp?: string
+    asMuchAsElements?: number
 }
 
 export interface StrategyParams {
@@ -700,6 +714,6 @@ export type StrategyProps = {
     dispatcher: Dispatcher
 }
 
-export type Dictionary = { [key: string]: unknown }
+export type Dictionary = {[key: string]: unknown}
 
-export type Listener = (item:any)=>void
+export type Listener = (item: any) => void

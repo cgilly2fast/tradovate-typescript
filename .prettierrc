@@ -1,4 +1,5 @@
 {
+    "printWidth": 90,
     "tabWidth": 4,
     "useTabs": false,
     "semi": false,

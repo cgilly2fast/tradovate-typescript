@@ -1,11 +1,8 @@
 import {
     ResponseMsg,
     ServerEvent,
-    isResponseMsg,
-    isServerEvent,
     EndpointURLs,
     RequestParams,
-    Socket,
     URLs,
     TvSocket,
     MdSocket,
@@ -76,20 +73,21 @@ export default class ReplaySocket implements TvSocket, MdSocket{
                     speed: speed ?? 400,
                     initialBalance: initialBalance ?? 50000,
                 }
-            })
-        return new Promise((res, rej) => {
+            }
+        )
+        
 
-           if(onSubscription) { 
-                removeListener = this.socket.addListener((item: any) => {
-                    onSubscription(item)
-                })
-                res(async () => {
-                    removeListener()
-                })
-           } else {
-                res(async () => {})
-           }
-        })
+        if(onSubscription) { 
+            removeListener = this.socket.addListener((item: any) => {
+                onSubscription(item)
+            })
+            return(async () => {
+                removeListener()
+            })
+        } 
+        return(async () => {})
+           
+        
     }
 
     synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void> {

@@ -1,50 +1,37 @@
-import { calculatePnL } from '../utils/pnl'
-import { getReplaySocket, getSessionResults } from '../utils/socketUtils'
-import { setAvailableAccounts } from '../utils/storage'
+import {getReplaySocket} from '../utils/socketUtils'
+import {setAvailableAccounts} from '../utils/storage'
 import {
     Action,
     Payload,
     StrategyState,
-    isResponseMsg,
-    isServerEvent,
-    ServerEvent,
-    URLs,
     ReplayPeriod,
     StrategyParams
 } from '../utils/types'
 import Dispatcher from '../utils/dispatcher'
-import { stringify } from '../utils/stringify'
+import {stringify} from '../utils/stringify'
 import {log} from 'console'
-const { REPLAY_URL } = URLs
 
 export const nextReplayPeriod = (state: StrategyState, action: Action): Action => {
-    const { event, payload } = action
-    const { props } = payload
+    const {event, payload} = action
+    const {props} = payload
 
     if (event === 'replay/nextReplayPeriod') {
         log('[DevX Trader}: Go to next replay')
-        const { dispatcher, replayPeriods } = props
+        const {dispatcher, replayPeriods} = props
         const {current_period} = state
 
-        if(current_period === undefined) 
+        if (current_period === undefined)
             throw new Error('nextReplayPeriod: current_period for replay is undefined')
-
 
         if (current_period === replayPeriods.length) {
             log('[DevX Trader]: Dispatched replay complete]')
             dispatcher.dispatch('replay/replayComplete', payload)
             return action
-        } 
+        }
 
-        startNextReplayPeriod(
-            props,
-            replayPeriods,
-            current_period,
-            dispatcher,
-            payload )
+        startNextReplayPeriod(props, replayPeriods, current_period, dispatcher, payload)
 
         return action
-        
     }
     return action
 }
@@ -54,7 +41,7 @@ async function startNextReplayPeriod(
     replayPeriods: ReplayPeriod[],
     current_period: number,
     dispatcher: Dispatcher,
-    payload: Payload,
+    payload: Payload
 ) {
     log('[DevX Trader]: Moving to next replay period..')
 
@@ -68,13 +55,13 @@ async function startNextReplayPeriod(
         } catch (e) {
             log('socket remove', e)
         }
-        try{
+        try {
             log('[DevX Trader]: Checking new replay period...')
-            await replaySocket.checkReplaySession(
-                replayPeriods[current_period].start,
+            await replaySocket.checkReplaySession(replayPeriods[current_period].start)
+        } catch (err) {
+            log(
+                '[DevX Trader]: Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.'
             )
-        } catch(err) {
-            log('[DevX Trader]: Could not initialize replay session. Check that your replay periods are within a valid time frame and that you have Market Replay access.')
             throw err
         }
 
@@ -84,30 +71,34 @@ async function startNextReplayPeriod(
             replayPeriods[current_period].start,
             props.replaySpeed as number,
             undefined,
-            (item) => {
-                if (
-                    item.e === 'clock' &&
-                    item.d.length < 40
-                ) {
+            item => {
+                if (item.e === 'clock' && item.d.length < 40) {
                     log('current speed', item)
                     try {
-                        const speedRes = replaySocket.request({
+                        replaySocket.request({
                             url: 'replay/changespeed',
-                            body: { speed: props.replaySpeed as number ?? 400 }
+                            body: {speed: (props.replaySpeed as number) ?? 400}
                         })
 
-                        log(`[DevX Trader]: Replay socket speed restored to ${props.replaySpeed}`)
+                        log(
+                            `[DevX Trader]: Replay socket speed restored to ${props.replaySpeed}`
+                        )
                     } catch (err) {
-                        log(`[DevX Trader]: Error Replay socket speed restoration ${stringify(item)}`)
-                        log(err) 
+                        log(
+                            `[DevX Trader]: Error Replay socket speed restoration ${stringify(
+                                item
+                            )}`
+                        )
+                        log(err)
                     }
                 }
-            })
+            }
+        )
         log('[DevX Trader]: Initializing clock complete.')
         const accountRes = await replaySocket.request({
             url: 'account/list'
         })
-        
+
         const account = accountRes.d.find(account => account.active)
         log(`[DevX Trader]: account: ${stringify(account)}`)
 
@@ -115,7 +106,6 @@ async function startNextReplayPeriod(
 
         dispatcher.dispatch('replay/resetEventHandlers', payload)
         log('[DevX Trader]: Transition to next replay period complete.')
-
     } catch (err) {
         log(`[DevX Trader]: startNextReplayPeriod Error: ${err}`)
     }

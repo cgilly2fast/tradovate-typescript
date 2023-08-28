@@ -1,4 +1,4 @@
-import { Action, Dictionary } from './types'
+import {Action, Dictionary} from './types'
 
 export const deepCopy = (o: any) => {
     let r: any
@@ -33,14 +33,14 @@ export const pipeMiddleware =
  * @template T
  * @typedef {{ id: string, state: () => any, dispatch: (action: string, data: unknown) => void}} Store
  */
-export type  Store {
+export type Store = {
     id?: string
     state: () => any
     effects: any
     dispatch: (action: string, data: any) => void
 }
 
-export type  DispatcherParams {
+export type DispatcherParams = {
     id?: string
     model?: any
     reducer?: any
@@ -69,7 +69,7 @@ export default class Dispatcher {
     private queue: Action[]
 
     constructor(params: DispatcherParams) {
-        const { id, model, reducer, mw } = params
+        const {id, model, reducer, mw} = params
         this.id = id
         this.model = model
         this.reducer = reducer
@@ -87,7 +87,7 @@ export default class Dispatcher {
     }
 
     dispatch(event: string, data: any) {
-        const action: Action = { event, payload: data }
+        const action: Action = {event, payload: data}
 
         if (this.dispatching) {
             this.queue.push(action)

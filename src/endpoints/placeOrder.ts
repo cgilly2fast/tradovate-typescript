@@ -1,8 +1,8 @@
 // import { DEMO_URL } from './credentials'
-import { getAccessToken, getCurrentAccount } from '../utils/storage'
-import { tvPost } from '../utils/service'
+import {getAccessToken, getCurrentAccount} from '../utils/storage'
+import {tvPost} from '../utils/service'
 
-export type  OrderParams {
+export type OrderParams = {
     accountSpec?: string
     accountId?: number
     clOrdId?: string
@@ -23,9 +23,9 @@ export type  OrderParams {
 }
 
 export const placeOrder = async (params: OrderParams) => {
-    const { id, name } = getCurrentAccount()
-    const { token } = getAccessToken()
-    const { action, symbol, orderQty, orderType, isAutomated } = params
+    const {id, name} = getCurrentAccount()
+    const {token} = getAccessToken()
+    const {action, symbol, orderQty, orderType, isAutomated} = params
 
     const normalized_body = {
         action,
@@ -34,12 +34,12 @@ export const placeOrder = async (params: OrderParams) => {
         orderType,
         isAutomated: isAutomated !== undefined ? isAutomated : true,
         accountId: id,
-        accountSpec: name,
+        accountSpec: name
     }
 
     if (!token) {
         console.error(
-            '[DevX Trader]: No access token found. Please acquire a token and try again.',
+            '[DevX Trader]: No access token found. Please acquire a token and try again.'
         )
         return
     }

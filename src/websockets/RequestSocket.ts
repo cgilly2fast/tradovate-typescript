@@ -1,4 +1,3 @@
-import {getCurrentAccount} from '../utils/storage'
 import WebSocket, {MessageEvent, Data} from 'ws'
 import {log} from 'console'
 import { stringify } from '../utils/stringify'
@@ -36,7 +35,7 @@ export default class RequestSocket implements Socket {
         if ((raw as string).length > 1) {
             data = JSON.parse((raw as string).slice(1))
         }
-        return [T, data]
+        return {T, data}
     }
 
     private checkHeartbeats() {
@@ -77,7 +76,7 @@ export default class RequestSocket implements Socket {
     private parseQueryParams(params: any): string {
         const queryParams = [];
         for (const key in params) {
-          if (params.hasOwnProperty(key)) {
+          if (key in params) {
             const value = encodeURIComponent(params[key]);
             queryParams.push(`${key}=${value}`);
           }
@@ -133,7 +132,7 @@ export default class RequestSocket implements Socket {
         return new Promise((res, rej) => {
 
             const onEvent = async (msg: MessageEvent) => {
-                const [T, data] = this.prepareMessage(msg.data)
+                const {T, data}= this.prepareMessage(msg.data)
                 if (T === 'a' && data && data.length > 0) {
                     this.checkHeartbeats()
                     this.dataToListeners(data)
@@ -143,7 +142,7 @@ export default class RequestSocket implements Socket {
             }
 
             const onConnect = async (msg: MessageEvent) => {
-                const [T, _] = this.prepareMessage(msg.data)
+                const {T} = this.prepareMessage(msg.data)
                 if (T === 'o') {
                     await this.request({url: 'authorize',body:{token}})
 
@@ -153,9 +152,16 @@ export default class RequestSocket implements Socket {
                     heartbeatInterval = setInterval(sendHeartbeat, 2500)
                 }
             }
+            try {
+                this.ws.addEventListener('message', onEvent)
+                this.ws.addEventListener('message', onConnect)
+                res()
+            } catch(err) {
+    
+                log(`[DevX Trader]: RequestSocket: Could not add listeners ${err}`)
+                rej(err)
 
-            this.ws.addEventListener('message', onEvent)
-            this.ws.addEventListener('message', onConnect)
+            }
         })
     }
 
@@ -170,7 +176,7 @@ export default class RequestSocket implements Socket {
             const id = this.increment()
 
             const onRequest = (msg: MessageEvent) => {
-                const [_, data] = this.prepareMessage(msg.data)
+                const {data} = this.prepareMessage(msg.data)
 
                 data.forEach((item: ResponseMsg<T> | ErrorResponse) => {
                     if (item.i !== id) return
