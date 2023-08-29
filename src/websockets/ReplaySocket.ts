@@ -10,18 +10,21 @@ import {
     ChartDescription,
     TimeRange,
     Listener,
+    ClockEventMsg,
+    isServerEvent,
+    isClockEventMsg
 } from '../utils/types'
 import TradovateSocket from './TradovateSocket'
 import MarketDataSocket from './MarketDataSocket'
 import RequestSocket from './RequestSocket'
 import {log} from 'console'
 
-export default class ReplaySocket implements TvSocket, MdSocket{
+export default class ReplaySocket implements TvSocket, MdSocket {
     private marketDataSocket: MarketDataSocket
     private tradovateSocket: TradovateSocket
     private socket: RequestSocket
 
-    constructor(socket?:RequestSocket) {
+    constructor(socket?: RequestSocket) {
         this.socket = socket ?? new RequestSocket(URLs.REPLAY_URL)
         this.marketDataSocket = new MarketDataSocket(this.socket)
         this.tradovateSocket = new TradovateSocket(false, this.socket)
@@ -46,71 +49,85 @@ export default class ReplaySocket implements TvSocket, MdSocket{
         log('[DevX Trader]: ReplaySocket removed.')
     }
 
-    checkReplaySession(
-        startTimestamp: string
-    ) {
+    checkReplaySession(startTimestamp: string) {
         return this.socket.request({
             url: 'replay/checkreplaysession',
-            body: { startTimestamp }
+            body: {startTimestamp}
         })
     }
-
 
     async initializeClock(
         startTimestamp: string,
         speed?: number,
         initialBalance?: number,
-        onSubscription?: (item: ServerEvent<'replay/initializeclock'>) => void,
-    ):Promise<()=>void> {
-
-
+        onSubscription?: (item: ClockEventMsg) => void
+    ): Promise<() => void> {
         let removeListener: () => void
-    
-         await this.socket.request(
-            {  url: 'replay/initializeclock',
-               body:{
-                    startTimestamp,
-                    speed: speed ?? 400,
-                    initialBalance: initialBalance ?? 50000,
-                }
-            }
-        )
-        
 
-        if(onSubscription) { 
-            removeListener = this.socket.addListener((item: any) => {
-                onSubscription(item)
-            })
-            return(async () => {
+        await this.socket.request({
+            url: 'replay/initializeclock',
+            body: {
+                startTimestamp,
+                speed: speed ?? 400,
+                initialBalance: initialBalance ?? 50000
+            }
+        })
+
+        if (onSubscription) {
+            removeListener = this.socket.addListener(
+                (item: ServerEvent | ResponseMsg<any>) => {
+                    if (isServerEvent(item) && isClockEventMsg(item)) {
+                        onSubscription(item)
+                    }
+                }
+            )
+            return async () => {
                 removeListener()
-            })
-        } 
-        return(async () => {})
-           
-        
+            }
+        }
+        return async () => {}
     }
 
-    synchronize(params: TradovateSocketSynchronizeParams):Promise<()=> void> {
+    synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void> {
         return this.tradovateSocket.synchronize(params)
     }
 
-    subscribeChart(symbol: string, chartDescription: ChartDescription, timeRange: TimeRange, onSubscription: (item: any) => void): Promise<() => void> {
-        return this.marketDataSocket.subscribeChart(symbol, chartDescription, timeRange, onSubscription)
+    subscribeChart(
+        symbol: string,
+        chartDescription: ChartDescription,
+        timeRange: TimeRange,
+        onSubscription: (item: any) => void
+    ): Promise<() => void> {
+        return this.marketDataSocket.subscribeChart(
+            symbol,
+            chartDescription,
+            timeRange,
+            onSubscription
+        )
     }
 
-    subscribeHistogram( symbol: string , onSubscription:(item: any) => void):Promise<()=>void> {
+    subscribeHistogram(
+        symbol: string,
+        onSubscription: (item: any) => void
+    ): Promise<() => void> {
         return this.marketDataSocket.subscribeHistogram(symbol, onSubscription)
     }
 
-    subscribeDOM(symbol: string, onSubscription: (item: any) => void): Promise<() => void> {
+    subscribeDOM(
+        symbol: string,
+        onSubscription: (item: any) => void
+    ): Promise<() => void> {
         return this.marketDataSocket.subscribeDOM(symbol, onSubscription)
     }
 
-    subscribeQuote(symbol: string, onSubscription: (item: any) => void): Promise<() => void> {
+    subscribeQuote(
+        symbol: string,
+        onSubscription: (item: any) => void
+    ): Promise<() => void> {
         return this.marketDataSocket.subscribeQuote(symbol, onSubscription)
     }
 
-    request<T extends EndpointURLs>(params:RequestParams<T>): Promise<ResponseMsg<T>> { 
+    request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>> {
         return this.socket.request(params)
     }
 

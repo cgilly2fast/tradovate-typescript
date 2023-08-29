@@ -152,6 +152,15 @@ export type Quote = {
     }
 }
 
+export type PropsEventMsg = {
+    e: string
+}
+
+export type ClockEventMsg = {
+    e: string
+    d: string
+}
+
 export type QuoteEvent = {
     e: string
     d: QuoteEventMsg
@@ -186,6 +195,10 @@ export type DomEventMsg = {
 
 export type ChartEventMsg = {
     charts: BarPacket[] | TickPacket[]
+}
+
+export function isClockEventMsg(obj: any): obj is ClockEventMsg {
+    return obj.e === 'clock' && typeof obj.d === 'string'
 }
 
 export function isQuoteEventMsg(obj: any): obj is QuoteEventMsg {
@@ -316,10 +329,17 @@ export type ErrorResponse = {
     s: number
 }
 
-export type ServerEvent<T extends keyof SubscribeEventResponse> = {
+export type ServerEvent = {
     e: TdEventType
-    d: SubscribeEventResponse[T]
+    d:
+        | QuoteEventMsg
+        | ChartEventMsg
+        | HistogramEventMsg
+        | DomEventMsg
+        | ClockEventMsg
+        | PropsEventMsg
 }
+
 export type ResponseMsg<T extends keyof EndpointResponse> = {
     d: EndpointResponse[T]
     i: number
@@ -372,10 +392,10 @@ export type EndpointRequestBody = {
     }
     'md/subscribehistogram': {symbol: string}
     'md/subscribedom': {symbol: string}
-    'md/unsubscribehistogram': {symbol: string}
-    'md/unsubscribequote': {symbol: string}
-    'md/unsubscribedom': {symbol: string}
-    'md/cancelchart': {subscriptionId: number}
+    'md/unsubscribehistogram': CancelBody
+    'md/unsubscribequote': CancelBody
+    'md/unsubscribedom': CancelBody
+    'md/cancelchart': CancelChartBody
     'auth/accessTokenRequest': AccessTokenRequestBody
     'auth/me': undefined
     'auth/oauthtoken': OAuthTokenRequestBody
@@ -454,6 +474,10 @@ export type EndpointResponse = {
     'contract/rollcontract': RollContractResponse
     'contract/suggest': Contract[]
 }
+
+export type CancelBody = {symbol: string}
+
+export type CancelChartBody = {subscriptionId: number}
 
 export type ContractSuggestQuery = {
     t: string
@@ -604,6 +628,7 @@ export type SubscribeEventResponse = {
     'md/getChart': SimpleResponse
     'md/subscribeHistogram': SimpleResponse
     'md/subscribeDOM': SimpleResponse
+    any: undefined
 }
 
 export type SubscribeMap = {
@@ -620,7 +645,7 @@ export function isErrorResponse<T extends EndpointURLs>(
 ): item is ErrorResponse
 
 export function isErrorResponse<T extends keyof SubscribeEventResponse>(
-    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent<T>
+    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent
 ): item is ErrorResponse {
     return (item as ErrorResponse).s !== 200
 }
@@ -637,7 +662,7 @@ export function isValidResponseMsg<T extends EndpointURLs>(
     return isResponseMsg(item) && item.s === 200
 }
 
-export const isServerEvent = (data: any): data is ServerEvent<any> => {
+export const isServerEvent = (data: any): data is ServerEvent => {
     return 'e' in data
 }
 
@@ -702,9 +727,16 @@ export type SimpleResponse = {
 }
 
 export type GetChartResponse = {
-    subscriptionId: number
-    realtimeId: number
+    subscriptionId?: number
+    realtimeId?: number
 }
+
+export function isGetChartResponse(
+    response: ResponseMsg<any>
+): response is ResponseMsg<'md/getchart'> {
+    return 'subscriptionId' in response || 'realtimeId' in response
+}
+
 export type ChangeSpeedResponse = SimpleResponse
 
 export type AccountDependentsResponse = Account
@@ -838,7 +870,7 @@ export type SubscribeHistogramParams = {
     onSubscription: (item: any) => void
 }
 export type SubscribeChartParams = {
-    symbol: string | number
+    symbol: string
     chartDescription: ChartDescription
     timeRange: {
         // All fields in timeRange are optional, but at least any one is required
@@ -848,6 +880,18 @@ export type SubscribeChartParams = {
         asMuchAsElements?: number
     }
     onSubscription: (item: any) => void
+}
+
+export type SubscribeBodyParams = {
+    symbol: string
+    chartDescription: ChartDescription
+    timeRange: {
+        // All fields in timeRange are optional, but at least any one is required
+        closestTimestamp?: string
+        closestTickId?: number
+        asFarAsTimestamp?: string
+        asMuchAsElements?: number
+    }
 }
 
 export interface Socket {
@@ -871,13 +915,13 @@ export type TradovateSocketSynchronizeParams = {
 }
 export interface TvSocket extends Socket {
     synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void>
-    addListener(fn: (item: any) => void): () => Listener[]
+    addListener(fn: (item: ResponseMsg<any> | ServerEvent) => void): () => Listener[]
 }
 
-export type MarketDataSocketSubscribeParams<T extends SubscribeURLs> = {
+export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
     url: T
-    body: SubscribeRequestBody[T]
-    onSubscription: (item: ServerEvent<T>) => void
+    body: EndpointRequestBody[T]
+    onSubscription: (data: Quote | DOM | Chart | Histogram) => void
 }
 
 export interface MdSocket extends Socket {
