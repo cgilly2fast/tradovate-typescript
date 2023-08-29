@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import {AccessTokenRequestBody} from '../utils/types'
 
 const deviceId = crypto
     .createHash('sha256') //creates an instance of hasher
@@ -7,13 +8,12 @@ const deviceId = crypto
     .update(process.env.TV_USER! + '') //adds your tradovate username to the hash
     .digest('hex') //creates a hash 'digest' - the result of the algo as a hex string
 
-export const credentials = {
-    name: process.env.TV_USER,
-    password: process.env.TV_PASSWORD,
+export const credentials: AccessTokenRequestBody = {
+    name: process.env.TV_USER!,
+    password: process.env.TV_PASSWORD!,
     appId: process.env.TV_APP_ID,
     appVersion: '0.0.1',
     deviceId,
     cid: process.env.TV_CID,
-    sec: process.env.TV_SECRET,
+    sec: process.env.TV_SECRET
 }
-

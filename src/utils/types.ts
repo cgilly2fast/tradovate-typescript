@@ -101,10 +101,6 @@ export enum TimeRangeType {
     CLOSEST_TIMESTAMP = 'closestTimestamp',
     CLOSEST_TICK_ID = 'closestTickId'
 }
-export type Contract = {
-    id: number //123456
-    name: string //ESU3
-}
 
 export type Bar = {
     timestamp: Date
@@ -166,11 +162,10 @@ export type HistogramEvent = {
     d: HistogramEventMsg
 }
 
-export type DomEvent = { 
-    e:string,
+export type DomEvent = {
+    e: string
     doms: DomEventMsg
 }
-
 
 export type ChartEvent = {
     e: string
@@ -194,35 +189,35 @@ export type ChartEventMsg = {
 }
 
 export function isQuoteEventMsg(obj: any): obj is QuoteEventMsg {
-    return 'quotes' in obj && Array.isArray(obj.quotes);
+    return 'quotes' in obj && Array.isArray(obj.quotes)
 }
 
 export function isHistogramEventMsg(obj: any): obj is HistogramEventMsg {
-    return 'histograms' in obj && Array.isArray(obj.histograms);
+    return 'histograms' in obj && Array.isArray(obj.histograms)
 }
 
 export function isDomEventMsg(obj: any): obj is DomEventMsg {
-    return 'doms' in obj && Array.isArray(obj.doms);
+    return 'doms' in obj && Array.isArray(obj.doms)
 }
 
 export function isChartEventMsg(obj: any): obj is ChartEventMsg {
-    return 'charts' in obj && (Array.isArray(obj.charts) || obj.charts instanceof Array);
+    return 'charts' in obj && (Array.isArray(obj.charts) || obj.charts instanceof Array)
 }
 
 export function isQuoteEvent(obj: any): obj is QuoteEvent {
-    return obj && obj.e === 'string' && 'd' in obj && 'quotes' in obj.d;
+    return obj && obj.e === 'string' && 'd' in obj && 'quotes' in obj.d
 }
 
 export function isHistogramEvent(obj: any): obj is HistogramEvent {
-return obj && obj.e === 'string' && 'd' in obj && 'histograms' in obj.d;
+    return obj && obj.e === 'string' && 'd' in obj && 'histograms' in obj.d
 }
 
 export function isDomEvent(obj: any): obj is DomEvent {
-return obj && obj.e === 'string' && 'd' in obj && 'doms' in obj.d;
+    return obj && obj.e === 'string' && 'd' in obj && 'doms' in obj.d
 }
 
 export function isChartEvent(obj: any): obj is ChartEvent {
-return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d;
+    return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d
 }
 
 export type Chart = BarPacket[] | TickPacket[]
@@ -381,6 +376,18 @@ export type EndpointRequestBody = {
     'md/unsubscribequote': {symbol: string}
     'md/unsubscribedom': {symbol: string}
     'md/cancelchart': {subscriptionId: number}
+    'auth/accessTokenRequest': AccessTokenRequestBody
+    'auth/me': undefined
+    'auth/oauthtoken': OAuthTokenRequestBody
+    'auth/renewaccesstoken': undefined
+    'contract/deps': undefined
+    'contract/find': undefined
+    'contract/getproductfeeparams': undefined
+    'contract/item': undefined
+    'contract/items': undefined
+    'contract/ldeps': undefined
+    'contract/rollcontract': RollContractRequestBody
+    'contract/suggest': undefined
 }
 
 export type EndpointRequestQuery = {
@@ -401,7 +408,20 @@ export type EndpointRequestQuery = {
     'md/unsubscribequote': undefined
     'md/unsubscribedom': undefined
     'md/cancelchart': undefined
+    'auth/accessTokenRequest': undefined
+    'auth/me': undefined
+    'auth/oauthtoken': undefined
+    'auth/renewaccesstoken': undefined
+    'contract/deps': QueryMasterId
+    'contract/find': QueryName
+    'contract/getproductfeeparams': QueryProductIds
+    'contract/item': QueryId
+    'contract/items': QueryIds
+    'contract/ldeps': QueryMasterIds
+    'contract/rollcontract': undefined
+    'contract/suggest': ContractSuggestQuery
 }
+
 export type EndpointResponse = {
     'account/list': AccountListResponse
     'order/list': OrderListResponse
@@ -421,6 +441,137 @@ export type EndpointResponse = {
     'md/unsubscribequote': SimpleResponse
     'md/unsubscribedom': SimpleResponse
     'md/cancelchart': SimpleResponse
+    'auth/accessTokenRequest': AccessTokenResponse
+    'auth/me': MeResponse
+    'auth/oauthtoken': OAuthTokenResponse
+    'auth/renewaccesstoken': AccessTokenResponse
+    'contract/deps': Contract[]
+    'contract/find': Contract
+    'contract/getproductfeeparams': ProductFeeParamsResponse
+    'contract/item': Contract
+    'contract/items': Contract[]
+    'contract/ldeps': Contract[]
+    'contract/rollcontract': RollContractResponse
+    'contract/suggest': Contract[]
+}
+
+export type ContractSuggestQuery = {
+    t: string
+    l: number
+}
+export type RollContractResponse = {
+    errorText?: string
+    contract: Contract
+}
+
+export type RollContractRequestBody = {
+    name: string
+    forward: string
+    ifExpired?: boolean
+}
+
+export type ProductFeeParamsResponse = {
+    params: ProductFeeParams[]
+}
+export type ProductFeeParams = {
+    clearingFee?: number
+    clearingCurrencyId?: number
+    exchangeCurrencyId?: number
+    nfaFee?: number
+    nfaCurrencyId?: number
+    brokerageFee?: number
+    brokerageCurrencyId?: number
+    ipFee?: number
+    ipCurrencyId?: number
+    commission?: number
+    commissionCurrencyId?: number
+    orderRoutingFee?: number
+    orderRoutingCurrencyId?: number
+    productId: number
+    dayMargin?: number
+    nightMargin?: number
+    fullMargin?: ProductMargin
+}
+
+export type ProductMargin = {
+    id?: number
+    initialMargin: number
+    maintenanceMargin: number
+    timestamp: number
+}
+
+export type QueryName = {
+    name: string
+}
+
+export type QueryProductIds = {
+    productIds: number[]
+}
+
+export type QueryProductId = {
+    productId: number[]
+}
+
+export type QueryId = {
+    id: number
+}
+
+export type QueryIds = {
+    ids: number
+}
+
+export type QueryMasterId = {
+    masterId: number
+}
+
+export type QueryMasterIds = {
+    masterIds: number[]
+}
+
+export type OAuthTokenResponse = {
+    access_token?: string
+    token_type?: string
+    expires_in?: number
+    error?: string
+    error_description?: string
+}
+
+export type OAuthTokenRequestBody = {
+    grant_type: string
+    code: string
+    redirect_uri: string
+    client_id?: string
+    client_request?: string
+    httpAuth?: string
+}
+
+export type MeResponse = {
+    errorText?: string
+    userId?: string
+    name?: string
+    fullName?: string
+    email?: string
+    emailVerified?: boolean
+    isTrial?: boolean
+}
+
+export type AccessTokenResponse = {
+    errorText?: string
+    accessToken?: string
+    expirationTime?: string
+    passwordExpirationTime?: string
+    userStatus?: UserStatus
+    userId?: number
+    name?: string
+    hasLive?: boolean
+}
+
+export enum UserStatus {
+    ACTIVE = 'active',
+    CLOSED = 'Closed',
+    INITIATED = 'Initiated',
+    TEMPORARY_LOCKED = 'Temporary_Locked',
+    UNCONFIRMED_EMAIL = 'UnconfirmedEmail'
 }
 
 export type SubscribeRequestBody = {
@@ -674,6 +825,12 @@ export type SyncRequestResponse = {
     orderStrategyTypes?: any[]
 }
 
+export type Contract = {
+    id?: number
+    name: string
+    contractMaturityId: number
+}
+
 export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: any) => void}
 export type SubscribeDOMParams = {symbol: string; onSubscription: (item: any) => void}
 export type SubscribeHistogramParams = {
@@ -741,6 +898,7 @@ export interface MdSocket extends Socket {
         onSubscription: (item: any) => void
     ): Promise<() => void>
 }
+
 export enum URLs {
     DEMO_URL = 'https://demo.tradovateapi.com/v1',
     LIVE_URL = 'https://live.tradovateapi.com/v1',
@@ -790,4 +948,12 @@ export type Dictionary = {[key: string]: unknown}
 
 export type Listener = (item: any) => void
 
-
+export type AccessTokenRequestBody = {
+    name: string
+    password: string
+    appId?: string
+    appVersion?: string
+    deviceId?: string
+    cid?: string
+    sec?: string
+}
