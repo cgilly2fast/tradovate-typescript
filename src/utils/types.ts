@@ -884,8 +884,8 @@ export type SubscribeChartParams = {
 
 export type SubscribeBodyParams = {
     symbol: string
-    chartDescription: ChartDescription
-    timeRange: {
+    chartDescription?: ChartDescription
+    timeRange?: {
         // All fields in timeRange are optional, but at least any one is required
         closestTimestamp?: string
         closestTickId?: number
@@ -1000,4 +1000,12 @@ export type AccessTokenRequestBody = {
     deviceId?: string
     cid?: string
     sec?: string
+}
+
+export interface Strategy {
+    init(): StrategyState
+    next(
+        prevState: StrategyState,
+        action: Action
+    ): {state: StrategyState; effects: Action[]}
 }

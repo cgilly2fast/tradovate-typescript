@@ -16,7 +16,8 @@ import {
     isGetChartResponse,
     SubscribeChartParams,
     CancelBody,
-    CancelChartBody
+    CancelChartBody,
+    SubscribeBodyParams
 } from '../utils/types'
 import {tvGet} from '../utils/service'
 import RequestSocket from './RequestSocket'
@@ -78,7 +79,7 @@ export default class MarketDataSocket implements MdSocket {
         if (!this.isSubscribeUrl(url))
             throw new Error(`subscribe: ${url} is not a subscription url`)
 
-        const {symbol, chartDescription, timeRange} = body as SubscribeChartParams
+        const {symbol} = body as SubscribeBodyParams
 
         let removeListener: () => void
         let cancelUrl = this.subscribeCancelMap[url]
