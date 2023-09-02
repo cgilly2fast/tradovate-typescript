@@ -1,18 +1,27 @@
-import { getReplaySocket, getSocket } from '../utils/socketUtils'
-import { getCurrentAccount } from '../utils/storage'
-import { Action, Dictionary } from '../utils/types'
+import {stringify} from 'querystring'
+import {getReplaySocket, getSocket} from '../utils/socketUtils'
+import {getCurrentAccount} from '../utils/storage'
+import {
+    Action,
+    Dictionary,
+    PlaceOrderEffectParams,
+    PlaceOrderRequestBody
+} from '../utils/types'
+import ReplaySocket from '../websockets/ReplaySocket'
+import TradovateSocket from '../websockets/TradovateSocket'
 
 export const placeOrder = (state: Dictionary, action: Action): Action => {
-    const { event, payload } = action
+    const {event, payload} = action
 
     if (event === '/order/placeOrder') {
-        const { data, props } = payload
-        const { devMode } = props
-        const { contract, orderType, action, orderQty, price } = data
+        const {data, props} = payload
+        const {replayMode} = props
+        const {contract, orderType, action, orderQty, price} =
+            data as PlaceOrderEffectParams
 
-        const socket = devMode ? getReplaySocket() : getSocket()
+        const socket = replayMode ? getReplaySocket() : getSocket()
 
-        const { id, name } = getCurrentAccount()
+        const {id, name} = getCurrentAccount()
 
         const body = {
             symbol: contract.name,
@@ -22,23 +31,25 @@ export const placeOrder = (state: Dictionary, action: Action): Action => {
             action,
             price,
             orderType,
-            isAutomated: true,
+            isAutomated: true
         }
-
-        socket.request({
-            url: 'order/placeOrder',
-            body,
-            onResponse: (id, item) => {
-                if (id === item.i && item.s === 200) {
-                    console.log(
-                        `[DevX Trade]: Placed order successfully ${item.d}`,
-                    )
-                } else {
-                    console.log(`[DevX Trade]: Order failed ${item.d}`)
-                }
-            },
-        })
+        sendPlaceOrder(socket, body)
     }
 
     return action
+}
+
+async function sendPlaceOrder(
+    socket: TradovateSocket | ReplaySocket,
+    body: PlaceOrderRequestBody
+) {
+    try {
+        const response = await socket.request({
+            url: 'order/placeOrder',
+            body
+        })
+        console.log(`[DevX Trade]: Placed order successfully ${response.d}`)
+    } catch (err) {
+        console.log(`[DevX Trade]: Order failed ${err} body: ${stringify(body)}`)
+    }
 }

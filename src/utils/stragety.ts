@@ -147,9 +147,15 @@ export default class Strategy {
                             body: {speed: (this.props.replaySpeed as number) ?? 400}
                         })
 
-                        log(`[DevX Trader]: Replay socket speed restored to ${this.props.replaySpeed}`)
+                        log(
+                            `[DevX Trader]: Replay socket speed restored to ${this.props.replaySpeed}`
+                        )
                     } catch (err) {
-                        log(`[DevX Trader]: Error Replay socket speed restoration ${stringify(item)}`)
+                        log(
+                            `[DevX Trader]: Error Replay socket speed restoration ${stringify(
+                                item
+                            )}`
+                        )
                         log(err)
                     }
                 }
@@ -160,7 +166,6 @@ export default class Strategy {
                 undefined,
                 undefined,
                 subscription
-                
             )
             const accountRes = await this.replaySocket.request({
                 url: 'account/list'
@@ -172,7 +177,7 @@ export default class Strategy {
 
             log(`[DevX Trader]: account: ${stringify(account)}`)
         } catch (err) {
-            log(`[DevX Trader]: devModeSetup: ${err}`)
+            log(`[DevX Trader]: replayModeSetup: ${err}`)
         }
     }
 
@@ -287,7 +292,7 @@ export default class Strategy {
         if (event === TdEventType.Clock) {
             const {current_period} = prevState
             const {replayPeriods} = props
-            const {t} = JSON.parse(data as string)
+            const {t} = JSON.parse(data as unknown as string)
 
             const curStop = new Date(replayPeriods[current_period!]?.stop)?.toJSON()
 

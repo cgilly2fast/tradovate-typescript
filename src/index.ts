@@ -38,7 +38,7 @@ const main = async (symbol: string = 'ES') => {
         contract: {name: 'ESU3', id: 2665267},
         timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
         timeRangeValue: 2,
-        devMode: REPLAY,
+        replayMode: REPLAY,
         replayPeriods: [
             {
                 start: `2023-08-14T13:00:00.000Z`, //use your local time, new Dat(YYYY-DD-MM).toJSON() will transform it to universal
@@ -72,7 +72,7 @@ const main = async (symbol: string = 'ES') => {
     //     contract:{name:"ESU3", id:2665267},
     //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
     //     timeRangeValue: 2,
-    //     devMode:replay,
+    //     replayMode:replay,
     //     replayPeriods: [{
     //         start: new Date(`2023-08-08T03:30`), //use your local time, .toJSON will transform it to universal
     //         stop: new Date(`2023-08-08T09:30`)

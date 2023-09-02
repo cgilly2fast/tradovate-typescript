@@ -301,7 +301,7 @@ export type BarPacket = {
     bars: Bar[]
 }
 export type Payload = {
-    data: {[k: string]: unknown} | string
+    data: {[k: string]: unknown}
     props: StrategyProps
 }
 export type Action = {
@@ -408,6 +408,9 @@ export type EndpointRequestBody = {
     'contract/ldeps': undefined
     'contract/rollcontract': RollContractRequestBody
     'contract/suggest': undefined
+    'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
+    'order/placeOrder': PlaceOrderRequestBody
+    'order/placeOCO': PlaceOCORequestBody
 }
 
 export type EndpointRequestQuery = {
@@ -440,6 +443,9 @@ export type EndpointRequestQuery = {
     'contract/ldeps': QueryMasterIds
     'contract/rollcontract': undefined
     'contract/suggest': ContractSuggestQuery
+    'orderStrategy/startOrderStrategy': undefined
+    'order/placeOrder': undefined
+    'order/placeOCO': undefined
 }
 
 export type EndpointResponse = {
@@ -473,6 +479,104 @@ export type EndpointResponse = {
     'contract/ldeps': Contract[]
     'contract/rollcontract': RollContractResponse
     'contract/suggest': Contract[]
+    'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
+    'order/placeOrder': PlaceOrderResponse
+    'order/placeOCO': PlaceOCOOrderResponse
+}
+
+export type PlaceOCOOrderResponse = {
+    failureReason: FailureReason
+    failureText: string
+    orderId: number
+    ocoId: number
+}
+
+export type PlaceOCORequestBody = {
+    accountId?: number
+    accountSpec?: string
+    clOrdId?: string
+    action: OrderAction
+    symbol: string
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated?: boolean
+    other: OtherOrderOCO
+}
+
+export type OtherOrderOCO = {
+    action: OrderAction
+    clOrdId?: string
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+}
+
+export type PlaceOrderResponse = {
+    failureReason: FailureReason
+    failureText: string
+    orderId: number
+}
+
+export type PlaceOrderRequestBody = {
+    accountId?: number
+    accountSpec?: string
+    clOrdId?: string
+    action: OrderAction
+    symbol: string
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated?: boolean
+}
+
+export type StartOrderStrategyResponse = {
+    errorText: string
+    orderStrategy: OrderStrategy
+}
+
+export type StartOrderStrategyRequestBody = {
+    accountId?: number
+    accountSpec?: string
+    symbol: string
+    orderStrategyTypeId: number // must be 2
+    action: OrderAction
+    params?: string //{ entryVersion: EntryVersion; brackets: OrderBracket[]}
+    uuid?: string
+    customTag50?: string
+}
+
+export type EntryVersion = {
+    orderQty: number
+    orderType: ORDER_TYPE
+}
+
+export type OrderBracket = {
+    qty: number
+    profitTarget: number
+    stopLoss: number
+    trailingStop: boolean
 }
 
 export type CancelBody = {symbol: string}
@@ -701,7 +805,7 @@ export enum CheckStatus {
 export type CancelOrderResponse = CommandResponse
 
 export type CommandResponse = {
-    failureReason?: string
+    failureReason?: FailureReason
     failureText?: string
     commandId?: number
 }
@@ -717,8 +821,25 @@ export enum FailureReason {
     INVALID_PRICE = 'InvalidPrice',
     LIQUIDATION_ONLY = 'LiquidationOnly',
     LIQUIDATION_ONLY_BEFORE_EXPIRATION = 'LiquidationOnlyBeforeExpiration',
-    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified'
-    //complete later
+    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified',
+    MAX_ORDER_QTY_LIMIT_REACHED = 'MaxOrderQtyLimitReached',
+    MAX_POS_LIMIT_MISCONFIGURED = 'MaxPosLimitMisconfigured',
+    MAX_POS_LIMIT_REACHED = 'MaxPosLimitReached',
+    MAX_TOTAL_POS_LIMIT_REACHED = 'MaxTotalPosLimitReached',
+    MULTIPLE_ACCOUNT_PLAN_REQUIRED = 'MultipleAccountPlanRequired',
+    NO_QUOTE = 'NoQuote',
+    NOT_ENOUGH_LIQUIDITY = 'NotEnoughLiquidity',
+    OTHER_EXECUTION_RELATED = 'OtherExecutionRelated',
+    PARENT_REJECTED = 'ParentRejected',
+    RISK_CHECK_TIMEOUT = 'RiskCheckTimeout',
+    SESSION_CLOSED = 'SessionClosed',
+    SUCCESS = 'Success',
+    TOO_LATE = 'TooLate',
+    TRADING_LOCKED = 'TradingLocked',
+    TRAILING_STOP_NON_ORDER_QTY_MODIFY = 'TrailingStopNonOrderQtyModify',
+    UNAUTHORIZED = 'Unauthorized',
+    UNKNOWN_REASON = 'UnknownReason',
+    UNSUPPORTED = 'Unsupported'
 }
 
 export type SimpleResponse = {
@@ -839,7 +960,7 @@ export type SyncRequestResponse = {
     positions?: any[]
     fillPairs?: any[]
     orders?: any[]
-    contracts?: any[]
+    contracts?: Contract[]
     contractMaturities?: any[]
     products?: any[]
     exchanges?: any[]
@@ -849,18 +970,45 @@ export type SyncRequestResponse = {
     executionReports?: any[]
     orderVersions?: any[]
     fills?: any[]
-    orderStrategies?: any[]
+    orderStrategies?: OrderStrategy[]
     orderStrategyLinks?: any[]
     userProperties?: any[]
     userPlugins?: any[]
-    conractGroups: any[]
+    contractGroups: any[]
     orderStrategyTypes?: any[]
+}
+
+export type OrderStrategy = {
+    id?: number
+    accountId: number
+    timestamp: string
+    contractId: number
+    orderStrategyTypeId: number
+    initiatorId: number
+    action: OrderAction
+    params?: string //{entryVersion: EntryVersion; brackets: OrderBracket[]}
+    uuid?: string
+    status: StartOrderStrategyStatus
+    failureMessage?: string
+    senderId?: number
+    customTag50?: string
+    userSessionId?: string
+}
+
+export enum StartOrderStrategyStatus {
+    ACTIVE_STRATEGY = 'ActiveStrategy',
+    EXECUTION_FAILED = 'ExecutionFailed',
+    EXECUTION_FINISHED = 'ExecutionFinished',
+    EXECUTION_INTERRUPTED = 'ExecutionInterrupted',
+    INACTIVE_STRATEGY = 'InactiveStrategy',
+    NOT_ENOUGH_LIQUIDITY = 'NotEnoughLiquidity',
+    STOPPED_BY_USER = 'StoppedByUser'
 }
 
 export type Contract = {
     id?: number
     name: string
-    contractMaturityId: number
+    contractMaturityId?: number
 }
 
 export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: any) => void}
@@ -1008,4 +1156,28 @@ export interface Strategy {
         prevState: StrategyState,
         action: Action
     ): {state: StrategyState; effects: Action[]}
+}
+
+export type StartOrderStrategyEffectParams = {
+    contract: Contract
+    action: OrderAction
+    brackets: OrderBracket[]
+    entryVersion: EntryVersion
+}
+
+export type PlaceOrderEffectParams = {
+    contract: Contract
+    orderType: ORDER_TYPE
+    action: OrderAction
+    orderQty: number
+    price: number
+}
+
+export type PlaceOCOOrderEffectParams = {
+    contract: Contract
+    orderType: ORDER_TYPE
+    action: OrderAction
+    orderQty: number
+    price: number
+    other: OtherOrderOCO
 }
