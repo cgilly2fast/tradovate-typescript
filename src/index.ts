@@ -84,12 +84,11 @@ const main = async (symbol: string = 'ES') => {
     //     runId: runId
     // }
 
-    await db
-        .collection('trade_runs')
-        .doc(strategyParams.runId + '')
-        .set(strategyParams)
-
     try {
+        await db
+            .collection('trade_runs')
+            .doc(strategyParams.runId + '')
+            .set(strategyParams)
         new TrendStrategy(strategyParams)
     } catch (err) {
         console.log(err)
