@@ -1,3 +1,4 @@
+import ReplaySocket from '../websockets/ReplaySocket'
 import Dispatcher from './dispatcher'
 
 export enum ORDER_TYPE {
@@ -302,15 +303,11 @@ export type BarPacket = {
 }
 export type Payload = {
     data: {[k: string]: unknown}
-    props: StrategyProps
+    props: StrategyProps | any
 }
 export type Action = {
     event: string
     payload: Payload
-}
-export type EventHandlerResults = {
-    state: StrategyState
-    effects: Action[]
 }
 export enum Trend {
     DOWN = -1,
@@ -408,9 +405,11 @@ export type EndpointRequestBody = {
     'contract/ldeps': undefined
     'contract/rollcontract': RollContractRequestBody
     'contract/suggest': undefined
+    'commandReport/deps': undefined
     'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
     'order/placeOrder': PlaceOrderRequestBody
     'order/placeOCO': PlaceOCORequestBody
+    'order/modifyorder': ModifyOrderRequestBody
 }
 
 export type EndpointRequestQuery = {
@@ -443,16 +442,18 @@ export type EndpointRequestQuery = {
     'contract/ldeps': QueryMasterIds
     'contract/rollcontract': undefined
     'contract/suggest': ContractSuggestQuery
+    'commandReport/deps': QueryMasterId
     'orderStrategy/startOrderStrategy': undefined
     'order/placeOrder': undefined
     'order/placeOCO': undefined
+    'order/modifyorder': undefined
 }
 
 export type EndpointResponse = {
     'account/list': AccountListResponse
     'order/list': OrderListResponse
     'order/item': OrderItemResponse
-    'order/cancelorder': CancelOrderResponse
+    'order/cancelorder': CommandResponse
     authorize: undefined
     'user/syncrequest': SyncRequestResponse
     'replay/checkreplaysession': CheckReplaySessionResponse
@@ -479,9 +480,50 @@ export type EndpointResponse = {
     'contract/ldeps': Contract[]
     'contract/rollcontract': RollContractResponse
     'contract/suggest': Contract[]
+    'commandReport/deps': CommandReport[]
     'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
     'order/placeOrder': PlaceOrderResponse
     'order/placeOCO': PlaceOCOOrderResponse
+    'order/modifyorder': CommandResponse
+}
+export type CommandReport = {
+    id?: number
+    commandId: number
+    timestamp: string
+    commandStatus: CommandStatus
+    rejectReason?: FailureReason
+    text?: string
+    ordStatus?: OrderStatus
+}
+
+export enum CommandStatus {
+    AT_EXECUTION = 'AtExecution',
+    EXECUTION_REJECTED = 'ExecutionRejected',
+    EXECUTION_STOPPED = 'ExecutionStopped',
+    EXECUTION_SUSPENDED = 'ExecutionSuspended',
+    ON_HOLD = 'OnHold',
+    PEDNING = 'Pending',
+    PENDING_EXECUTION = 'PendingExecution',
+    REPLACED = 'Replaced',
+    RISK_PASSED = 'RiskPassed',
+    RISK_REJECTED = 'RiskRejected'
+}
+
+export type ModifyOrderRequestBody = {
+    orderId: number
+    clOrdId?: string
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated?: boolean
 }
 
 export type PlaceOCOOrderResponse = {
@@ -649,11 +691,11 @@ export type QueryIds = {
 }
 
 export type QueryMasterId = {
-    masterId: number
+    masterid: number
 }
 
 export type QueryMasterIds = {
-    masterIds: number[]
+    masterids: number[]
 }
 
 export type OAuthTokenResponse = {
@@ -802,7 +844,6 @@ export enum CheckStatus {
     OK = 'OK',
     START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted'
 }
-export type CancelOrderResponse = CommandResponse
 
 export type CommandResponse = {
     failureReason?: FailureReason
@@ -950,32 +991,384 @@ export type OrderDependentsResponse = Order[]
 export type OrderLDependentsResponse = Order[]
 
 export type SyncRequestResponse = {
-    users: any[]
-    accounts?: any[]
-    accountRiskStatus?: any[]
-    marginRiskStatuses?: any[]
-    userAccountAutoLiqs?: any[]
-    cashBalances?: any[]
-    currencies?: any[]
-    positions?: any[]
-    fillPairs?: any[]
-    orders?: any[]
+    users: User[]
+    accounts?: Account[]
+    accountRiskStatuses?: AccountRiskStatus[]
+    marginSnapshots?: MarginSnapshot[]
+    userAccountAutoLiqs?: UserAccountAutoLiqs[]
+    cashBalances?: CashBalances[]
+    currencies?: Currency[]
+    positions?: Position[]
+    fillPairs?: FillPair[]
+    orders?: Order[]
     contracts?: Contract[]
-    contractMaturities?: any[]
-    products?: any[]
-    exchanges?: any[]
+    contractMaturities?: ContractMaturity[]
+    products?: Product[]
+    exchanges?: Exchange[]
     spreadDefinitions?: any[]
-    commands?: any[]
-    commandReports?: any[]
-    executionReports?: any[]
-    orderVersions?: any[]
-    fills?: any[]
+    commands?: Command[]
+    commandReports?: CommandReport[]
+    executionReports?: ExecutionReport[]
+    orderVersions?: OrderVersion[]
+    fills?: Fill[]
     orderStrategies?: OrderStrategy[]
-    orderStrategyLinks?: any[]
-    userProperties?: any[]
-    userPlugins?: any[]
-    contractGroups: any[]
+    orderStrategyLinks?: OrderStrategyLink[]
+    userProperties?: UserProperties[]
+    properties?: Properties[]
+    userPlugins?: UserPlugin[]
+    contractGroups: ContractGroups[]
     orderStrategyTypes?: any[]
+}
+
+export type OrderStrategyTypes = {
+    id?: number
+    name: string
+    enabled: boolean
+}
+
+export type ContractGroups = {
+    id?: number
+    name: string
+}
+
+export type UserPlugin = {
+    id?: number
+    userId: number
+    timestamp: string
+    planPrice: number
+    creditCardTransactionId?: number
+    cashBalanceLogId?: number
+    creditCardId?: number
+    accountId?: number
+    pluginName: number
+    approval: boolean
+    entitlementId?: number
+    startDate: TradeDate
+    expirationDate?: TradeDate
+    paidAmount: number
+    autoRenewal: boolean
+    planCategories: string
+}
+
+export type Properties = {
+    id?: number
+    name: string
+    propertyType: PropertyType
+    enumOptions?: string
+    defaultValue: string
+}
+
+export enum PropertyType {
+    BOOLEAN = 'Boolean',
+    ENUM = 'Enum',
+    INTEGER = 'INTEGER',
+    STRING = 'String'
+}
+
+export type UserProperties = {
+    id?: number
+    userId: number
+    propertyId: number
+    value: string
+}
+
+export type OrderStrategyLink = {
+    id?: number
+    orderStrategyId: number
+    orderId: number
+    label: string
+}
+
+export type Fill = {
+    id?: number
+    orderId: number
+    contractId: number
+    timestamp: number
+    tradeDate: number
+    action: OrderAction
+    qty: number
+    price: number
+    active: boolean
+    finallyPaired: number
+}
+
+export type OrderVersion = {
+    id?: number
+    orderId: number
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+}
+
+export type ExecutionReport = {
+    id?: number
+    commandId: number
+    name: string
+    accountId: number
+    contractId: number
+    timestamp: string
+    tradeDate: TradeDate
+    orderId: number
+    execType: ExecutionReportType
+    execRefId: number
+    ordStatus: OrderStatus
+    action: OrderAction
+    cumQty?: number
+    avgPx?: number
+    lastQty?: number
+    lastPx?: number
+    rejectReason: FailureReason
+    text: string
+    exchangeOrderId: string
+}
+
+export enum ExecutionReportType {
+    CANCELED = 'Canceled',
+    COMPLETED = 'Completed',
+    DONE_FOR_DAY = 'DoneForDay',
+    EXPIRED = 'Expired',
+    NEW = 'New',
+    ORDER_STATUS = 'OrderStatus',
+    PEDNING_CANCEL = 'PendingCancel',
+    PEDNING_NEW = 'PendingNew',
+    PENDING_REPLACE = 'PendingReplace',
+    REJECTED = 'Rejected',
+    REPLACED = 'Replaced',
+    STOPPED = 'Stopped',
+    SUSPENED = 'Suspended',
+    TRADE = 'Trade',
+    TRADE_CANCEL = 'TradeCancel',
+    TRADE_CORRECT = 'TradeCorrect'
+}
+
+export type Command = {
+    id?: number
+    orderId: number
+    timestamp: string
+    clOrdid?: number
+    commandType: CommandType
+    commandStatus: CommandStatus
+    senderId?: number
+    userSessionId?: number
+    activationTime: string
+    customTag50: string
+    isAutomated: boolean
+}
+
+export enum CommandType {
+    CANCEL = 'Cancel',
+    MODIFY = 'Modify',
+    New = 'New'
+}
+
+export type SpreadDefinition = {
+    id?: number
+    timestamp: string
+    spreadType: SpreadType
+    uds: boolean
+}
+
+export enum SpreadType {
+    BUNDLE = 'Bundle',
+    BUNDLE_SPREAD = 'BundleSpread',
+    BUTERFLY = 'Butterfly',
+    CALENDAR_SPREAD = 'CalendarSpread',
+    CONDOR = 'Condor',
+    CRACK = 'Crack',
+    DOUBLE_BUTTEFLY = 'DoubleButterfly',
+    GENERAL = 'General',
+    INTERCOMMODITY_SPREAD = 'IntercommoditySpread',
+    LAGGED_INTERCOMMODITY_SPREAD = 'LaggedIntercommoditySpread',
+    PACK = 'Pack',
+    PACK_BUTTERFLY = 'PackButterfly',
+    PACK_SPREAD = 'PackSpread',
+    REDUCED_TICK_CALENDAR_SPREAD = 'ReducedTickCalendarSpread',
+    REVERSE_INTERCOMMODITY_SPREAD = 'ReverseIntercommoditySpread',
+    REVERSE_SPREAD = 'ReverseSpread',
+    STRIP = 'Strip',
+    TREASURY_INTERCOMMODITY_SPREAD = 'TreasuryIntercommoditySpread'
+}
+
+export type Exchange = {
+    id?: number
+    name: string
+}
+
+export type Product = {
+    id?: number
+    name: string
+    currencyId: number
+    productType: ProductType
+    description: string
+    exchangeId: number
+    contractGroupId: number
+    riskDiscountContractGroupIda: number
+    status: ProductStatus
+    months?: string
+    isSecured?: boolean
+    valuePerPoint?: number
+    priceFormatType?: PriceFormatType
+    priceFormat: number
+    tickSize: number
+}
+
+export enum PriceFormatType {
+    DECIMAL = 'Decimal',
+    FRACTIONAL = 'Fractional'
+}
+
+export enum ProductStatus {
+    INACTIVE = 'Inactive',
+    LOCKED = 'Locked',
+    READY_FOR_CONTRACTS = 'ReadyForContracts',
+    READY_TO_TRADE = 'ReadyToTrade',
+    VERIFIED = 'Verified'
+}
+
+export enum ProductType {
+    COMMON_STOCK = 'CommonStock',
+    CONTINUOUS = 'Continuous',
+    CRYPTOCURRENCY = 'Cryptocurrency',
+    FUTURES = 'Futures',
+    MARKET_INTERNALS = 'MarketInternals',
+    OPTIONS = 'Options',
+    SPREAD = 'Spread'
+}
+
+export type ContractMaturity = {
+    id?: number
+    productId: number
+    expirationMonth: number
+    expirationDate: string
+    firstIntentDate?: string
+    underlyingId?: string
+    isFront: boolean
+}
+
+export type FillPair = {
+    id?: number
+    positionId: number
+    buyFillId: number
+    sellFillId: number
+    qty: number
+    buyPrice: number
+    sellPrice: number
+    active: boolean
+}
+
+export type Position = {
+    id?: number
+    accountId: number
+    contractId: number
+    timestamp: string
+    tradeDate: string
+    netPos: number
+    netPrice?: number
+    bought: number
+    boughtValue: number
+    sold: number
+    soldValue: number
+    prevPos: number
+    prevPrice?: number
+}
+
+export type Currency = {
+    id?: number
+    name: string
+    symbol?: string
+}
+
+export type CashBalances = {
+    id?: number
+    accountId: number
+    timestamp: number
+    tradeDate: TradeDate
+    currencyId: number
+    amount: number
+    realizedPnL?: number
+    weekRealizedPnL?: number
+}
+
+export type TradeDate = {
+    year: number
+    month: number
+    day: number
+}
+
+export type UserAccountAutoLiqs = {
+    id?: number
+    changesLocked?: boolean
+    marginPercentageAlert?: number
+    dailyLossPercentageAlert?: number
+    dailyLossAlert?: number
+    marginPercentageLiqOnly?: number
+    dailyLossPercentageLiqOnly?: number
+    dailyLossLiqOnly?: number
+    marginPercentageAutoLiq?: number
+    dailyLossPercentageAutoLiq?: number
+    dailyLossAutoLiq?: number
+    weeklyLossAutoLiq?: number
+    flattenTimestamp?: string
+    trailingMaxDrawdown?: number
+    trailingMaxDrawdownLimit?: number
+    trailingMaxDrawdownMode?: TrailingMaxDrawdownMode
+    dailyProfitAutoLiq?: number
+    weeklyProfitAutoLiq?: number
+    doNotUnlock?: boolean
+}
+
+export enum TrailingMaxDrawdownMode {
+    EOD = 'EOD',
+    REAL_TIME = 'RealTime'
+}
+
+export type MarginSnapshot = {
+    id?: number
+    timestamp: string
+    riskTimePeriodId: number
+    initialMargin: number
+    maintenanceMargin: number
+    autoLiqLevel?: number
+    liqOnlyLevel?: number
+    totalUsedMargin: number
+    fullInitialMargin: number
+}
+
+export type AccountRiskStatus = {
+    id?: number
+    adminAction?: AdminAction
+    adminTimestamp?: string
+    liquidationOnly?: string
+    userTriggeredLiqOnly?: boolean
+}
+
+export enum AdminAction {
+    AGREE_ON_LIQ_ONLY_MODE_BY_AUTO_LIQ = 'AgreedOnLiqOnlyModeByAutoLiq',
+    AGREE_ON_LIQUIDATION_BY_AUTO_LIQ = 'AgreedOnLiquidationByAutoLiq',
+    DISABLE_AUTO_LIQ = 'DisableAutoLiq',
+    LIQUIDATE_IMMEDIATELY = 'LiquidateImmediately',
+    LIQUIDATE_ONLY_MODE_IMMEDIATELY = 'LiquidateOnlyModeImmediately',
+    LOCK_TRADING_IMMEDIATELY = 'LockTradingImmediately',
+    NORMAL = 'Normal',
+    PLACE_AUTO_LIQ_ON_HOLD = 'PlaceAutoLiqOnHold'
+}
+
+export type User = {
+    id?: number
+    name: string
+    timestamp?: string
+    email: string
+    status: UserStatus
+    professional?: boolean
+    organizationId?: boolean
+    linkedUserId: number
+    foreignIntroducingBrokerId?: number
 }
 
 export type OrderStrategy = {
@@ -1043,7 +1436,7 @@ export type SubscribeBodyParams = {
 }
 
 export interface Socket {
-    connect(url: string): Promise<void>
+    connect(): Promise<void>
     disconnect(): void
     isConnected(): boolean
 }
@@ -1064,6 +1457,7 @@ export type TradovateSocketSynchronizeParams = {
 export interface TvSocket extends Socket {
     synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void>
     addListener(fn: (item: ResponseMsg<any> | ServerEvent) => void): () => Listener[]
+    request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>>
 }
 
 export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
@@ -1108,7 +1502,7 @@ export type TimeRange = {
     asMuchAsElements?: number
 }
 
-export interface StrategyParams {
+export interface StrategyBodyParams {
     contract: Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
@@ -1180,4 +1574,15 @@ export type PlaceOCOOrderEffectParams = {
     orderQty: number
     price: number
     other: OtherOrderOCO
+}
+
+export type SocketsParams = {
+    tvSocket: TvSocket
+    mdSocket: MdSocket
+    replaySocket: ReplaySocket
+}
+
+export type EventHandlerResults<T> = {
+    state: T
+    effects: Action[]
 }
