@@ -3,6 +3,7 @@
 /lib
 fbCredentials.ts
 .env
+/strategies/trendv2/
 
 # testing
 /coverage
