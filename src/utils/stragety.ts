@@ -17,17 +17,19 @@ import {
     TvSocket,
     MdSocket,
     TimeRange,
-    StrategyParams,
-    StrategyState
+    StrategyBodyParams,
+    StrategyState,
+    SocketsParams
 } from './types'
 import {setAvailableAccounts} from './storage'
 import {log} from 'console'
 import {stringify} from '../utils/stringify'
+import ReplaySocket from '../websockets/ReplaySocket'
 
 export default class Strategy {
-    private socket
-    private mdSocket
-    private replaySocket
+    private tvSocket: TvSocket
+    private mdSocket: MdSocket
+    private replaySocket: ReplaySocket
     private model
     private mw
     private mws: any[]
@@ -39,7 +41,7 @@ export default class Strategy {
     // private timeRangeType
     // private timeRangeValue
     // private withHistogram
-    private replayMode
+    private replayMode: boolean
     // private replaySpeed
     // private replayPeriods
 
@@ -47,31 +49,27 @@ export default class Strategy {
 
     private D: Dispatcher
 
-    constructor(params: StrategyParams) {
-        if (params.replayMode && !params.replayPeriods)
+    constructor<T>(
+        params: StrategyBodyParams,
+        sockets: SocketsParams,
+        init: () => T,
+        next: (prevState: StrategyState, action: Action) => EventHandlerResults<T>
+    ) {
+        if (params.replayMode && (!params.replayPeriods || !sockets.replaySocket))
             throw new Error(
-                'Strategy: tried to enter replayMode but replaySpeed or replayPeriods not passed'
+                'Strategy: tried to enter replayMode but replaySpeed or replaySocket not passed'
             )
-        this.socket = getSocket()
-        this.mdSocket = getMdSocket()
-        this.replaySocket = getReplaySocket()
+
+        this.tvSocket = sockets.tvSocket
+        this.mdSocket = sockets.mdSocket
+        this.replaySocket = sockets.replaySocket
 
         this.replayMode = params.replayMode
-        // this.underlyingType = props.underlyingType
-        // this.elementSize = props.elementSize
-        // this.contract = props.contract
-        // this.elementSizeUnit = props.elementSizeUnit
-        // this.timeRangeType = props.timeRangeType
-        // this.timeRangeValue = props.timeRangeValue
-        // this.withHistogram = props.withHistogram
-        // this.replayMode = props.replayMode
-        // this.replayPeriods = props.replayPeriods ?? []
-        // this.replaySpeed = props.replaySpeed ?? 400
 
         this.mws = [] // .init() function of subclass can add middleware to by calling .addMiddleware
 
         this.model = {
-            ...this.init(),
+            ...init(),
             current_period: this.replayMode ? 0 : undefined
         }
 
@@ -87,7 +85,7 @@ export default class Strategy {
 
         this.D = new Dispatcher({
             model: this.model,
-            reducer: this.next.bind(this),
+            reducer: next.bind(this),
             mw: this.mw
         })
 
@@ -101,12 +99,8 @@ export default class Strategy {
         if (this.replayMode) {
             this.replayModeSetup()
         } else {
-            this.setupEventCatcher(this.socket, this.mdSocket)
+            this.setupEventCatcher(this.tvSocket, this.mdSocket)
         }
-    }
-
-    init(): StrategyState {
-        return {}
     }
 
     runSideFx = () => {
@@ -263,14 +257,10 @@ export default class Strategy {
         mws.forEach((mw: any) => this.mws.push(mw))
     }
 
-    next(prevState: StrategyState, action: Action) {
-        log(prevState, action)
-    }
-
     catchReplaySessionsDefault(
         prevState: StrategyState,
         action: Action
-    ): EventHandlerResults {
+    ): EventHandlerResults<T> {
         const {event, payload} = action
         const {data, props} = payload
 

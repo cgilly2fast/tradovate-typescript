@@ -2,23 +2,22 @@ import 'dotenv/config'
 import {credentials} from './config/tvCredentials'
 import {connect} from './endpoints/connect'
 import {setAccessToken} from './utils/storage'
-import {ElementSizeUnit, BarType, TimeRangeType} from './utils/types'
-import TrendStrategy, {TrendStrategyParams} from './strageties/trendv2/trendStrategy'
-import {
-    connectSockets,
-    disconnectReplaySocket,
-    disconnectSockets,
-    getSocket,
-    getReplaySocket
-} from './utils/socketUtils'
+import {ElementSizeUnit, BarType, TimeRangeType, TvSocket, MdSocket} from './utils/types'
+import TrendStrategy, {TrendStrategyBodyParams} from './strategies/trendv2/trendStrategy'
 import express, {Express, Request, Response} from 'express'
 import {db} from './config/fbCredentials'
 import {contractFind} from './endpoints/contractFind'
+import ReplaySocket from './websockets/ReplaySocket'
+import TradovateSocket from './websockets/TradovateSocket'
+import MarketDataSocket from './websockets/MarketDataSocket'
 
 const app: Express = express()
 const port = 8080
 const REPLAY = true
 const LIVE = false
+let tvSocket: TvSocket
+let mdSocket: MdSocket
+let replaySocket: ReplaySocket
 
 setAccessToken('', ' ', '')
 
@@ -27,14 +26,24 @@ const main = async (symbol: string = 'ES') => {
 
     await connect(credentials)
 
+    if (REPLAY) {
+        tvSocket = mdSocket = replaySocket = new ReplaySocket()
+    } else {
+        tvSocket = new TradovateSocket(LIVE)
+        mdSocket = new MarketDataSocket()
+    }
+
     const contract = await contractFind(symbol)
     console.log(contract)
-    await connectSockets(REPLAY, LIVE)
+
+    await Promise.all([tvSocket.connect(), mdSocket.connect()])
+
     const runsSnapshot = await db.collection('trade_runs').count().get()
     const runId = runsSnapshot.data().count + 1
+
     console.log('[DevX Trader]: Run Id: ' + runId)
 
-    const strategyParams: TrendStrategyParams = {
+    const bodyParams: TrendStrategyBodyParams = {
         contract: {name: 'ESU3', id: 2665267},
         timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
         timeRangeValue: 2,
@@ -68,32 +77,16 @@ const main = async (symbol: string = 'ES') => {
         runId: runId
     }
 
-    // const strategyParams:TrendStrategyParams ={
-    //     contract:{name:"ESU3", id:2665267},
-    //     timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
-    //     timeRangeValue: 2,
-    //     replayMode:replay,
-    //     replayPeriods: [{
-    //         start: new Date(`2023-08-08T03:30`), //use your local time, .toJSON will transform it to universal
-    //         stop: new Date(`2023-08-08T09:30`)
-    //     }],
-    //     underlyingType:BarType.MINUTE_BAR, // Available values: Tick, DailyBar, MinuteBar, Custom, DOM
-    //     elementSize:1,
-    //     elementSizeUnit:ElementSizeUnit.UNDERLYING_UNITS, // Available values: Volume, Range, UnderlyingUnits, Renko, MomentumRange, PointAndFigure, OFARange
-    //     withHistogram: false,
-    //     runId: runId
-    // }
-
-    await db
-        .collection('trade_runs')
-        .doc(strategyParams.runId + '')
-        .set(strategyParams)
-
     try {
-        new TrendStrategy(strategyParams)
+        await db
+            .collection('trade_runs')
+            .doc(bodyParams.runId + '')
+            .set(bodyParams)
+
+        new TrendStrategy(bodyParams, {tvSocket, mdSocket, replaySocket})
     } catch (err) {
         console.log(err)
-        await disconnectSockets()
+        await Promise.all([mdSocket.disconnect(), tvSocket.disconnect()])
     }
 }
 
@@ -111,11 +104,7 @@ app.get('/connect', async (req: Request, res: Response) => {
 })
 
 app.get('/disconnect', async (req: Request, res: Response) => {
-    if (REPLAY) {
-        await disconnectReplaySocket()
-    } else {
-        await disconnectSockets()
-    }
+    await Promise.all([mdSocket.disconnect(), tvSocket.disconnect()])
     res.send('[DevX Trader]: Stopped')
 })
 
@@ -128,9 +117,8 @@ app.get('/cancelOrders', async (req: Request, res: Response) => {
 app.get('/speedUpReplay', async (req: Request, res: Response) => {
     if (REPLAY) {
         const speed = req.query.speed ? parseInt(req.query.speed as string) : 400
-        const replaySocket = getReplaySocket()
         try {
-            const response = await replaySocket.request({
+            const response = await tvSocket.request({
                 url: 'replay/changespeed',
                 body: {speed: speed}
             })
@@ -152,14 +140,13 @@ app.listen(port, () => {
 })
 
 async function cancelOrders() {
-    const socket = getSocket()
-    const orders = await socket.request({url: 'order/list'})
+    const orders = await tvSocket.request({url: 'order/list'})
     const activeOrders = orders.d.filter((order: any) => {
         return order.ordStatus === 'Working'
     })
 
     activeOrders.forEach(async (order: any) => {
-        await socket.request({
+        await tvSocket.request({
             url: 'order/cancelorder',
             body: {orderId: order.id}
         })

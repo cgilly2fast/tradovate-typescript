@@ -3,7 +3,6 @@
 /lib
 fbCredentials.ts
 .env
-/strategies/trendv2/
 
 # testing
 /coverage
@@ -11,6 +10,7 @@ fbCredentials.ts
 
 # production
 /build
+strategies
 
 # misc
 .DS_Store
