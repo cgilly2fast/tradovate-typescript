@@ -1,3 +1,4 @@
+import ReplaySocket from '../websockets/ReplaySocket'
 import Dispatcher from './dispatcher'
 
 export enum ORDER_TYPE {
@@ -151,9 +152,401 @@ export type Quote = {
         EmptyBook: Price
     }
 }
+// export type PropsEntity = {
+//     position: Position
+//     cashBalance: CashBalance
+//     account: Account
+//     marginSnapshot: MarginSnapshot
+//     currency: Currency
+//     fillPair: FillPair
+//     order: Order
+//     contract: Contract
+//     contractMaturity: ContractMaturity
+//     product: Product
+//     exchange: Exchange
+//     command: Command
+//     commandReport: CommandReport
+//     executionReport: ExecutionReport
+//     orderVersion: OrderVersion
+//     fill: Fill
+//     orderStrategy: OrderStrategy
+//     orderStrategyLink: OrderStrategyLink
+//     contractGroup: ContractGroup
+// }
 
-export type PropsEventMsg = {
+export type PropsEventMsg =
+    | PositionEventMsg
+    | CashBalanceEventMsg
+    | AccountEventMsg
+    | MarginSnapshotEventMsg
+    | CurrencyEventMsg
+    | FillPairEventMsg
+    | OrderEventMsg
+    | ContractEventMsg
+    | ContractMaturityEventMsg
+    | ProductEventMsg
+    | ExchangeEventMsg
+    | CommandEventMsg
+    | CommandReportEventMsg
+    | ExecutionReportEventMsg
+    | OrderVersionEventMsg
+    | FillEventMsg
+    | OrderStrategyEventMsg
+    | OrderStrategyLinkEventMsg
+    | ContractGroupEventMsg
+
+export function isEntityOfType(entity: PropsEventMsg, entityType: EntityType): boolean {
+    switch (entityType) {
+        case EntityType.Position:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Position
+            )
+
+        case EntityType.CashBalance:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.CashBalance
+            )
+
+        case EntityType.Account:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Account
+            )
+
+        case EntityType.MarginSnapshot:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.MarginSnapshot
+            )
+
+        case EntityType.Currency:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Currency
+            )
+
+        case EntityType.FillPair:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.FillPair
+            )
+
+        case EntityType.Order:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Order
+            )
+
+        case EntityType.Contract:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Contract
+            )
+
+        case EntityType.ContractMaturity:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.ContractMaturity
+            )
+
+        case EntityType.Product:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Product
+            )
+
+        case EntityType.Exchange:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Exchange
+            )
+
+        case EntityType.Command:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Command
+            )
+
+        case EntityType.CommandReport:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.CommandReport
+            )
+
+        case EntityType.ExecutionReport:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.ExecutionReport
+            )
+
+        case EntityType.OrderVersion:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.OrderVersion
+            )
+
+        case EntityType.Fill:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.Fill
+            )
+
+        case EntityType.OrderStrategy:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.OrderStrategy
+            )
+
+        case EntityType.OrderStrategyLink:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.OrderStrategyLink
+            )
+
+        case EntityType.ContractGroup:
+            return (
+                entity.entityType === entityType &&
+                'entity' in entity &&
+                'type' in entity.entity &&
+                entity.entity.type === EntityType.ContractGroup
+            )
+
+        default:
+            return false
+    }
+}
+
+export type ContractGroupEventMsg = {
+    entityType: EntityType.ContractGroup
+    entity: ContractGroup
+    eventType: EventType
+}
+
+export type OrderStrategyLinkEventMsg = {
+    entityType: EntityType.OrderStrategyLink
+    entity: OrderStrategyLink
+    eventType: EventType
+}
+
+export type OrderStrategyEventMsg = {
+    entityType: EntityType.OrderStrategy
+    entity: OrderStrategy
+    eventType: EventType
+}
+
+export type FillEventMsg = {
+    entityType: EntityType.Fill
+    entity: Fill
+    eventType: EventType
+}
+
+export type OrderVersionEventMsg = {
+    entityType: EntityType.OrderVersion
+    entity: OrderVersion
+    eventType: EventType
+}
+
+export type ExecutionReportEventMsg = {
+    entityType: EntityType.ExecutionReport
+    entity: ExecutionReport
+    eventType: EventType
+}
+
+export type CommandReportEventMsg = {
+    entityType: EntityType.CommandReport
+    entity: CommandReport
+    eventType: EventType
+}
+
+export type CommandEventMsg = {
+    entityType: EntityType.Command
+    entity: Command
+    eventType: EventType
+}
+
+export type ExchangeEventMsg = {
+    entityType: EntityType.Exchange
+    entity: Exchange
+    eventType: EventType
+}
+
+export type ProductEventMsg = {
+    entityType: EntityType.Product
+    entity: Product
+    eventType: EventType
+}
+
+export type ContractMaturityEventMsg = {
+    entityType: EntityType.ContractMaturity
+    entity: ContractMaturity
+    eventType: EventType
+}
+
+export type ContractEventMsg = {
+    entityType: EntityType.Contract
+    entity: Contract
+    eventType: EventType
+}
+
+export type OrderEventMsg = {
+    entityType: EntityType.Order
+    entity: Order
+    eventType: EventType
+}
+
+export type FillPairEventMsg = {
+    entityType: EntityType.FillPair
+    entity: FillPair
+    eventType: EventType
+}
+
+export type CurrencyEventMsg = {
+    entityType: EntityType.Currency
+    entity: Currency
+    eventType: EventType
+}
+
+export type MarginSnapshotEventMsg = {
+    entityType: EntityType.MarginSnapshot
+    entity: MarginSnapshot
+    eventType: EventType
+}
+
+export type AccountEventMsg = {
+    entityType: EntityType.Account
+    entity: Account
+    eventType: EventType
+}
+
+export type CashBalanceEventMsg = {
+    entityType: EntityType.CashBalance
+    entity: CashBalance
+    eventType: EventType
+}
+
+export type PositionEventMsg = {
+    entityType: EntityType.Position
+    entity: Position
+    eventType: EventType
+}
+
+export function isContractGroupEventMsg(obj: any): obj is ContractGroupEventMsg {
+    return obj.entityType === EntityType.ContractGroup
+}
+
+export function isOrderStrategyLinkEventMsg(obj: any): obj is OrderStrategyLinkEventMsg {
+    return obj.entityType === EntityType.OrderStrategyLink
+}
+
+export function isOrderStrategyEventMsg(obj: any): obj is OrderStrategyEventMsg {
+    return obj.entityType === EntityType.OrderStrategy
+}
+
+export function isFillEventMsg(obj: any): obj is FillEventMsg {
+    return obj.entityType === EntityType.Fill
+}
+
+export function isOrderVersionEventMsg(obj: any): obj is OrderVersionEventMsg {
+    return obj.entityType === EntityType.OrderVersion
+}
+
+export function isExecutionReportEventMsg(obj: any): obj is ExecutionReportEventMsg {
+    return obj.entityType === EntityType.ExecutionReport
+}
+
+export function isCommandReportEventMsg(obj: any): obj is CommandReportEventMsg {
+    return obj.entityType === EntityType.CommandReport
+}
+
+export function isCommandEventMsg(obj: any): obj is CommandEventMsg {
+    return obj.entityType === EntityType.Command
+}
+
+export function isExchangeEventMsg(obj: any): obj is ExchangeEventMsg {
+    return obj.entityType === EntityType.Exchange
+}
+
+export function isProductEventMsg(obj: any): obj is ProductEventMsg {
+    return obj.entityType === EntityType.Product
+}
+
+export function isContractMaturityEventMsg(obj: any): obj is ContractMaturityEventMsg {
+    return obj.entityType === EntityType.ContractMaturity
+}
+
+export function isContractEventMsg(obj: any): obj is ContractEventMsg {
+    return obj.entityType === EntityType.Contract
+}
+
+export function isOrderEventMsg(obj: any): obj is OrderEventMsg {
+    return obj.entityType === EntityType.Order
+}
+
+export function isFillPairEventMsg(obj: any): obj is FillPairEventMsg {
+    return obj.entityType === EntityType.FillPair
+}
+
+export function isCurrencyEventMsg(obj: any): obj is CurrencyEventMsg {
+    return obj.entityType === EntityType.Currency
+}
+
+export function isMarginSnapshotEventMsg(obj: any): obj is MarginSnapshotEventMsg {
+    return obj.entityType === EntityType.MarginSnapshot
+}
+
+export function isAccountEventMsg(obj: any): obj is AccountEventMsg {
+    return obj.entityType === EntityType.Account
+}
+
+export function isCashBalanceEventMsg(obj: any): obj is CashBalanceEventMsg {
+    return obj.entityType === EntityType.CashBalance
+}
+
+export function isPositionEventMsg(obj: any): obj is PositionEventMsg {
+    return obj.entityType === EntityType.Position
+}
+
+export type PropsEvent = {
     e: string
+    d: PropsEventMsg
 }
 
 export type ClockEventMsg = {
@@ -195,6 +588,12 @@ export type DomEventMsg = {
 
 export type ChartEventMsg = {
     charts: BarPacket[] | TickPacket[]
+}
+
+export enum EventType {
+    CREATED = 'Created',
+    UPDATED = 'Updated',
+    DELETED = 'Deleted'
 }
 
 export function isClockEventMsg(obj: any): obj is ClockEventMsg {
@@ -302,15 +701,11 @@ export type BarPacket = {
 }
 export type Payload = {
     data: {[k: string]: unknown}
-    props: StrategyProps
+    props: StrategyProps | any
 }
 export type Action = {
     event: string
     payload: Payload
-}
-export type EventHandlerResults = {
-    state: StrategyState
-    effects: Action[]
 }
 export enum Trend {
     DOWN = -1,
@@ -337,7 +732,7 @@ export type ServerEvent = {
         | HistogramEventMsg
         | DomEventMsg
         | ClockEventMsg
-        | PropsEventMsg
+        | PropsEvent
 }
 
 export type ResponseMsg<T extends keyof EndpointResponse> = {
@@ -408,9 +803,11 @@ export type EndpointRequestBody = {
     'contract/ldeps': undefined
     'contract/rollcontract': RollContractRequestBody
     'contract/suggest': undefined
+    'commandReport/deps': undefined
     'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
     'order/placeOrder': PlaceOrderRequestBody
     'order/placeOCO': PlaceOCORequestBody
+    'order/modifyorder': ModifyOrderRequestBody
 }
 
 export type EndpointRequestQuery = {
@@ -443,16 +840,18 @@ export type EndpointRequestQuery = {
     'contract/ldeps': QueryMasterIds
     'contract/rollcontract': undefined
     'contract/suggest': ContractSuggestQuery
+    'commandReport/deps': QueryMasterId
     'orderStrategy/startOrderStrategy': undefined
     'order/placeOrder': undefined
     'order/placeOCO': undefined
+    'order/modifyorder': undefined
 }
 
 export type EndpointResponse = {
     'account/list': AccountListResponse
     'order/list': OrderListResponse
     'order/item': OrderItemResponse
-    'order/cancelorder': CancelOrderResponse
+    'order/cancelorder': CommandResponse
     authorize: undefined
     'user/syncrequest': SyncRequestResponse
     'replay/checkreplaysession': CheckReplaySessionResponse
@@ -479,9 +878,41 @@ export type EndpointResponse = {
     'contract/ldeps': Contract[]
     'contract/rollcontract': RollContractResponse
     'contract/suggest': Contract[]
+    'commandReport/deps': CommandReport[]
     'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
     'order/placeOrder': PlaceOrderResponse
     'order/placeOCO': PlaceOCOOrderResponse
+    'order/modifyorder': CommandResponse
+}
+
+export enum CommandStatus {
+    AT_EXECUTION = 'AtExecution',
+    EXECUTION_REJECTED = 'ExecutionRejected',
+    EXECUTION_STOPPED = 'ExecutionStopped',
+    EXECUTION_SUSPENDED = 'ExecutionSuspended',
+    ON_HOLD = 'OnHold',
+    PEDNING = 'Pending',
+    PENDING_EXECUTION = 'PendingExecution',
+    REPLACED = 'Replaced',
+    RISK_PASSED = 'RiskPassed',
+    RISK_REJECTED = 'RiskRejected'
+}
+
+export type ModifyOrderRequestBody = {
+    orderId: number
+    clOrdId?: string
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated?: boolean
 }
 
 export type PlaceOCOOrderResponse = {
@@ -649,11 +1080,11 @@ export type QueryIds = {
 }
 
 export type QueryMasterId = {
-    masterId: number
+    masterid: number
 }
 
 export type QueryMasterIds = {
-    masterIds: number[]
+    masterids: number[]
 }
 
 export type OAuthTokenResponse = {
@@ -802,7 +1233,6 @@ export enum CheckStatus {
     OK = 'OK',
     START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted'
 }
-export type CancelOrderResponse = CommandResponse
 
 export type CommandResponse = {
     failureReason?: FailureReason
@@ -868,22 +1298,6 @@ export type AccountListDependentsResponse = Account[]
 export type AccountListResponse = Account[]
 export type AccountSuggestResponse = Account
 
-export type Account = {
-    id?: number
-    name: string
-    userId: number
-    accountType: AccountType
-    active: boolean
-    clearingHouseId: number
-    riskCategoryId: number
-    autoLiqProfileId: number
-    marginAccountType: MarginAccountype
-    legalStatus: LegalStatus
-    archived: boolean
-    timestamp: string
-    readonly?: boolean
-}
-
 export enum AccountType {
     CUSTOMER = 'Customer',
     GIVEUP = 'Giveup',
@@ -907,21 +1321,6 @@ export enum LegalStatus {
     LP = 'LP',
     PTR = 'PTR',
     TRUST = 'Trust'
-}
-
-export type Order = {
-    id?: string
-    accountId: number
-    contractId?: number
-    spreadDefinitionId?: number
-    timestamp: string
-    action: OrderAction
-    ordStatus: OrderStatus
-    executionProviderId?: number
-    ocoId?: number
-    parentId?: number
-    linkedId?: number
-    admin: boolean
 }
 
 export enum OrderAction {
@@ -950,32 +1349,431 @@ export type OrderDependentsResponse = Order[]
 export type OrderLDependentsResponse = Order[]
 
 export type SyncRequestResponse = {
-    users: any[]
-    accounts?: any[]
-    accountRiskStatus?: any[]
-    marginRiskStatuses?: any[]
-    userAccountAutoLiqs?: any[]
-    cashBalances?: any[]
-    currencies?: any[]
-    positions?: any[]
-    fillPairs?: any[]
-    orders?: any[]
+    users: User[]
+    accounts?: Account[]
+    accountRiskStatuses?: AccountRiskStatus[]
+    marginSnapshots?: MarginSnapshot[]
+    userAccountAutoLiqs?: UserAccountAutoLiqs[]
+    cashBalances?: CashBalance[]
+    currencies?: Currency[]
+    positions?: Position[]
+    fillPairs?: FillPair[]
+    orders?: Order[]
     contracts?: Contract[]
-    contractMaturities?: any[]
-    products?: any[]
-    exchanges?: any[]
+    contractMaturities?: ContractMaturity[]
+    products?: Product[]
+    exchanges?: Exchange[]
     spreadDefinitions?: any[]
-    commands?: any[]
-    commandReports?: any[]
-    executionReports?: any[]
-    orderVersions?: any[]
-    fills?: any[]
+    commands?: Command[]
+    commandReports?: CommandReport[]
+    executionReports?: ExecutionReport[]
+    orderVersions?: OrderVersion[]
+    fills?: Fill[]
     orderStrategies?: OrderStrategy[]
-    orderStrategyLinks?: any[]
-    userProperties?: any[]
-    userPlugins?: any[]
-    contractGroups: any[]
+    orderStrategyLinks?: OrderStrategyLink[]
+    userProperties?: UserProperties[]
+    properties?: Properties[]
+    userPlugins?: UserPlugin[]
+    contractGroups: ContractGroup[]
     orderStrategyTypes?: any[]
+}
+
+export type CommandReport = {
+    id?: number
+    commandId: number
+    timestamp: string
+    commandStatus: CommandStatus
+    rejectReason?: FailureReason
+    text?: string
+    ordStatus?: OrderStatus
+}
+
+export type Order = {
+    id?: string
+    accountId: number
+    contractId?: number
+    spreadDefinitionId?: number
+    timestamp: string
+    action: OrderAction
+    ordStatus: OrderStatus
+    executionProviderId?: number
+    ocoId?: number
+    parentId?: number
+    linkedId?: number
+    admin: boolean
+}
+
+export type Account = {
+    id?: number
+    name: string
+    userId: number
+    accountType: AccountType
+    active: boolean
+    clearingHouseId: number
+    riskCategoryId: number
+    autoLiqProfileId: number
+    marginAccountType: MarginAccountype
+    legalStatus: LegalStatus
+    archived: boolean
+    timestamp: string
+    readonly?: boolean
+}
+
+export type OrderStrategyTypes = {
+    id?: number
+    name: string
+    enabled: boolean
+}
+
+export type ContractGroup = {
+    id?: number
+    name: string
+}
+
+export type UserPlugin = {
+    id?: number
+    userId: number
+    timestamp: string
+    planPrice: number
+    creditCardTransactionId?: number
+    cashBalanceLogId?: number
+    creditCardId?: number
+    accountId?: number
+    pluginName: number
+    approval: boolean
+    entitlementId?: number
+    startDate: TradeDate
+    expirationDate?: TradeDate
+    paidAmount: number
+    autoRenewal: boolean
+    planCategories: string
+}
+
+export type Properties = {
+    id?: number
+    name: string
+    propertyType: PropertyType
+    enumOptions?: string
+    defaultValue: string
+}
+
+export enum PropertyType {
+    BOOLEAN = 'Boolean',
+    ENUM = 'Enum',
+    INTEGER = 'INTEGER',
+    STRING = 'String'
+}
+
+export type UserProperties = {
+    id?: number
+    userId: number
+    propertyId: number
+    value: string
+}
+
+export type OrderStrategyLink = {
+    id?: number
+    orderStrategyId: number
+    orderId: number
+    label: string
+}
+
+export type Fill = {
+    id?: number
+    orderId: number
+    contractId: number
+    timestamp: number
+    tradeDate: number
+    action: OrderAction
+    qty: number
+    price: number
+    active: boolean
+    finallyPaired: number
+}
+
+export type OrderVersion = {
+    id?: number
+    orderId: number
+    orderQty: number
+    orderType: ORDER_TYPE
+    price?: number
+    stopPrice?: number
+    maxShow?: number
+    pegDifference?: number
+    timeInForce?: TIME_IN_FORCE
+    expireTime?: string
+    text?: string
+}
+
+export type ExecutionReport = {
+    id?: number
+    commandId: number
+    name: string
+    accountId: number
+    contractId: number
+    timestamp: string
+    tradeDate: TradeDate
+    orderId: number
+    execType: ExecutionReportType
+    execRefId: number
+    ordStatus: OrderStatus
+    action: OrderAction
+    cumQty?: number
+    avgPx?: number
+    lastQty?: number
+    lastPx?: number
+    rejectReason: FailureReason
+    text: string
+    exchangeOrderId: string
+}
+
+export enum ExecutionReportType {
+    CANCELED = 'Canceled',
+    COMPLETED = 'Completed',
+    DONE_FOR_DAY = 'DoneForDay',
+    EXPIRED = 'Expired',
+    NEW = 'New',
+    ORDER_STATUS = 'OrderStatus',
+    PEDNING_CANCEL = 'PendingCancel',
+    PEDNING_NEW = 'PendingNew',
+    PENDING_REPLACE = 'PendingReplace',
+    REJECTED = 'Rejected',
+    REPLACED = 'Replaced',
+    STOPPED = 'Stopped',
+    SUSPENED = 'Suspended',
+    TRADE = 'Trade',
+    TRADE_CANCEL = 'TradeCancel',
+    TRADE_CORRECT = 'TradeCorrect'
+}
+
+export type Command = {
+    id?: number
+    orderId: number
+    timestamp: string
+    clOrdId?: number
+    commandType: CommandType
+    commandStatus: CommandStatus
+    senderId?: number
+    userSessionId?: number
+    activationTime: string
+    customTag50: string
+    isAutomated: boolean
+}
+
+export enum CommandType {
+    CANCEL = 'Cancel',
+    MODIFY = 'Modify',
+    New = 'New'
+}
+
+export type SpreadDefinition = {
+    id?: number
+    timestamp: string
+    spreadType: SpreadType
+    uds: boolean
+}
+
+export enum SpreadType {
+    BUNDLE = 'Bundle',
+    BUNDLE_SPREAD = 'BundleSpread',
+    BUTERFLY = 'Butterfly',
+    CALENDAR_SPREAD = 'CalendarSpread',
+    CONDOR = 'Condor',
+    CRACK = 'Crack',
+    DOUBLE_BUTTEFLY = 'DoubleButterfly',
+    GENERAL = 'General',
+    INTERCOMMODITY_SPREAD = 'IntercommoditySpread',
+    LAGGED_INTERCOMMODITY_SPREAD = 'LaggedIntercommoditySpread',
+    PACK = 'Pack',
+    PACK_BUTTERFLY = 'PackButterfly',
+    PACK_SPREAD = 'PackSpread',
+    REDUCED_TICK_CALENDAR_SPREAD = 'ReducedTickCalendarSpread',
+    REVERSE_INTERCOMMODITY_SPREAD = 'ReverseIntercommoditySpread',
+    REVERSE_SPREAD = 'ReverseSpread',
+    STRIP = 'Strip',
+    TREASURY_INTERCOMMODITY_SPREAD = 'TreasuryIntercommoditySpread'
+}
+
+export type Exchange = {
+    id?: number
+    name: string
+}
+
+export type Product = {
+    id?: number
+    name: string
+    currencyId: number
+    productType: ProductType
+    description: string
+    exchangeId: number
+    contractGroupId: number
+    riskDiscountContractGroupIda: number
+    status: ProductStatus
+    months?: string
+    isSecured?: boolean
+    valuePerPoint?: number
+    priceFormatType?: PriceFormatType
+    priceFormat: number
+    tickSize: number
+}
+
+export enum PriceFormatType {
+    DECIMAL = 'Decimal',
+    FRACTIONAL = 'Fractional'
+}
+
+export enum ProductStatus {
+    INACTIVE = 'Inactive',
+    LOCKED = 'Locked',
+    READY_FOR_CONTRACTS = 'ReadyForContracts',
+    READY_TO_TRADE = 'ReadyToTrade',
+    VERIFIED = 'Verified'
+}
+
+export enum ProductType {
+    COMMON_STOCK = 'CommonStock',
+    CONTINUOUS = 'Continuous',
+    CRYPTOCURRENCY = 'Cryptocurrency',
+    FUTURES = 'Futures',
+    MARKET_INTERNALS = 'MarketInternals',
+    OPTIONS = 'Options',
+    SPREAD = 'Spread'
+}
+
+export type ContractMaturity = {
+    id?: number
+    productId: number
+    expirationMonth: number
+    expirationDate: string
+    firstIntentDate?: string
+    underlyingId?: string
+    isFront: boolean
+}
+
+export type FillPair = {
+    id?: number
+    positionId: number
+    buyFillId: number
+    sellFillId: number
+    qty: number
+    buyPrice: number
+    sellPrice: number
+    active: boolean
+}
+
+export type Position = {
+    id?: number
+    accountId: number
+    contractId: number
+    timestamp: string
+    tradeDate: string
+    netPos: number
+    netPrice?: number
+    bought: number
+    boughtValue: number
+    sold: number
+    soldValue: number
+    prevPos: number
+    prevPrice?: number
+}
+
+export type Contract = {
+    id?: number
+    name: string
+    contractMaturityId?: number
+}
+
+export type Currency = {
+    id?: number
+    name: string
+    symbol?: string
+}
+
+export type CashBalance = {
+    id?: number
+    accountId: number
+    timestamp: string
+    tradeDate: TradeDate
+    currencyId: number
+    amount: number
+    realizedPnl?: number
+    weekRealizedPnL?: number
+}
+
+export type TradeDate = {
+    year: number
+    month: number
+    day: number
+}
+
+export type UserAccountAutoLiqs = {
+    id?: number
+    changesLocked?: boolean
+    marginPercentageAlert?: number
+    dailyLossPercentageAlert?: number
+    dailyLossAlert?: number
+    marginPercentageLiqOnly?: number
+    dailyLossPercentageLiqOnly?: number
+    dailyLossLiqOnly?: number
+    marginPercentageAutoLiq?: number
+    dailyLossPercentageAutoLiq?: number
+    dailyLossAutoLiq?: number
+    weeklyLossAutoLiq?: number
+    flattenTimestamp?: string
+    trailingMaxDrawdown?: number
+    trailingMaxDrawdownLimit?: number
+    trailingMaxDrawdownMode?: TrailingMaxDrawdownMode
+    dailyProfitAutoLiq?: number
+    weeklyProfitAutoLiq?: number
+    doNotUnlock?: boolean
+}
+
+export enum TrailingMaxDrawdownMode {
+    EOD = 'EOD',
+    REAL_TIME = 'RealTime'
+}
+
+export type MarginSnapshot = {
+    id?: number
+    timestamp: string
+    riskTimePeriodId: number
+    initialMargin: number
+    maintenanceMargin: number
+    autoLiqLevel?: number
+    liqOnlyLevel?: number
+    totalUsedMargin: number
+    fullInitialMargin: number
+}
+
+export type AccountRiskStatus = {
+    id?: number
+    adminAction?: AdminAction
+    adminTimestamp?: string
+    liquidationOnly?: string
+    userTriggeredLiqOnly?: boolean
+}
+
+export enum AdminAction {
+    AGREE_ON_LIQ_ONLY_MODE_BY_AUTO_LIQ = 'AgreedOnLiqOnlyModeByAutoLiq',
+    AGREE_ON_LIQUIDATION_BY_AUTO_LIQ = 'AgreedOnLiquidationByAutoLiq',
+    DISABLE_AUTO_LIQ = 'DisableAutoLiq',
+    LIQUIDATE_IMMEDIATELY = 'LiquidateImmediately',
+    LIQUIDATE_ONLY_MODE_IMMEDIATELY = 'LiquidateOnlyModeImmediately',
+    LOCK_TRADING_IMMEDIATELY = 'LockTradingImmediately',
+    NORMAL = 'Normal',
+    PLACE_AUTO_LIQ_ON_HOLD = 'PlaceAutoLiqOnHold'
+}
+
+export type User = {
+    id?: number
+    name: string
+    timestamp?: string
+    email: string
+    status: UserStatus
+    professional?: boolean
+    organizationId?: boolean
+    linkedUserId: number
+    foreignIntroducingBrokerId?: number
 }
 
 export type OrderStrategy = {
@@ -1005,10 +1803,107 @@ export enum StartOrderStrategyStatus {
     STOPPED_BY_USER = 'StoppedByUser'
 }
 
-export type Contract = {
-    id?: number
-    name: string
-    contractMaturityId?: number
+export function isCommandReport(obj: any): obj is CommandReport {
+    return 'commandId' in obj && 'timestamp' in obj && 'commandStatus' in obj
+}
+
+export function isOrder(obj: any): obj is Order {
+    return (
+        'accountId' in obj &&
+        'timestamp' in obj &&
+        'action' in obj &&
+        'ordStatus' in obj &&
+        'admin' in obj
+    )
+}
+
+export function isAccount(obj: any): obj is Account {
+    return (
+        'name' in obj &&
+        'userId' in obj &&
+        'accountType' in obj &&
+        'active' in obj &&
+        'clearingHouseId' in obj &&
+        'riskCategoryId' in obj &&
+        'autoLiqProfileId' in obj &&
+        'marginAccountType' in obj &&
+        'legalStatus' in obj &&
+        'archived' in obj &&
+        'timestamp' in obj
+    )
+}
+
+export function isOrderStrategyTypes(obj: any): obj is OrderStrategyTypes {
+    return 'name' in obj && 'enabled' in obj
+}
+
+export function isContractGroup(obj: any): obj is ContractGroup {
+    return 'name' in obj
+}
+
+export function isUserPlugin(obj: any): obj is UserPlugin {
+    return (
+        'userId' in obj &&
+        'timestamp' in obj &&
+        'planPrice' in obj &&
+        'pluginName' in obj &&
+        'approval' in obj &&
+        'startDate' in obj &&
+        'paidAmount' in obj &&
+        'autoRenewal' in obj &&
+        'planCategories' in obj
+    )
+}
+
+export function isProperties(obj: any): obj is Properties {
+    return 'name' in obj && 'propertyType' in obj && 'defaultValue' in obj
+}
+
+export function isUserProperties(obj: any): obj is UserProperties {
+    return 'userId' in obj && 'propertyId' in obj && 'value' in obj
+}
+
+export function isOrderStrategyLink(obj: any): obj is OrderStrategyLink {
+    return 'orderStrategyId' in obj && 'orderId' in obj && 'label' in obj
+}
+
+export function isFill(obj: any): obj is Fill {
+    return (
+        'orderId' in obj &&
+        'contractId' in obj &&
+        'timestamp' in obj &&
+        'tradeDate' in obj &&
+        'action' in obj &&
+        'qty' in obj &&
+        'price' in obj &&
+        'active' in obj &&
+        'finallyPaired' in obj
+    )
+}
+
+export function isOrderVersion(obj: any): obj is OrderVersion {
+    return (
+        'orderId' in obj && 'orderQty' in obj && 'orderType' in obj && 'expireTime' in obj
+    )
+}
+
+export function isExecutionReport(obj: any): obj is ExecutionReport {
+    return (
+        'commandId' in obj &&
+        'name' in obj &&
+        'accountId' in obj &&
+        'contractId' in obj &&
+        'timestamp' in obj &&
+        'tradeDate' in obj &&
+        'orderId' in obj &&
+        'execType' in obj &&
+        'execRefId' in obj &&
+        'ordStatus' in obj &&
+        'action' in obj &&
+        'rejectReason' in obj &&
+        'text' in obj &&
+        'exchangeOrderId' in obj
+    )
 }
 
 export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: any) => void}
@@ -1043,7 +1938,7 @@ export type SubscribeBodyParams = {
 }
 
 export interface Socket {
-    connect(url: string): Promise<void>
+    connect(): Promise<void>
     disconnect(): void
     isConnected(): boolean
 }
@@ -1064,6 +1959,7 @@ export type TradovateSocketSynchronizeParams = {
 export interface TvSocket extends Socket {
     synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void>
     addListener(fn: (item: ResponseMsg<any> | ServerEvent) => void): () => Listener[]
+    request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>>
 }
 
 export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
@@ -1108,7 +2004,7 @@ export type TimeRange = {
     asMuchAsElements?: number
 }
 
-export interface StrategyParams {
+export interface StrategyBodyParams {
     contract: Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
@@ -1180,4 +2076,15 @@ export type PlaceOCOOrderEffectParams = {
     orderQty: number
     price: number
     other: OtherOrderOCO
+}
+
+export type SocketsParams = {
+    tvSocket: TvSocket
+    mdSocket: MdSocket
+    replaySocket: ReplaySocket
+}
+
+export type EventHandlerResults<T> = {
+    state: T
+    effects: Action[]
 }
