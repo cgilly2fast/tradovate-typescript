@@ -10,7 +10,6 @@ fbCredentials.ts
 
 # production
 /build
-strategies
 
 # misc
 .DS_Store

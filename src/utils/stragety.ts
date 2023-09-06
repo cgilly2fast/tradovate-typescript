@@ -26,7 +26,7 @@ import {log} from 'console'
 import {stringify} from '../utils/stringify'
 import ReplaySocket from '../websockets/ReplaySocket'
 
-export default class Strategy<T> {
+export default class Strategy<T extends StrategyState> {
     private tvSocket: TvSocket
     private mdSocket: MdSocket
     private replaySocket: ReplaySocket
@@ -53,7 +53,7 @@ export default class Strategy<T> {
         params: StrategyBodyParams,
         sockets: SocketsParams,
         init: () => T,
-        next: (prevState: StrategyState, action: Action) => EventHandlerResults<T>
+        next: (prevState: T, action: Action) => EventHandlerResults<T>
     ) {
         if (params.replayMode && (!params.replayPeriods || !sockets.replaySocket))
             throw new Error(
@@ -257,10 +257,7 @@ export default class Strategy<T> {
         mws.forEach((mw: any) => this.mws.push(mw))
     }
 
-    catchReplaySessionsDefault(
-        prevState: StrategyState,
-        action: Action
-    ): EventHandlerResults<T> {
+    catchReplaySessionsDefault(prevState: T, action: Action): EventHandlerResults<T> {
         const {event, payload} = action
         const {data, props} = payload
 
