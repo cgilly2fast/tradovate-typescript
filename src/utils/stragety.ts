@@ -26,7 +26,7 @@ import {log} from 'console'
 import {stringify} from '../utils/stringify'
 import ReplaySocket from '../websockets/ReplaySocket'
 
-export default class Strategy {
+export default class Strategy<T> {
     private tvSocket: TvSocket
     private mdSocket: MdSocket
     private replaySocket: ReplaySocket
@@ -49,7 +49,7 @@ export default class Strategy {
 
     private D: Dispatcher
 
-    constructor<T>(
+    constructor(
         params: StrategyBodyParams,
         sockets: SocketsParams,
         init: () => T,
