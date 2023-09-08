@@ -13,7 +13,13 @@ import {
     isGetChartResponse,
     CancelBody,
     CancelChartBody,
-    SubscribeBodyParams
+    SubscribeBodyParams,
+    DOM,
+    isDomEventMsg,
+    isQuoteEventMsg,
+    Quote,
+    Histogram,
+    isHistogramEventMsg
 } from '../utils/types'
 import {tvGet} from '../utils/service'
 import RequestSocket from './RequestSocket'
@@ -116,37 +122,45 @@ export default class MarketDataSocket implements MdSocket {
                     break
                 }
                 case 'md/subscribedom': {
-                    removeListener = this.socket.addListener((data: any) => {
-                        if (data.d.doms) {
-                            data.d.doms.forEach((dom: any) =>
-                                dom.contractId === contractId ? onSubscription(dom) : null
-                            )
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isDomEventMsg(item.d)) {
+                                item.d.doms.forEach((dom: DOM) =>
+                                    dom.contractId === contractId
+                                        ? onSubscription(dom)
+                                        : null
+                                )
+                            }
                         }
-                    })
+                    )
                     break
                 }
                 case 'md/subscribequote': {
-                    removeListener = this.socket.addListener((data: any) => {
-                        if (data.d.quotes) {
-                            data.d.quotes.forEach((quote: any) =>
-                                quote.contractId === contractId
-                                    ? onSubscription(quote)
-                                    : null
-                            )
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
+                                item.d.quotes.forEach((quote: Quote) =>
+                                    quote.contractId === contractId
+                                        ? onSubscription(quote)
+                                        : null
+                                )
+                            }
                         }
-                    })
+                    )
                     break
                 }
                 case 'md/subscribehistogram': {
-                    removeListener = this.socket.addListener((data: any) => {
-                        if (data.d.histograms) {
-                            data.d.histograms.forEach((histogram: any) =>
-                                histogram.contractId === contractId
-                                    ? onSubscription(histogram)
-                                    : null
-                            )
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
+                                item.d.histograms.forEach((histogram: Histogram) =>
+                                    histogram.contractId === contractId
+                                        ? onSubscription(histogram)
+                                        : null
+                                )
+                            }
                         }
-                    })
+                    )
                     break
                 }
             }

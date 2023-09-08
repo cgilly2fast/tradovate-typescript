@@ -49,7 +49,8 @@ export enum StrategyEvent {
     ProductFound = 'product/found',
     PlaceOCO = 'order/placeOCO',
     PlaceOrder = 'order/placeOrder',
-    StartOrderStrategy = 'orderStrategy/startOrderStrategy'
+    StartOrderStrategy = 'orderStrategy/startOrderStrategy',
+    Stop = 'stop'
 }
 
 export enum EntityType {
@@ -393,10 +394,7 @@ export type PropsEvent = {
     d: PropsEventMsg
 }
 
-export type ClockEventMsg = {
-    e: string
-    d: string
-}
+export type ClockEventMsg = string
 
 export type QuoteEvent = {
     e: string
@@ -581,9 +579,39 @@ export type PlaceOCOAction = {
     payload: PlaceOCOPayload
 }
 
-export type StartOrderStrategy = {
+export type StartOrderStrategyAction = {
     event: StrategyEvent.StartOrderStrategy
     payload: StartOrderStrategyPayload
+}
+
+export type StopAction = {
+    event: StrategyEvent.Stop
+    payload: {} | undefined
+}
+
+export type ReplayResetAction = {
+    event: StrategyEvent.ReplayReset
+    payload: {} | undefined
+}
+
+export type ClockAction = {
+    event: StrategyEvent.Clock
+    payload: string
+}
+
+export type NextReplayAction = {
+    event: StrategyEvent.NextReplay
+    payload: {} | undefined
+}
+
+export type DOMAction = {
+    event: StrategyEvent.DOM
+    payload: DOM
+}
+
+export type QuoteAction = {
+    event: StrategyEvent.Quote
+    payload: Quote
 }
 
 export type ReplayCompletePayload = any
@@ -604,7 +632,13 @@ export type Action =
     | ReplayCompleteAction
     | PlaceOrderAction
     | PlaceOCOAction
-    | StartOrderStrategy
+    | StartOrderStrategyAction
+    | StopAction
+    | ReplayResetAction
+    | ClockAction
+    | NextReplayAction
+    | DOMAction
+    | QuoteAction
 
 // {
 //     event: StrategyEvent
