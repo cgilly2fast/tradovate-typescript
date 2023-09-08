@@ -33,7 +33,7 @@ export enum STORAGE_KEYS {
     USER_DATA_KEY = 'tradovate-user-data'
 }
 
-export enum TdEventType {
+export enum StrategyEvent {
     MD = 'md',
     DOM = 'dom',
     UserSync = 'usersyncinit',
@@ -46,7 +46,10 @@ export enum TdEventType {
     NextReplay = 'replay/nextReplayPeriod',
     ReplayDrawStats = 'replay/drawStats', //the draw effect
     ReplayComplete = 'replay/complete', //the event that says replay is done
-    ProductFound = 'product/found'
+    ProductFound = 'product/found',
+    PlaceOCO = 'order/placeOCO',
+    PlaceOrder = 'order/placeOrder',
+    StartOrderStrategy = 'orderStrategy/startOrderStrategy'
 }
 
 export enum EntityType {
@@ -194,165 +197,6 @@ export type PropsEventMsg =
     | OrderStrategyEventMsg
     | OrderStrategyLinkEventMsg
     | ContractGroupEventMsg
-
-export function isEntityOfType(entity: PropsEventMsg, entityType: EntityType): boolean {
-    switch (entityType) {
-        case EntityType.Position:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Position
-            )
-
-        case EntityType.CashBalance:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.CashBalance
-            )
-
-        case EntityType.Account:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Account
-            )
-
-        case EntityType.MarginSnapshot:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.MarginSnapshot
-            )
-
-        case EntityType.Currency:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Currency
-            )
-
-        case EntityType.FillPair:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.FillPair
-            )
-
-        case EntityType.Order:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Order
-            )
-
-        case EntityType.Contract:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Contract
-            )
-
-        case EntityType.ContractMaturity:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.ContractMaturity
-            )
-
-        case EntityType.Product:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Product
-            )
-
-        case EntityType.Exchange:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Exchange
-            )
-
-        case EntityType.Command:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Command
-            )
-
-        case EntityType.CommandReport:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.CommandReport
-            )
-
-        case EntityType.ExecutionReport:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.ExecutionReport
-            )
-
-        case EntityType.OrderVersion:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.OrderVersion
-            )
-
-        case EntityType.Fill:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.Fill
-            )
-
-        case EntityType.OrderStrategy:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.OrderStrategy
-            )
-
-        case EntityType.OrderStrategyLink:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.OrderStrategyLink
-            )
-
-        case EntityType.ContractGroup:
-            return (
-                entity.entityType === entityType &&
-                'entity' in entity &&
-                'type' in entity.entity &&
-                entity.entity.type === EntityType.ContractGroup
-            )
-
-        default:
-            return false
-    }
-}
 
 export type ContractGroupEventMsg = {
     entityType: EntityType.ContractGroup
@@ -587,7 +431,7 @@ export type DomEventMsg = {
 }
 
 export type ChartEventMsg = {
-    charts: BarPacket[] | TickPacket[]
+    charts: Chart[]
 }
 
 export enum EventType {
@@ -632,7 +476,7 @@ export function isChartEvent(obj: any): obj is ChartEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d
 }
 
-export type Chart = BarPacket[] | TickPacket[]
+export type Chart = BarPacket | TickPacket
 export type DOM = {
     contractId: number // ID of the DOM contract
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
@@ -700,13 +544,73 @@ export type BarPacket = {
     bars: Bar[]
 }
 export type Payload = {
-    data: {[k: string]: unknown}
+    data: any
     props: StrategyProps | any
 }
-export type Action = {
-    event: string
-    payload: Payload
+export type ChartAction = {
+    event: StrategyEvent.Chart
+    payload: ChartPayload
 }
+
+export type PropsAction = {
+    event: StrategyEvent.Props
+    payload: PropsPayload
+}
+
+export type UserSyncAction = {
+    event: StrategyEvent.UserSync
+    payload: UserSyncPayload
+}
+
+export type ProductFoundAction = {
+    event: StrategyEvent.ProductFound
+    payload: ProductFoundPayload
+}
+
+export type ReplayCompleteAction = {
+    event: StrategyEvent.ReplayComplete
+    payload: ReplayCompletePayload
+}
+
+export type PlaceOrderAction = {
+    event: StrategyEvent.PlaceOrder
+    payload: PlaceOrderPayload
+}
+export type PlaceOCOAction = {
+    event: StrategyEvent.PlaceOCO
+    payload: PlaceOCOPayload
+}
+
+export type StartOrderStrategy = {
+    event: 'orderStrategy/startOrderStrategy'
+    payload: StartOrderStrategyPayload
+}
+
+export type ReplayCompletePayload = any
+
+export type ProductFoundPayload = {name: string}
+
+export type UserSyncPayload = SyncRequestResponse
+
+export type PropsPayload = PropsEventMsg
+
+export type ChartPayload = BarPacket[] | TickPacket[]
+
+export type Action =
+    | ChartAction
+    | PropsAction
+    | UserSyncAction
+    | ProductFoundAction
+    | ReplayCompleteAction
+    | PlaceOrderAction
+    | PlaceOCOAction
+    | StartOrderStrategy
+
+// {
+//     event: StrategyEvent
+//     payload: Payload
+// }
+
 export enum Trend {
     DOWN = -1,
     NA = 0,
@@ -725,7 +629,7 @@ export type ErrorResponse = {
 }
 
 export type ServerEvent = {
-    e: TdEventType
+    e: StrategyEvent
     d:
         | QuoteEventMsg
         | ChartEventMsg
@@ -1212,7 +1116,6 @@ export type ReplayPeriod = {
 
 export type StrategyState = {
     current_period?: number
-    [k: string]: unknown
 }
 export type ReplaySessionResults = {
     start: string
@@ -1948,6 +1851,7 @@ export type RequestParams<T extends EndpointURLs> = {
     body?: EndpointRequestBody[T]
     query?: EndpointRequestQuery[T]
 }
+
 export type TradovateSocketConnectParams = {
     url: string
     token: string
@@ -2004,7 +1908,8 @@ export type TimeRange = {
     asMuchAsElements?: number
 }
 
-export interface StrategyBodyParams {
+export interface StrategyParams {
+    live: boolean
     contract: Contract
     timeRangeType: TimeRangeType
     timeRangeValue: number
@@ -2015,7 +1920,6 @@ export interface StrategyBodyParams {
     elementSize: number
     elementSizeUnit: ElementSizeUnit
     withHistogram: boolean
-    dispatcher?: Dispatcher
 }
 
 export type StrategyProps = {
@@ -2029,7 +1933,6 @@ export type StrategyProps = {
     elementSize: number
     elementSizeUnit: ElementSizeUnit
     withHistogram: boolean
-    dispatcher: Dispatcher
 }
 
 export type Dictionary = {[key: string]: unknown}
@@ -2054,14 +1957,14 @@ export interface Strategy {
     ): {state: StrategyState; effects: Action[]}
 }
 
-export type StartOrderStrategyEffectParams = {
+export type StartOrderStrategyPayload = {
     contract: Contract
     action: OrderAction
     brackets: OrderBracket[]
     entryVersion: EntryVersion
 }
 
-export type PlaceOrderEffectParams = {
+export type PlaceOrderPayload = {
     contract: Contract
     orderType: ORDER_TYPE
     action: OrderAction
@@ -2069,7 +1972,7 @@ export type PlaceOrderEffectParams = {
     price: number
 }
 
-export type PlaceOCOOrderEffectParams = {
+export type PlaceOCOPayload = {
     contract: Contract
     orderType: ORDER_TYPE
     action: OrderAction
@@ -2084,7 +1987,7 @@ export type SocketsParams = {
     replaySocket: ReplaySocket
 }
 
-export type EventHandlerResults<T> = {
+export type EventHandlerResults<T extends StrategyState> = {
     state: T
-    effects: Action[]
+    actions: Action[]
 }

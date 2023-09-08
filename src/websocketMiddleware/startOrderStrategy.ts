@@ -1,30 +1,16 @@
-import {getReplaySocket, getSocket} from '../utils/socketUtils'
 import {getCurrentAccount} from '../utils/storage'
 import {stringify} from '../utils/stringify'
-import {
-    Action,
-    Contract,
-    Dictionary,
-    EntryVersion,
-    OrderAction,
-    OrderBracket,
-    Socket,
-    StartOrderStrategyEffectParams,
-    StartOrderStrategyRequestBody,
-    TvSocket
-} from '../utils/types'
-import ReplaySocket from '../websockets/ReplaySocket'
-import TradovateSocket from '../websockets/TradovateSocket'
+import {Action, Dictionary, StartOrderStrategyRequestBody, TvSocket} from '../utils/types'
 
-export const startOrderStrategy = (state: Dictionary, action: Action): Action => {
+export const startOrderStrategy = (
+    state: Dictionary,
+    action: Action,
+    socket: TvSocket
+): Action => {
     const {event, payload} = action
 
     if (event === 'orderStrategy/startOrderStrategy') {
-        const {data, props} = payload
-        const {contract, action, brackets, entryVersion} =
-            data as StartOrderStrategyEffectParams
-        const {replayMode} = props
-        const socket = replayMode ? getReplaySocket() : getSocket()
+        const {contract, action, brackets, entryVersion} = payload
 
         const orderData = {
             entryVersion,
@@ -49,7 +35,7 @@ export const startOrderStrategy = (state: Dictionary, action: Action): Action =>
 }
 
 async function sendStartOrderStrategy(
-    socket: TradovateSocket | ReplaySocket,
+    socket: TvSocket,
     body: StartOrderStrategyRequestBody
 ) {
     try {

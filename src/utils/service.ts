@@ -1,9 +1,9 @@
-import { getAccessToken } from './storage'
-import { URLs } from '../config/tvCredentials'
+import {getAccessToken} from './storage'
+import {URLs} from './types'
 import axios from 'axios'
-import { AccessToken, Dictionary } from './types'
+import {AccessToken, Dictionary} from './types'
 
-const { DEMO_URL, LIVE_URL } = URLs
+const {DEMO_URL, LIVE_URL} = URLs
 
 /**
  * Call to make GET requests to the Tradovate REST API. The passed `query` object will be reconstructed to a query string and placed in the query position of the URL.
@@ -20,12 +20,8 @@ const { DEMO_URL, LIVE_URL } = URLs
  * @param {'demo' | 'live'} env
  * @returns
  */
-export const tvGet = async (
-    endpoint: string,
-    query: Dictionary = {},
-    env = 'demo',
-) => {
-    const { token } = getAccessToken()
+export const tvGet = async (endpoint: string, query: Dictionary = {}, env = 'demo') => {
+    const {token} = getAccessToken()
     try {
         let q = ''
         if (query) {
@@ -36,11 +32,10 @@ export const tvGet = async (
             }, '?')
         }
 
-        const baseURL =
-            env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
+        const baseURL = env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
         if (!baseURL)
             throw new Error(
-                `[Services:tvGet] => 'env' variable should be either 'live' or 'demo'.`,
+                `[Services:tvGet] => 'env' variable should be either 'live' or 'demo'.`
             )
 
         const url = query !== null ? baseURL + endpoint + q : baseURL + endpoint
@@ -54,8 +49,8 @@ export const tvGet = async (
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
+                'Content-Type': 'application/json'
+            }
         })
 
         const results = await res.data
@@ -91,19 +86,17 @@ export const tvPost = async (
     endpoint: string,
     data: Dictionary,
     usetoken: boolean = true,
-    env = 'demo',
+    env = 'demo'
 ) => {
     let accessToken: AccessToken
     if (usetoken) accessToken = getAccessToken()
 
-    const bearer = usetoken
-        ? { Authorization: `Bearer ${accessToken!.token}` }
-        : {}
+    const bearer = usetoken ? {Authorization: `Bearer ${accessToken!.token}`} : {}
 
     const baseURL = env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
     if (!baseURL)
         throw new Error(
-            `[Services:tvPost] => 'env' variable should be either 'live' or 'demo'.`,
+            `[Services:tvPost] => 'env' variable should be either 'live' or 'demo'.`
         )
 
     console.log('[DevX Trader]: ' + baseURL + endpoint)
@@ -115,9 +108,9 @@ export const tvPost = async (
             headers: {
                 ...bearer,
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            data: data,
+            data: data
         })
 
         const results = await res.data

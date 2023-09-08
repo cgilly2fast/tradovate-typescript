@@ -1,25 +1,16 @@
 import {stringify} from 'querystring'
-import {getReplaySocket, getSocket} from '../utils/socketUtils'
 import {getCurrentAccount} from '../utils/storage'
-import {
-    Action,
-    Dictionary,
-    PlaceOrderEffectParams,
-    PlaceOrderRequestBody
-} from '../utils/types'
-import ReplaySocket from '../websockets/ReplaySocket'
-import TradovateSocket from '../websockets/TradovateSocket'
+import {Action, Dictionary, PlaceOrderRequestBody, TvSocket} from '../utils/types'
 
-export const placeOrder = (state: Dictionary, action: Action): Action => {
+export const placeOrder = (
+    state: Dictionary,
+    action: Action,
+    socket: TvSocket
+): Action => {
     const {event, payload} = action
 
-    if (event === '/order/placeOrder') {
-        const {data, props} = payload
-        const {replayMode} = props
-        const {contract, orderType, action, orderQty, price} =
-            data as PlaceOrderEffectParams
-
-        const socket = replayMode ? getReplaySocket() : getSocket()
+    if (event === 'order/placeOrder') {
+        const {contract, orderType, action, orderQty, price} = payload
 
         const {id, name} = getCurrentAccount()
 
@@ -39,10 +30,7 @@ export const placeOrder = (state: Dictionary, action: Action): Action => {
     return action
 }
 
-async function sendPlaceOrder(
-    socket: TradovateSocket | ReplaySocket,
-    body: PlaceOrderRequestBody
-) {
+async function sendPlaceOrder(socket: TvSocket, body: PlaceOrderRequestBody) {
     try {
         const response = await socket.request({
             url: 'order/placeOrder',

@@ -3,7 +3,7 @@ import {credentials} from './config/tvCredentials'
 import {connect} from './endpoints/connect'
 import {setAccessToken} from './utils/storage'
 import {ElementSizeUnit, BarType, TimeRangeType, TvSocket, MdSocket} from './utils/types'
-import TrendStrategy, {TrendStrategyBodyParams} from './strategies/trendv2/trendStrategy'
+import TrendStrategy, {TrendStrategyParams} from './strategies/trendv2/trendStrategy'
 import express, {Express, Request, Response} from 'express'
 import {db} from './config/fbCredentials'
 import {contractFind} from './endpoints/contractFind'
@@ -43,7 +43,8 @@ const main = async (symbol: string = 'ES') => {
 
     console.log('[DevX Trader]: Run Id: ' + runId)
 
-    const bodyParams: TrendStrategyBodyParams = {
+    const params: TrendStrategyParams = {
+        live: LIVE,
         contract: {name: 'ESU3', id: 2665267},
         timeRangeType: TimeRangeType.AS_MUCH_AS_ELEMENTS,
         timeRangeValue: 2,
@@ -80,10 +81,10 @@ const main = async (symbol: string = 'ES') => {
     try {
         await db
             .collection('trade_runs')
-            .doc(bodyParams.runId + '')
-            .set(bodyParams)
+            .doc(params.runId + '')
+            .set(params)
 
-        new TrendStrategy(bodyParams, {tvSocket, mdSocket, replaySocket})
+        new TrendStrategy(params)
     } catch (err) {
         console.log(err)
         await Promise.all([mdSocket.disconnect(), tvSocket.disconnect()])
