@@ -63,7 +63,7 @@ export default class Dispatcher {
     private model: any
     private reducer: any
     private storeState: any
-    private storeEffects: Action[]
+    private storeActions: Action[]
     private dispatching: boolean
     private queue: Action[]
 
@@ -73,15 +73,15 @@ export default class Dispatcher {
         this.model = model
         this.reducer = reducer
         this.storeState = deepCopy(this.model)
-        ;(this.storeEffects = []), (this.queue = [])
+        ;(this.storeActions = []), (this.queue = [])
         this.dispatching = false
     }
 
     state() {
         return this.storeState
     }
-    effects() {
-        return this.storeEffects
+    actions() {
+        return this.storeActions
     }
 
     dispatch(action: Action) {
@@ -94,7 +94,7 @@ export default class Dispatcher {
         if (this.reducer) {
             const next = this.reducer(this.storeState, action)
             this.storeState = next.state
-            this.storeEffects = next.effects
+            this.storeActions = next.effects
         }
         // This needs to be cleaned up
         while (this.queue.length > 0) {
@@ -103,7 +103,7 @@ export default class Dispatcher {
             if (this.reducer) {
                 const next = this.reducer(this.storeState, a)
                 this.storeState = next.state
-                this.storeEffects = next.effects
+                this.storeActions = next.effects
             }
         }
         this.dispatching = false
