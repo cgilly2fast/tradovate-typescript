@@ -107,7 +107,7 @@ export default class MarketDataSocket implements MdSocket {
                     removeListener = this.socket.addListener(
                         (item: ResponseMsg<any> | ServerEvent) => {
                             if (isServerEvent(item) && isChartEventMsg(item.d)) {
-                                item.d.charts.forEach((chart: any) =>
+                                item.d.charts.forEach(chart =>
                                     chart.id === realtimeId ? onSubscription(chart) : null
                                 )
                             }

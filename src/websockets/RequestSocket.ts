@@ -1,6 +1,6 @@
 import WebSocket, {MessageEvent, Data} from 'ws'
 import {log} from 'console'
-import { stringify } from '../utils/stringify'
+import {stringify} from '../utils/stringify'
 import {
     ResponseMsg,
     ErrorResponse,
@@ -9,10 +9,8 @@ import {
     URLs,
     Socket,
     EndpointURLs,
-    Listener,
+    Listener
 } from '../utils/types'
-
-
 
 export default class RequestSocket implements Socket {
     private counter: number
@@ -62,26 +60,24 @@ export default class RequestSocket implements Socket {
     }
 
     private getToken() {
-        if(this.listeningURL === URLs.DEMO_URL || this.listeningURL === URLs.LIVE_URL) 
+        if (this.listeningURL === URLs.DEMO_URL || this.listeningURL === URLs.LIVE_URL)
             return process.env.ACCESS_TOKEN!
         return process.env.MD_ACCESS_TOKEN!
     }
 
     private dataToListeners(data: any[]) {
-        this.listeners.forEach(listener =>
-            data.forEach((item: any) => listener(item))
-        )
+        this.listeners.forEach(listener => data.forEach((item: any) => listener(item)))
     }
 
     private parseQueryParams(params: any): string {
-        const queryParams = [];
+        const queryParams = []
         for (const key in params) {
-          if (key in params) {
-            const value = encodeURIComponent(params[key]);
-            queryParams.push(`${key}=${value}`);
-          }
+            if (key in params) {
+                const value = encodeURIComponent(params[key])
+                queryParams.push(`${key}=${value}`)
+            }
         }
-        return queryParams.join('&');
+        return queryParams.join('&')
     }
 
     getListeningUrl() {
@@ -102,11 +98,13 @@ export default class RequestSocket implements Socket {
     }
 
     isConnected() {
-        return  this.ws && 
-                this.ws.readyState !== 0 && 
-                this.ws.readyState !== 2 && 
-                this.ws.readyState !== 3 && 
-                this.ws.readyState !== undefined
+        return (
+            this.ws &&
+            this.ws.readyState !== 0 &&
+            this.ws.readyState !== 2 &&
+            this.ws.readyState !== 3 &&
+            this.ws.readyState !== undefined
+        )
     }
 
     addListener(listener: (item: any) => void) {
@@ -115,14 +113,12 @@ export default class RequestSocket implements Socket {
     }
 
     connect(): Promise<void> {
-        
-
         this.ws = new WebSocket(this.listeningURL)
         let heartbeatInterval: NodeJS.Timer
         const token = this.getToken()
 
         const sendHeartbeat = () => {
-            if (this.isConnected()) {
+            if (!this.isConnected()) {
                 clearInterval(heartbeatInterval)
                 return
             }
@@ -130,9 +126,8 @@ export default class RequestSocket implements Socket {
         }
 
         return new Promise((res, rej) => {
-
             const onEvent = async (msg: MessageEvent) => {
-                const {T, data}= this.prepareMessage(msg.data)
+                const {T, data} = this.prepareMessage(msg.data)
                 if (T === 'a' && data && data.length > 0) {
                     this.checkHeartbeats()
                     this.dataToListeners(data)
@@ -144,10 +139,10 @@ export default class RequestSocket implements Socket {
             const onConnect = async (msg: MessageEvent) => {
                 const {T} = this.prepareMessage(msg.data)
                 if (T === 'o') {
-                    await this.request({url: 'authorize',body:{token}})
+                    await this.request({url: 'authorize', body: {token}})
 
                     log('[DevX Trader]: connected.')
-                    
+
                     this.ws.removeEventListener('message', onConnect)
                     heartbeatInterval = setInterval(sendHeartbeat, 2500)
                 }
@@ -156,20 +151,18 @@ export default class RequestSocket implements Socket {
                 this.ws.addEventListener('message', onEvent)
                 this.ws.addEventListener('message', onConnect)
                 res()
-            } catch(err) {
-    
+            } catch (err) {
                 log(`[DevX Trader]: RequestSocket: Could not add listeners ${err}`)
                 rej(err)
-
             }
         })
     }
 
-    request<T extends EndpointURLs>(params:RequestParams<T>): Promise<ResponseMsg<T>> {
+    request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>> {
         const {url, body, query} = params
-        
+
         return new Promise((res, rej) => {
-            if (url === undefined) 
+            if (url === undefined)
                 rej('url undefined. Pass as request<T> or in param object.')
             if (!this.isConnected()) rej('[DevX Trader]: Websocket not connect ')
 
@@ -182,7 +175,7 @@ export default class RequestSocket implements Socket {
                     if (item.i !== id) return
 
                     this.ws.removeEventListener('message', onRequest)
-                    
+
                     if (isErrorResponse(item)) {
                         rej(`WS request: ${stringify({params, item})}`)
                         return
@@ -194,12 +187,14 @@ export default class RequestSocket implements Socket {
             try {
                 this.ws.addEventListener('message', onRequest)
                 this.ws.send(
-                    `${url}\n${id}\n${this.parseQueryParams(query) || ''}\n${stringify(body)}`)
+                    `${url}\n${id}\n${this.parseQueryParams(query) || ''}\n${stringify(
+                        body
+                    )}`
+                )
             } catch (err) {
                 log(`[DevX Trader]: Socket request: ${stringify({url, query, body})}`)
                 throw err
             }
         })
     }
-
 }
