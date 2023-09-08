@@ -62,7 +62,6 @@ export default class Dispatcher {
     public id?: string
     private model: any
     private reducer: any
-    private mw: any
     private storeState: any
     private storeEffects: Action[]
     private dispatching: boolean
@@ -73,8 +72,7 @@ export default class Dispatcher {
         this.id = id
         this.model = model
         this.reducer = reducer
-        this.mw = mw
-        this.storeState = deepCopy(model)
+        this.storeState = deepCopy(this.model)
         ;(this.storeEffects = []), (this.queue = [])
         this.dispatching = false
     }
@@ -86,30 +84,24 @@ export default class Dispatcher {
         return this.storeEffects
     }
 
-    dispatch(event: string, data: any) {
-        const action: Action = {event, payload: data}
-
+    dispatch(action: Action) {
         if (this.dispatching) {
             this.queue.push(action)
             return
         }
         this.dispatching = true
-        let result: Action = action
 
-        if (this.mw && typeof this.mw === 'function') {
-            result = this.mw(this.storeState, action)
-        }
         if (this.reducer) {
-            const next = this.reducer(this.storeState, result)
+            const next = this.reducer(this.storeState, action)
             this.storeState = next.state
             this.storeEffects = next.effects
         }
-
-        while (this.queue.length > 0 && this.mw) {
+        // This needs to be cleaned up
+        while (this.queue.length > 0) {
             const a = this.queue.shift()
-            result = this.mw(this.storeState, a!)
+
             if (this.reducer) {
-                const next = this.reducer(this.storeState, result)
+                const next = this.reducer(this.storeState, a)
                 this.storeState = next.state
                 this.storeEffects = next.effects
             }

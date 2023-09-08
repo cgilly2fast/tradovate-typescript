@@ -582,7 +582,7 @@ export type PlaceOCOAction = {
 }
 
 export type StartOrderStrategy = {
-    event: 'orderStrategy/startOrderStrategy'
+    event: StrategyEvent.StartOrderStrategy
     payload: StartOrderStrategyPayload
 }
 
