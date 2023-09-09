@@ -156,27 +156,6 @@ export type Quote = {
         EmptyBook: Price
     }
 }
-// export type PropsEntity = {
-//     position: Position
-//     cashBalance: CashBalance
-//     account: Account
-//     marginSnapshot: MarginSnapshot
-//     currency: Currency
-//     fillPair: FillPair
-//     order: Order
-//     contract: Contract
-//     contractMaturity: ContractMaturity
-//     product: Product
-//     exchange: Exchange
-//     command: Command
-//     commandReport: CommandReport
-//     executionReport: ExecutionReport
-//     orderVersion: OrderVersion
-//     fill: Fill
-//     orderStrategy: OrderStrategy
-//     orderStrategyLink: OrderStrategyLink
-//     contractGroup: ContractGroup
-// }
 
 export type PropsEventMsg =
     | PositionEventMsg
@@ -570,19 +549,19 @@ export type ReplayCompleteAction = {
     payload: ReplayCompletePayload
 }
 
-export type PlaceOrderAction = {
-    event: StrategyEvent.PlaceOrder
-    payload: PlaceOrderPayload
-}
-export type PlaceOCOAction = {
-    event: StrategyEvent.PlaceOCO
-    payload: PlaceOCOPayload
-}
+// export type PlaceOrderAction = {
+//     event: StrategyEvent.PlaceOrder
+//     payload: PlaceOrderPayload
+// }
+// export type PlaceOCOAction = {
+//     event: StrategyEvent.PlaceOCO
+//     payload: PlaceOCOPayload
+// }
 
-export type StartOrderStrategyAction = {
-    event: StrategyEvent.StartOrderStrategy
-    payload: StartOrderStrategyPayload
-}
+// export type StartOrderStrategyAction = {
+//     event: StrategyEvent.StartOrderStrategy
+//     payload: StartOrderStrategyPayload
+// }
 
 export type StopAction = {
     event: StrategyEvent.Stop
@@ -614,6 +593,20 @@ export type QuoteAction = {
     payload: Quote
 }
 
+export type CustomActionTemplate<T extends string, U> = {event: T; payload: U}
+
+export type RequestAction<T extends EndpointURLs> = {
+    event: T
+    payload: EndpointRequestBody[T] | EndpointRequestQuery[T]
+}
+
+export function isRequestAction<T extends EndpointURLs>(
+    action: any,
+    validEvents: T[] = Object.keys({} as EndpointURLs) as T[]
+): action is EndpointURLs {
+    return action && action.event && action.payload && validEvents.includes(action.event)
+}
+
 export type ReplayCompletePayload = any
 
 export type ProductFoundPayload = {name: string}
@@ -630,9 +623,9 @@ export type Action =
     | UserSyncAction
     | ProductFoundAction
     | ReplayCompleteAction
-    | PlaceOrderAction
-    | PlaceOCOAction
-    | StartOrderStrategyAction
+    // | PlaceOrderAction
+    // | PlaceOCOAction
+    // | StartOrderStrategyAction
     | StopAction
     | ReplayResetAction
     | ClockAction
@@ -2025,3 +2018,339 @@ export type EventHandlerResults<T extends StrategyState> = {
     state: T
     actions: Action[]
 }
+
+export enum TvEndpoints {
+    ContractLibrary = 'contractLibrary',
+    ContractDependents = 'contract/deps',
+    ContractFind = 'contract/find',
+    GetProductFeeParams = 'getProductFeeParams',
+    ContractItem = 'contract/item',
+    ContractItems = 'contract/items',
+    ContractLDependents = 'contract/ldeps',
+    RollContract = 'rollContract',
+    ContractSuggest = 'contract/suggest',
+    ContractGroupFind = 'contractGroup/find',
+    ContractGroupItem = 'contractGroup/item',
+    ContractGroupItems = 'contractGroup/items',
+    ContractGroupList = 'contractGroup/list',
+    ContractGroupSuggest = 'contractGroup/suggest',
+    ContractMaturityDependents = 'contractMaturity/deps',
+    ContractMaturityItem = 'contractMaturity/item',
+    ContractMaturityItems = 'contractMaturity/items',
+    ContractMaturityLDependents = 'contractMaturity/ldeps',
+    CurrencyFind = 'currency/find',
+    CurrencyItem = 'currency/item',
+    CurrencyItems = 'currency/items',
+    CurrencyList = 'currency/list',
+    CurrencySuggest = 'currency/suggest',
+    CurrencyRateDependents = 'currencyRate/deps',
+    CurrencyRateItem = 'currencyRate/item',
+    CurrencyRateItems = 'currencyRate/items',
+    CurrencyRateLDependents = 'currencyRate/ldeps',
+    CurrencyRateList = 'currencyRate/list',
+    ExchangeFind = 'exchange/find',
+    ExchangeItem = 'exchange/item',
+    ExchangeItems = 'exchange/items',
+    ExchangeList = 'exchange/list',
+    ExchangeSuggest = 'exchange/suggest',
+    ProductDependents = 'product/deps',
+    ProductFind = 'product/find',
+    ProductItem = 'product/item',
+    ProductItems = 'product/items',
+    ProductLDependents = 'product/ldeps',
+    ProductList = 'product/list',
+    ProductSuggest = 'product/suggest',
+    ProductSessionDependents = 'productSession/deps',
+    ProductSessionItem = 'productSession/item',
+    ProductSessionItems = 'productSession/items',
+    ProductSessionLDependents = 'productSession/ldeps',
+    SpreadDefinitionItem = 'spreadDefinition/item',
+    SpreadDefinitionItems = 'spreadDefinition/items',
+    AccountRiskStatusDependents = 'accountRiskStatus/deps',
+    AccountRiskStatusItem = 'accountRiskStatus/item',
+    AccountRiskStatusItems = 'accountRiskStatus/items',
+    AccountRiskStatusLDependents = 'accountRiskStatus/ldeps',
+    AccountRiskStatusList = 'accountRiskStatus/list',
+    ContractMarginDependents = 'contractMargin/deps',
+    ContractMarginItem = 'contractMargin/item',
+    ContractMarginItems = 'contractMargin/items',
+    ContractMarginLDependents = 'contractMargin/ldeps',
+    ProductMarginDependents = 'productMargin/deps',
+    ProductMarginItem = 'productMargin/item',
+    ProductMarginItems = 'productMargin/items',
+    ProductMarginLDependents = 'productMargin/ldeps',
+    ProductMarginList = 'productMargin/list',
+    UserAccountAutoLiqCreate = 'userAccountAutoLiq/create',
+    UserAccountAutoLiqDependents = 'userAccountAutoLiq/deps',
+    UserAccountAutoLiqItem = 'userAccountAutoLiq/item',
+    UserAccountAutoLiqItems = 'userAccountAutoLiq/items',
+    UserAccountAutoLiqLDependents = 'userAccountAutoLiq/ldeps',
+    UserAccountAutoLiqList = 'userAccountAutoLiq/list',
+    UserAccountAutoLiqUpdate = 'userAccountAutoLiq/update',
+    UserAccountPositionLimitCreate = 'userAccountPositionLimit/create',
+    // DeleteUserAccountPositionLimit = 'deleteUserAccountPositionLimit',
+    // DeleteUserAccountRiskParameter = 'deleteUserAccountRiskParameter',
+    UserAccountPositionLimitDependents = 'userAccountPositionLimit/deps',
+    UserAccountPositionLimitItem = 'userAccountPositionLimit/item',
+    UserAccountPositionLimitItems = 'userAccountPositionLimit/items',
+    UserAccountPositionLimitLDependents = 'userAccountPositionLimit/ldeps',
+    UserAccountPositionLimitUpdate = 'userAccountPositionLimit/update',
+    UserAccountRiskParameterCreate = 'userAccountRiskParameter/create',
+    UserAccountRiskParameterDependents = 'userAccountRiskParameter/deps',
+    UserAccountRiskParameterItem = 'userAccountRiskParameter/item',
+    UserAccountRiskParameterItems = 'userAccountRiskParameter/items',
+    UserAccountRiskParameterLDependents = 'userAccountRiskParameter/ldeps',
+    UserAccountRiskParameterUpdate = 'userAccountRiskParameter/update',
+    CommandDependents = 'command/deps',
+    CommandItem = 'command/item',
+    CommandItems = 'command/items',
+    CommandLDependents = 'command/ldeps',
+    CommandList = 'command/list',
+    CommandReport = 'commandReport',
+    CommandReportDependents = 'commandReport/deps',
+    CommandReportItem = 'commandReport/item',
+    CommandReportItems = 'commandReport/items',
+    CommandReportLDependents = 'commandReport/ldeps',
+    CommandReportList = 'commandReport/list',
+    ExecutionReport = 'executionReport',
+    ExecutionReportDependents = 'executionReport/deps',
+    ExecutionReportFind = 'executionReport/find',
+    ExecutionReportItem = 'executionReport/item',
+    ExecutionReportItems = 'executionReport/items',
+    ExecutionReportLDependents = 'executionReport/ldeps',
+    ExecutionReportList = 'executionReport/list',
+    ExecutionReportSuggest = 'executionReport/suggest',
+    FillDependents = 'fill/deps',
+    FillItem = 'fill/item',
+    FillItems = 'fill/items',
+    FillLDependents = 'fill/ldeps',
+    FillList = 'fill/list',
+    FillFeeDependents = 'fillFee/deps',
+    FillFeeItem = 'fillFee/item',
+    FillFeeItems = 'fillFee/items',
+    FillFeeLDependents = 'fillFee/ldeps',
+    FillFeeList = 'fillFee/list',
+    OrderDependents = 'order/deps',
+    OrderItem = 'order/item',
+    OrderItems = 'order/items',
+    OrderLDependents = 'order/ldeps',
+    LiquidatePosition = 'order/liquidatePosition',
+    OrderList = 'order/list',
+    ModifyOrder = 'order/modifyrder',
+    PlaceOCO = 'order/placeoco',
+    PlaceOrder = 'order/placeorder',
+    PlaceOSO = 'order/placeoso',
+    OrderStrategyDependents = 'orderStrategy/deps',
+    InterruptOrderStrategy = 'orderStrategy/interruptOrderStrategy',
+    OrderStrategyItem = 'orderStrategy/item',
+    OrderStrategyItems = 'orderStrategy/items',
+    OrderStrategyLDependents = 'orderStrategy/ldeps',
+    OrderStrategyList = 'orderStrategy/list',
+    ModifyOrderStrategy = 'orderStrategy/modifyOrderStrategy',
+    StartOrderStrategy = 'orderStrategy/startOrderStrategy',
+    OrderStrategyLinkDependents = 'orderStrategyLink/deps',
+    OrderStrategyLinkItem = 'orderStrategyLink/item',
+    OrderStrategyLinkItems = 'orderStrategyLink/items',
+    OrderStrategyLinkLDependents = 'orderStrategyLink/ldeps',
+    OrderStrategyLinkList = 'orderStrategyLink/list',
+    OrderVersionDependents = 'orderVersion/deps',
+    OrderVersionItem = 'orderVersion/item',
+    OrderVersionItems = 'orderVersion/items',
+    OrderVersionLDependents = 'orderVersion/ldeps',
+    OrderVersionList = 'orderVersion/list',
+    FillPairDependents = 'fillPair/deps',
+    FillPairItem = 'fillPair/item',
+    FillPairItems = 'fillPair/items',
+    FillPairLDependents = 'fillPair/ldeps',
+    FillPairList = 'fillPair/list',
+    PositionDependents = 'position/deps',
+    PositionFind = 'position/find',
+    PositionItem = 'position/item',
+    PositionItems = 'position/items',
+    PositionLDependents = 'position/ldeps',
+    PositionList = 'position/list',
+    AccountDependents = 'account/deps',
+    AccountFind = 'account/find',
+    AccountItem = 'account/item',
+    AccountItems = 'account/items',
+    AccountLDependents = 'account/ldeps',
+    AccountList = 'account/list',
+    AccountSuggest = 'account/suggest',
+    CashBalanceDependents = 'cashBalance/deps',
+    CashBalanceSnapshot = 'getCashBalance/snapshot',
+    CashBalanceItem = 'cashBalance/item',
+    CashBalanceItems = 'cashBalance/items',
+    CashBalanceLDependents = 'cashBalance/ldeps',
+    CashBalanceList = 'cashBalance/list',
+    CashBalanceLogDependents = 'cashBalanceLog/deps',
+    CashBalanceLogItem = 'cashBalanceLog/item',
+    CashBalanceLogItems = 'cashBalanceLog/items',
+    CashBalanceLogLDependents = 'cashBalanceLog/ldeps',
+    MarginSnapshotDependents = 'marginSnapshot/deps',
+    MarginSnapshotItem = 'marginSnapshot/item',
+    MarginSnapshotItems = 'marginSnapshot/items',
+    MarginSnapshotLDependents = 'marginSnapshot/ldeps',
+    MarginSnapshotList = 'marginSnapshot/list',
+    TradingPermissionDependents = 'tradingPermission/deps',
+    TradingPermissionItem = 'tradingPermission/item',
+    TradingPermissionItems = 'tradingPermission/items',
+    TradingPermissionLDependents = 'tradingPermission/ldeps',
+    TradingPermissionList = 'tradingPermission/list',
+    MarketDataSubscriptionExchangeScopeFind = 'marketDataSubscriptionExchangeScope/find',
+    MarketDataSubscriptionExchangeScopeItem = 'marketDataSubscriptionExchangeScope/item',
+    MarketDataSubscriptionExchangeScopeItems = 'marketDataSubscriptionExchangeScope/items',
+    MarketDataSubscriptionExchangeScopeList = 'marketDataSubscriptionExchangeScope/list',
+    MarketDataSubscriptionExchangeScopeSuggest = 'marketDataSubscriptionExchangeScope/suggest',
+    MarketDataSubscriptionPlanFind = 'marketDataSubscriptionPlan/find',
+    MarketDataSubscriptionPlanItem = 'marketDataSubscriptionPlan/item',
+    MarketDataSubscriptionPlanItems = 'marketDataSubscriptionPlan/items',
+    MarketDataSubscriptionPlanList = 'marketDataSubscriptionPlan/list',
+    MarketDataSubscriptionPlanSuggest = 'marketDataSubscriptionPlan/suggest',
+    TradovateSubscriptionPlanFind = 'tradovateSubscriptionPlan/find',
+    TradovateSubscriptionPlanItem = 'tradovateSubscriptionPlan/item',
+    TradovateSubscriptionPlanItems = 'tradovateSubscriptionPlan/items',
+    TradovateSubscriptionPlanList = 'tradovateSubscriptionPlan/list',
+    TradovateSubscriptionPlanSuggest = 'tradovateSubscriptionPlan/suggest',
+    ChangeSpeed = 'replay/changespeed',
+    CheckReplaySession = 'replay/checkreplaysession',
+    InitializeClock = 'replay/initializeclock',
+    CompleteAlertSnapshot = 'completeAlert/snapshot',
+    AdminAlertSnapshot = 'adminAlert/snapshot',
+    AdminAlertItem = 'adminAlert/item',
+    AdminAlertItems = 'adminAlert/items',
+    AdminAlertLDepends = 'adminAlert/ldeps',
+    AdminAlertList = 'adminAlert/list',
+    TakeAlertOwnership = 'takeAlert/ownership',
+    CreateAlert = 'create/alert',
+    DeleteAlert = 'delete/alert',
+    AlertSnapshot = 'alert/snapshot',
+    DismissAlert = 'dismiss/alert',
+    AlertItem = 'alert/item',
+    AlertItems = 'alert/items',
+    AlertLDepends = 'alert/ldeps',
+    AlertList = 'alert/list',
+    MarkReadAlertSnapshot = 'markReadAlert/snapshot',
+    ModifyAlert = 'modify/alert',
+    ResetAlert = 'reset/alert',
+    AlertSignalSnapshot = 'alertSignal/snapshot',
+    AlertSignalItem = 'alertSignal/item',
+    AlertSignalItems = 'alertSignal/items',
+    AlertSignalLDepends = 'alertSignal/ldeps',
+    AlertSignalList = 'alertSignal/list',
+    AdminAlertSuggest = 'adminAlert/suggest',
+    ClearingHouseSnapshot = 'clearingHouse/snapshot',
+    ClearingHouseItem = 'clearingHouse/item',
+    ClearingHouseItems = 'clearingHouse/items',
+    ClearingHouseList = 'clearingHouse/list',
+    ClearingHouseSuggest = 'clearingHouse/suggest',
+    EntitlementItem = 'entitlement/item',
+    EntitlementItems = 'entitlement/items',
+    EntitlementList = 'entitlement/list',
+    OrderStrategyTypeSnapshot = 'orderStrategyType/snapshot',
+    OrderStrategyTypeItem = 'orderStrategyType/item',
+    OrderStrategyTypeItems = 'orderStrategyType/items',
+    OrderStrategyTypeList = 'orderStrategyType/list',
+    OrderStrategyTypeSuggest = 'orderStrategyType/suggest',
+    PropertySnapshot = 'property/snapshot',
+    PropertyItem = 'property/item',
+    PropertyItems = 'property/items',
+    PropertyList = 'property/list',
+    PropertySuggest = 'property/suggest',
+    ContactInfoSnapshot = 'contactInfo/snapshot',
+    ContactInfoItem = 'contactInfo/item',
+    ContactInfoItems = 'contactInfo/items',
+    ContactInfoLDepends = 'contactInfo/ldeps',
+    MarketDataSubscriptionCreate = 'marketDataSubscription/create',
+    MarketDataSubscriptionDepends = 'marketDataSubscription/deps',
+    MarketDataSubscriptionItem = 'marketDataSubscription/item',
+    MarketDataSubscriptionItems = 'marketDataSubscription/items',
+    MarketDataSubscriptionLDepends = 'marketDataSubscription/ldeps',
+    MarketDataSubscriptionList = 'marketDataSubscription/list',
+    MarketDataSubscriptionUpdate = 'marketDataSubscription/update',
+    OrganizationSnapshot = 'organization/snapshot',
+    OrganizationItem = 'organization/item',
+    OrganizationItems = 'organization/items',
+    OrganizationList = 'organization/list',
+    OrganizationSuggest = 'organization/suggest',
+    SecondMarketDataSubscriptionDepends = 'secondMarketDataSubscription/deps',
+    SecondMarketDataSubscriptionItem = 'secondMarketDataSubscription/item',
+    SecondMarketDataSubscriptionItems = 'secondMarketDataSubscription/items',
+    SecondMarketDataSubscriptionLDepends = 'secondMarketDataSubscription/ldeps',
+    SecondMarketDataSubscriptionList = 'secondMarketDataSubscription/list',
+    TradovateSubscriptionCreate = 'tradovateSubscription/create',
+    TradovateSubscriptionDepends = 'tradovateSubscription/deps',
+    TradovateSubscriptionItem = 'tradovateSubscription/item',
+    TradovateSubscriptionItems = 'tradovateSubscription/items',
+    TradovateSubscriptionLDepends = 'tradovateSubscription/ldeps',
+    TradovateSubscriptionList = 'tradovateSubscription/list',
+    TradovateSubscriptionUpdate = 'tradovateSubscription/update',
+    // AcceptTradingPermission = 'acceptTradingPermission',
+    // ActivateSecondMarketDataSubscriptionRenewal = 'activateSecondMarketDataSubscriptionRenewal',
+    // AddMarketDataSubscription = 'addMarketDataSubscription',
+    // AddSecondMarketDataSubscription = 'addSecondMarketDataSubscription',
+    // AddTradovateSubscription = 'addTradovateSubscription',
+    // CancelSecondMarketDataSubscription = 'cancelSecondMarketDataSubscription',
+    // CancelSecondMarketDataSubscriptionRenewal = 'cancelSecondMarketDataSubscriptionRenewal',
+    // CancelTradovateSubscription = 'cancelTradovateSubscription',
+    UserSnapshot = 'user/snapshot',
+    GetAccountTradingPermissions = 'getAccountTradingPermissions',
+    UserItem = 'user/item',
+    UserItems = 'user/items',
+    UserList = 'user/list',
+    // ModifyCredentials = 'modifyCredentials',
+    // ModifyEmailAddress = 'modifyEmailAddress',
+    // ModifyPassword = 'modifyPassword',
+    // OpenDemoAccount = 'openDemoAccount',
+    // RequestTradingPermission = 'requestTradingPermission',
+    // RevokeTradingPermission = 'revokeTradingPermission',
+    // SignUpOrganizationMember = 'signUpOrganizationMember',
+    UserSuggest = 'user/suggest',
+    SyncRequest = 'user/syncrequest',
+    // AddEntitlementSubscription = 'addEntitlementSubscription',
+    // ChangePluginPermission = 'changePluginPermission',
+    UserPluginCreate = 'userPlugin/create',
+    UserPluginDepends = 'userPlugin/deps',
+    UserPluginItem = 'userPlugin/item',
+    UserPluginItems = 'userPlugin/items',
+    UserPluginLDepends = 'userPlugin/ldeps',
+    UserPluginList = 'userPlugin/list',
+    UserPluginUpdate = 'userPlugin/update',
+    UserPropertyDepends = 'userProperty/deps',
+    UserPropertyItem = 'userProperty/item',
+    UserPropertyItems = 'userProperty/items',
+    UserPropertyLDepends = 'userProperty/ldeps',
+    UserSessionItem = 'userSession/item',
+    UserSessionItems = 'userSession/items',
+    UserSessionStatsDepends = 'userSessionStats/deps',
+    UserSessionStatsItem = 'userSessionStats/item',
+    UserSessionStatsItems = 'userSessionStats/items',
+    UserSessionStatsLDepends = 'userSessionStats/ldeps',
+    UserSessionStatsList = 'userSessionStats/list',
+    CloseChat = 'chat/closechat',
+    ChatDepends = 'chat/deps',
+    ChatItem = 'chat/item',
+    ChatItems = 'chat/items',
+    ChatLDepends = 'chat/ldeps',
+    ChatList = 'chat/list',
+    MarkAsReadChatMessage = 'markAsReadChatMessage',
+    PostChatMessage = 'postChatMessage',
+    ChatMessageDepends = 'chatMessage/deps',
+    ChatMessageItem = 'chatMessage/item',
+    ChatMessageItems = 'chatMessage/items',
+    ChatMessageLDepends = 'chatMessage/ldeps'
+}
+
+// 1. Take a list of strings as input.
+// 2. Create a TypeScript enum following these conditions:
+// 2a.Format using industry-standard TypeScript enum formatting.
+// 2b. Do not make changes to enum keys
+// 2c. Parse the last word of values:
+// 2c1.Remove the last word and append '/'+toLowerCase(last word).
+// 2c2a. Special cases:
+// If the last word of the key is 'lDependents', replace it with '/ldeps'.
+// If the last word of the key  is 'Dependents', replace it with '/deps'.
+// If the last word of the key is 'Snapshot', replace it with '/snapshot'
+// If the last word of the key  is 'Find', replace it with '/find'
+// If the last word of the key  is 'Create', replace it with '/create'
+// If the last word of the key  is 'Update', replace it with '/update'
+// 3. Exclude values like 'GET' and 'POST' from the enum. Input:
