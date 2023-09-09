@@ -549,28 +549,14 @@ export type ReplayCompleteAction = {
     payload: ReplayCompletePayload
 }
 
-// export type PlaceOrderAction = {
-//     event: StrategyEvent.PlaceOrder
-//     payload: PlaceOrderPayload
-// }
-// export type PlaceOCOAction = {
-//     event: StrategyEvent.PlaceOCO
-//     payload: PlaceOCOPayload
-// }
-
-// export type StartOrderStrategyAction = {
-//     event: StrategyEvent.StartOrderStrategy
-//     payload: StartOrderStrategyPayload
-// }
-
 export type StopAction = {
     event: StrategyEvent.Stop
-    payload: {} | undefined
+    payload: {[key: string]: any} | undefined
 }
 
 export type ReplayResetAction = {
     event: StrategyEvent.ReplayReset
-    payload: {} | undefined
+    payload: {[key: string]: any} | undefined
 }
 
 export type ClockAction = {
@@ -580,7 +566,7 @@ export type ClockAction = {
 
 export type NextReplayAction = {
     event: StrategyEvent.NextReplay
-    payload: {} | undefined
+    payload: {[key: string]: any} | undefined
 }
 
 export type DOMAction = {
@@ -595,19 +581,20 @@ export type QuoteAction = {
 
 export type CustomActionTemplate<T extends string, U> = {event: T; payload: U}
 
-export type RequestAction<T extends EndpointURLs> = {
-    event: T
-    payload: EndpointRequestBody[T] | EndpointRequestQuery[T]
+export type RequestAction = {
+    event: TvEndpoint
+    payload: {[key: string]: any}
 }
 
-export function isRequestAction<T extends EndpointURLs>(
-    action: any,
-    validEvents: T[] = Object.keys({} as EndpointURLs) as T[]
-): action is EndpointURLs {
-    return action && action.event && action.payload && validEvents.includes(action.event)
+export function isRequestAction(action: any): action is RequestAction {
+    return (
+        action &&
+        action.event &&
+        (ReversedTvEndpoint as Record<string, string>)[action.event] !== undefined
+    )
 }
 
-export type ReplayCompletePayload = any
+export type ReplayCompletePayload = {}
 
 export type ProductFoundPayload = {name: string}
 
@@ -632,6 +619,7 @@ export type Action =
     | NextReplayAction
     | DOMAction
     | QuoteAction
+    | RequestAction
 
 // {
 //     event: StrategyEvent
@@ -2019,8 +2007,7 @@ export type EventHandlerResults<T extends StrategyState> = {
     actions: Action[]
 }
 
-export enum TvEndpoints {
-    ContractLibrary = 'contractLibrary',
+export enum TvEndpoint {
     ContractDependents = 'contract/deps',
     ContractFind = 'contract/find',
     GetProductFeeParams = 'getProductFeeParams',
@@ -2088,8 +2075,6 @@ export enum TvEndpoints {
     UserAccountAutoLiqList = 'userAccountAutoLiq/list',
     UserAccountAutoLiqUpdate = 'userAccountAutoLiq/update',
     UserAccountPositionLimitCreate = 'userAccountPositionLimit/create',
-    // DeleteUserAccountPositionLimit = 'deleteUserAccountPositionLimit',
-    // DeleteUserAccountRiskParameter = 'deleteUserAccountRiskParameter',
     UserAccountPositionLimitDependents = 'userAccountPositionLimit/deps',
     UserAccountPositionLimitItem = 'userAccountPositionLimit/item',
     UserAccountPositionLimitItems = 'userAccountPositionLimit/items',
@@ -2112,7 +2097,6 @@ export enum TvEndpoints {
     CommandReportItems = 'commandReport/items',
     CommandReportLDependents = 'commandReport/ldeps',
     CommandReportList = 'commandReport/list',
-    ExecutionReport = 'executionReport',
     ExecutionReportDependents = 'executionReport/deps',
     ExecutionReportFind = 'executionReport/find',
     ExecutionReportItem = 'executionReport/item',
@@ -2284,30 +2268,13 @@ export enum TvEndpoints {
     TradovateSubscriptionLDepends = 'tradovateSubscription/ldeps',
     TradovateSubscriptionList = 'tradovateSubscription/list',
     TradovateSubscriptionUpdate = 'tradovateSubscription/update',
-    // AcceptTradingPermission = 'acceptTradingPermission',
-    // ActivateSecondMarketDataSubscriptionRenewal = 'activateSecondMarketDataSubscriptionRenewal',
-    // AddMarketDataSubscription = 'addMarketDataSubscription',
-    // AddSecondMarketDataSubscription = 'addSecondMarketDataSubscription',
-    // AddTradovateSubscription = 'addTradovateSubscription',
-    // CancelSecondMarketDataSubscription = 'cancelSecondMarketDataSubscription',
-    // CancelSecondMarketDataSubscriptionRenewal = 'cancelSecondMarketDataSubscriptionRenewal',
-    // CancelTradovateSubscription = 'cancelTradovateSubscription',
     UserSnapshot = 'user/snapshot',
     GetAccountTradingPermissions = 'getAccountTradingPermissions',
     UserItem = 'user/item',
     UserItems = 'user/items',
     UserList = 'user/list',
-    // ModifyCredentials = 'modifyCredentials',
-    // ModifyEmailAddress = 'modifyEmailAddress',
-    // ModifyPassword = 'modifyPassword',
-    // OpenDemoAccount = 'openDemoAccount',
-    // RequestTradingPermission = 'requestTradingPermission',
-    // RevokeTradingPermission = 'revokeTradingPermission',
-    // SignUpOrganizationMember = 'signUpOrganizationMember',
     UserSuggest = 'user/suggest',
     SyncRequest = 'user/syncrequest',
-    // AddEntitlementSubscription = 'addEntitlementSubscription',
-    // ChangePluginPermission = 'changePluginPermission',
     UserPluginCreate = 'userPlugin/create',
     UserPluginDepends = 'userPlugin/deps',
     UserPluginItem = 'userPlugin/item',
@@ -2337,7 +2304,345 @@ export enum TvEndpoints {
     ChatMessageDepends = 'chatMessage/deps',
     ChatMessageItem = 'chatMessage/item',
     ChatMessageItems = 'chatMessage/items',
-    ChatMessageLDepends = 'chatMessage/ldeps'
+    ChatMessageLDepends = 'chatMessage/ldeps',
+    DeleteUserAccountPositionLimit = 'userAccountPositionLimit/deleteuseruccountpositionlimit',
+    DeleteUserAccountRiskParameter = 'userAccountRiskParameter/deleteuseraccountriskparameter',
+    AcceptTradingPermission = 'user/accepttradingpermission',
+    ActivateSecondMarketDataSubscriptionRenewal = 'user/activatesecondmarketdatasubscriptionrenewal',
+    AddMarketDataSubscription = 'user/addmarketdatasubscription',
+    AddSecondMarketDataSubscription = 'user/addsecondmarketdatasubscription',
+    AddTradovateSubscription = 'user/addtradovatesubscription',
+    CancelSecondMarketDataSubscription = 'user/cancelsecondmarketdatasubscription',
+    CancelSecondMarketDataSubscriptionRenewal = 'user/cancelsecondmarketdatasubscriptionrenewal',
+    CancelTradovateSubscription = 'user/canceltradovatesubscription',
+    ModifyCredentials = 'user/modifycredentials',
+    ModifyEmailAddress = 'user/modifyemailaddress',
+    ModifyPassword = 'user/modifypassword',
+    OpenDemoAccount = 'user/opendemoaccount',
+    RequestTradingPermission = 'user/requesttradingpermission',
+    RevokeTradingPermission = 'user/revoketradingpermission',
+    SignUpOrganizationMember = 'user/signuporganizationmember',
+    AddEntitlementSubscription = 'user/addentitlementsubscription',
+    ChangePluginPermission = 'user/changepluginpermission'
+}
+//}
+
+enum ReversedTvEndpoint {
+    'contract/deps' = 'ContractDependents',
+    'contract/find' = 'ContractFind',
+    'getProductFeeParams' = 'GetProductFeeParams',
+    'contract/item' = 'ContractItem',
+    'contract/items' = 'ContractItems',
+    'contract/ldeps' = 'ContractLDependents',
+    'contract/suggest' = 'ContractSuggest',
+    'contractGroup/find' = 'ContractGroupFind',
+    'contractGroup/item' = 'ContractGroupItem',
+    'contractGroup/items' = 'ContractGroupItems',
+    'contractGroup/list' = 'ContractGroupList',
+    'contractGroup/suggest' = 'ContractGroupSuggest',
+    'contractMaturity/deps' = 'ContractMaturityDependents',
+    'contractMaturity/item' = 'ContractMaturityItem',
+    'contractMaturity/items' = 'ContractMaturityItems',
+    'contractMaturity/ldeps' = 'ContractMaturityLDependents',
+    'currency/find' = 'CurrencyFind',
+    'currency/item' = 'CurrencyItem',
+    'currency/items' = 'CurrencyItems',
+    'currency/list' = 'CurrencyList',
+    'currency/suggest' = 'CurrencySuggest',
+    'currencyRate/deps' = 'CurrencyRateDependents',
+    'currencyRate/item' = 'CurrencyRateItem',
+    'currencyRate/items' = 'CurrencyRateItems',
+    'currencyRate/ldeps' = 'CurrencyRateLDependents',
+    'currencyRate/list' = 'CurrencyRateList',
+    'exchange/find' = 'ExchangeFind',
+    'exchange/item' = 'ExchangeItem',
+    'exchange/items' = 'ExchangeItems',
+    'exchange/list' = 'ExchangeList',
+    'exchange/suggest' = 'ExchangeSuggest',
+    'product/deps' = 'ProductDependents',
+    'product/find' = 'ProductFind',
+    'product/item' = 'ProductItem',
+    'product/items' = 'ProductItems',
+    'product/ldeps' = 'ProductLDependents',
+    'product/list' = 'ProductList',
+    'product/suggest' = 'ProductSuggest',
+    'productSession/deps' = 'ProductSessionDependents',
+    'productSession/item' = 'ProductSessionItem',
+    'productSession/items' = 'ProductSessionItems',
+    'productSession/ldeps' = 'ProductSessionLDependents',
+    'spreadDefinition/item' = 'SpreadDefinitionItem',
+    'spreadDefinition/items' = 'SpreadDefinitionItems',
+    'accountRiskStatus/deps' = 'AccountRiskStatusDependents',
+    'accountRiskStatus/item' = 'AccountRiskStatusItem',
+    'accountRiskStatus/items' = 'AccountRiskStatusItems',
+    'accountRiskStatus/ldeps' = 'AccountRiskStatusLDependents',
+    'accountRiskStatus/list' = 'AccountRiskStatusList',
+    'contractMargin/deps' = 'ContractMarginDependents',
+    'contractMargin/item' = 'ContractMarginItem',
+    'contractMargin/items' = 'ContractMarginItems',
+    'contractMargin/ldeps' = 'ContractMarginLDependents',
+    'productMargin/deps' = 'ProductMarginDependents',
+    'productMargin/item' = 'ProductMarginItem',
+    'productMargin/items' = 'ProductMarginItems',
+    'productMargin/ldeps' = 'ProductMarginLDependents',
+    'productMargin/list' = 'ProductMarginList',
+    'userAccountAutoLiq/create' = 'UserAccountAutoLiqCreate',
+    'userAccountAutoLiq/deps' = 'UserAccountAutoLiqDependents',
+    'userAccountAutoLiq/item' = 'UserAccountAutoLiqItem',
+    'userAccountAutoLiq/items' = 'UserAccountAutoLiqItems',
+    'userAccountAutoLiq/ldeps' = 'UserAccountAutoLiqLDependents',
+    'userAccountAutoLiq/list' = 'UserAccountAutoLiqList',
+    'userAccountAutoLiq/update' = 'UserAccountAutoLiqUpdate',
+    'userAccountPositionLimit/create' = 'UserAccountPositionLimitCreate',
+    'userAccountPositionLimit/deps' = 'UserAccountPositionLimitDependents',
+    'userAccountPositionLimit/item' = 'UserAccountPositionLimitItem',
+    'userAccountPositionLimit/items' = 'UserAccountPositionLimitItems',
+    'userAccountPositionLimit/ldeps' = 'UserAccountPositionLimitLDependents',
+    'userAccountPositionLimit/update' = 'UserAccountPositionLimitUpdate',
+    'userAccountRiskParameter/create' = 'UserAccountRiskParameterCreate',
+    'userAccountRiskParameter/deps' = 'UserAccountRiskParameterDependents',
+    'userAccountRiskParameter/item' = 'UserAccountRiskParameterItem',
+    'userAccountRiskParameter/items' = 'UserAccountRiskParameterItems',
+    'userAccountRiskParameter/ldeps' = 'UserAccountRiskParameterLDependents',
+    'userAccountRiskParameter/update' = 'UserAccountRiskParameterUpdate',
+    'command/deps' = 'CommandDependents',
+    'command/item' = 'CommandItem',
+    'command/items' = 'CommandItems',
+    'command/ldeps' = 'CommandLDependents',
+    'command/list' = 'CommandList',
+    'commandReport' = 'CommandReport',
+    'commandReport/deps' = 'CommandReportDependents',
+    'commandReport/item' = 'CommandReportItem',
+    'commandReport/items' = 'CommandReportItems',
+    'commandReport/ldeps' = 'CommandReportLDependents',
+    'commandReport/list' = 'CommandReportList',
+    'executionReport/deps' = 'ExecutionReportDependents',
+    'executionReport/find' = 'ExecutionReportFind',
+    'executionReport/item' = 'ExecutionReportItem',
+    'executionReport/items' = 'ExecutionReportItems',
+    'executionReport/ldeps' = 'ExecutionReportLDependents',
+    'executionReport/list' = 'ExecutionReportList',
+    'executionReport/suggest' = 'ExecutionReportSuggest',
+    'fill/deps' = 'FillDependents',
+    'fill/item' = 'FillItem',
+    'fill/items' = 'FillItems',
+    'fill/ldeps' = 'FillLDependents',
+    'fill/list' = 'FillList',
+    'fillFee/deps' = 'FillFeeDependents',
+    'fillFee/item' = 'FillFeeItem',
+    'fillFee/items' = 'FillFeeItems',
+    'fillFee/ldeps' = 'FillFeeLDependents',
+    'fillFee/list' = 'FillFeeList',
+    'order/deps' = 'OrderDependents',
+    'order/item' = 'OrderItem',
+    'order/items' = 'OrderItems',
+    'order/ldeps' = 'OrderLDependents',
+    'order/liquidatePosition' = 'LiquidatePosition',
+    'order/list' = 'OrderList',
+    'order/modifyrder' = 'ModifyOrder',
+    'order/placeoco' = 'PlaceOCO',
+    'order/placeorder' = 'PlaceOrder',
+    'order/placeoso' = 'PlaceOSO',
+    'orderStrategy/deps' = 'OrderStrategyDependents',
+    'orderStrategy/interruptOrderStrategy' = 'InterruptOrderStrategy',
+    'orderStrategy/item' = 'OrderStrategyItem',
+    'orderStrategy/items' = 'OrderStrategyItems',
+    'orderStrategy/ldeps' = 'OrderStrategyLDependents',
+    'orderStrategy/list' = 'OrderStrategyList',
+    'orderStrategy/modifyOrderStrategy' = 'ModifyOrderStrategy',
+    'orderStrategy/startOrderStrategy' = 'StartOrderStrategy',
+    'orderStrategyLink/deps' = 'OrderStrategyLinkDependents',
+    'orderStrategyLink/item' = 'OrderStrategyLinkItem',
+    'orderStrategyLink/items' = 'OrderStrategyLinkItems',
+    'orderStrategyLink/ldeps' = 'OrderStrategyLinkLDependents',
+    'orderStrategyLink/list' = 'OrderStrategyLinkList',
+    'orderVersion/deps' = 'OrderVersionDependents',
+    'orderVersion/item' = 'OrderVersionItem',
+    'orderVersion/items' = 'OrderVersionItems',
+    'orderVersion/ldeps' = 'OrderVersionLDependents',
+    'orderVersion/list' = 'OrderVersionList',
+    'fillPair/deps' = 'FillPairDependents',
+    'fillPair/item' = 'FillPairItem',
+    'fillPair/items' = 'FillPairItems',
+    'fillPair/ldeps' = 'FillPairLDependents',
+    'fillPair/list' = 'FillPairList',
+    'position/deps' = 'PositionDependents',
+    'position/find' = 'PositionFind',
+    'position/item' = 'PositionItem',
+    'position/items' = 'PositionItems',
+    'position/ldeps' = 'PositionLDependents',
+    'position/list' = 'PositionList',
+    'account/deps' = 'AccountDependents',
+    'account/find' = 'AccountFind',
+    'account/item' = 'AccountItem',
+    'account/items' = 'AccountItems',
+    'account/ldeps' = 'AccountLDependents',
+    'account/list' = 'AccountList',
+    'account/suggest' = 'AccountSuggest',
+    'cashBalance/deps' = 'CashBalanceDependents',
+    'getCashBalance/snapshot' = 'CashBalanceSnapshot',
+    'cashBalance/item' = 'CashBalanceItem',
+    'cashBalance/items' = 'CashBalanceItems',
+    'cashBalance/ldeps' = 'CashBalanceLDependents',
+    'cashBalance/list' = 'CashBalanceList',
+    'cashBalanceLog/deps' = 'CashBalanceLogDependents',
+    'cashBalanceLog/item' = 'CashBalanceLogItem',
+    'cashBalanceLog/items' = 'CashBalanceLogItems',
+    'cashBalanceLog/ldeps' = 'CashBalanceLogLDependents',
+    'marginSnapshot/deps' = 'MarginSnapshotDependents',
+    'marginSnapshot/item' = 'MarginSnapshotItem',
+    'marginSnapshot/items' = 'MarginSnapshotItems',
+    'marginSnapshot/ldeps' = 'MarginSnapshotLDependents',
+    'marginSnapshot/list' = 'MarginSnapshotList',
+    'tradingPermission/deps' = 'TradingPermissionDependents',
+    'tradingPermission/item' = 'TradingPermissionItem',
+    'tradingPermission/items' = 'TradingPermissionItems',
+    'tradingPermission/ldeps' = 'TradingPermissionLDependents',
+    'tradingPermission/list' = 'TradingPermissionList',
+    'marketDataSubscriptionExchangeScope/find' = 'MarketDataSubscriptionExchangeScopeFind',
+    'marketDataSubscriptionExchangeScope/item' = 'MarketDataSubscriptionExchangeScopeItem',
+    'marketDataSubscriptionExchangeScope/items' = 'MarketDataSubscriptionExchangeScopeItems',
+    'marketDataSubscriptionExchangeScope/list' = 'MarketDataSubscriptionExchangeScopeList',
+    'marketDataSubscriptionExchangeScope/suggest' = 'MarketDataSubscriptionExchangeScopeSuggest',
+    'marketDataSubscriptionPlan/find' = 'MarketDataSubscriptionPlanFind',
+    'marketDataSubscriptionPlan/item' = 'MarketDataSubscriptionPlanItem',
+    'marketDataSubscriptionPlan/items' = 'MarketDataSubscriptionPlanItems',
+    'marketDataSubscriptionPlan/list' = 'MarketDataSubscriptionPlanList',
+    'marketDataSubscriptionPlan/suggest' = 'MarketDataSubscriptionPlanSuggest',
+    'tradovateSubscriptionPlan/find' = 'TradovateSubscriptionPlanFind',
+    'tradovateSubscriptionPlan/item' = 'TradovateSubscriptionPlanItem',
+    'tradovateSubscriptionPlan/items' = 'TradovateSubscriptionPlanItems',
+    'tradovateSubscriptionPlan/list' = 'TradovateSubscriptionPlanList',
+    'tradovateSubscriptionPlan/suggest' = 'TradovateSubscriptionPlanSuggest',
+    'replay/changespeed' = 'ChangeSpeed',
+    'replay/checkreplaysession' = 'CheckReplaySession',
+    'replay/initializeclock' = 'InitializeClock',
+    'completeAlert/snapshot' = 'CompleteAlertSnapshot',
+    'adminAlert/snapshot' = 'AdminAlertSnapshot',
+    'adminAlert/item' = 'AdminAlertItem',
+    'adminAlert/items' = 'AdminAlertItems',
+    'adminAlert/ldeps' = 'AdminAlertLDepends',
+    'adminAlert/list' = 'AdminAlertList',
+    'takeAlert/ownership' = 'TakeAlertOwnership',
+    'create/alert' = 'CreateAlert',
+    'delete/alert' = 'DeleteAlert',
+    'alert/snapshot' = 'AlertSnapshot',
+    'dismiss/alert' = 'DismissAlert',
+    'alert/item' = 'AlertItem',
+    'alert/items' = 'AlertItems',
+    'alert/ldeps' = 'AlertLDepends',
+    'alert/list' = 'AlertList',
+    'markReadAlert/snapshot' = 'MarkReadAlertSnapshot',
+    'modify/alert' = 'ModifyAlert',
+    'reset/alert' = 'ResetAlert',
+    'alertSignal/snapshot' = 'AlertSignalSnapshot',
+    'alertSignal/item' = 'AlertSignalItem',
+    'alertSignal/items' = 'AlertSignalItems',
+    'alertSignal/ldeps' = 'AlertSignalLDepends',
+    'alertSignal/list' = 'AlertSignalList',
+    'adminAlert/suggest' = 'AdminAlertSuggest',
+    'clearingHouse/snapshot' = 'ClearingHouseSnapshot',
+    'clearingHouse/item' = 'ClearingHouseItem',
+    'clearingHouse/items' = 'ClearingHouseItems',
+    'clearingHouse/list' = 'ClearingHouseList',
+    'clearingHouse/suggest' = 'ClearingHouseSuggest',
+    'entitlement/item' = 'EntitlementItem',
+    'entitlement/items' = 'EntitlementItems',
+    'entitlement/list' = 'EntitlementList',
+    'orderStrategyType/snapshot' = 'OrderStrategyTypeSnapshot',
+    'orderStrategyType/item' = 'OrderStrategyTypeItem',
+    'orderStrategyType/items' = 'OrderStrategyTypeItems',
+    'orderStrategyType/list' = 'OrderStrategyTypeList',
+    'orderStrategyType/suggest' = 'OrderStrategyTypeSuggest',
+    'property/snapshot' = 'PropertySnapshot',
+    'property/item' = 'PropertyItem',
+    'property/items' = 'PropertyItems',
+    'property/list' = 'PropertyList',
+    'property/suggest' = 'PropertySuggest',
+    'contactInfo/snapshot' = 'ContactInfoSnapshot',
+    'contactInfo/item' = 'ContactInfoItem',
+    'contactInfo/items' = 'ContactInfoItems',
+    'contactInfo/ldeps' = 'ContactInfoLDepends',
+    'marketDataSubscription/create' = 'MarketDataSubscriptionCreate',
+    'marketDataSubscription/deps' = 'MarketDataSubscriptionDepends',
+    'marketDataSubscription/item' = 'MarketDataSubscriptionItem',
+    'marketDataSubscription/items' = 'MarketDataSubscriptionItems',
+    'marketDataSubscription/ldeps' = 'MarketDataSubscriptionLDepends',
+    'marketDataSubscription/list' = 'MarketDataSubscriptionList',
+    'marketDataSubscription/update' = 'MarketDataSubscriptionUpdate',
+    'organization/snapshot' = 'OrganizationSnapshot',
+    'organization/item' = 'OrganizationItem',
+    'organization/items' = 'OrganizationItems',
+    'organization/list' = 'OrganizationList',
+    'organization/suggest' = 'OrganizationSuggest',
+    'secondMarketDataSubscription/deps' = 'SecondMarketDataSubscriptionDepends',
+    'secondMarketDataSubscription/item' = 'SecondMarketDataSubscriptionItem',
+    'secondMarketDataSubscription/items' = 'SecondMarketDataSubscriptionItems',
+    'secondMarketDataSubscription/ldeps' = 'SecondMarketDataSubscriptionLDepends',
+    'secondMarketDataSubscription/list' = 'SecondMarketDataSubscriptionList',
+    'tradovateSubscription/create' = 'TradovateSubscriptionCreate',
+    'tradovateSubscription/deps' = 'TradovateSubscriptionDepends',
+    'tradovateSubscription/item' = 'TradovateSubscriptionItem',
+    'tradovateSubscription/items' = 'TradovateSubscriptionItems',
+    'tradovateSubscription/ldeps' = 'TradovateSubscriptionLDepends',
+    'tradovateSubscription/list' = 'TradovateSubscriptionList',
+    'tradovateSubscription/update' = 'TradovateSubscriptionUpdate',
+    'user/snapshot' = 'UserSnapshot',
+    'getAccountTradingPermissions' = 'GetAccountTradingPermissions',
+    'user/item' = 'UserItem',
+    'user/items' = 'UserItems',
+    'user/list' = 'UserList',
+    'user/suggest' = 'UserSuggest',
+    'user/syncrequest' = 'SyncRequest',
+    'userPlugin/create' = 'UserPluginCreate',
+    'userPlugin/deps' = 'UserPluginDepends',
+    'userPlugin/item' = 'UserPluginItem',
+    'userPlugin/items' = 'UserPluginItems',
+    'userPlugin/ldeps' = 'UserPluginLDepends',
+    'userPlugin/list' = 'UserPluginList',
+    'userPlugin/update' = 'UserPluginUpdate',
+    'userProperty/deps' = 'UserPropertyDepends',
+    'userProperty/item' = 'UserPropertyItem',
+    'userProperty/items' = 'UserPropertyItems',
+    'userProperty/ldeps' = 'UserPropertyLDepends',
+    'userSession/item' = 'UserSessionItem',
+    'userSession/items' = 'UserSessionItems',
+    'userSessionStats/deps' = 'UserSessionStatsDepends',
+    'userSessionStats/item' = 'UserSessionStatsItem',
+    'userSessionStats/items' = 'UserSessionStatsItems',
+    'userSessionStats/ldeps' = 'UserSessionStatsLDepends',
+    'userSessionStats/list' = 'UserSessionStatsList',
+    'chat/closechat' = 'CloseChat',
+    'chat/deps' = 'ChatDepends',
+    'chat/item' = 'ChatItem',
+    'chat/items' = 'ChatItems',
+    'chat/ldeps' = 'ChatLDepends',
+    'chat/list' = 'ChatList',
+    'markAsReadChatMessage' = 'MarkAsReadChatMessage',
+    'postChatMessage' = 'PostChatMessage',
+    'chatMessage/deps' = 'ChatMessageDepends',
+    'chatMessage/item' = 'ChatMessageItem',
+    'chatMessage/items' = 'ChatMessageItems',
+    'chatMessage/ldeps' = 'ChatMessageLDepends',
+    'userAccountPositionLimit/deleteuseruccountpositionlimit' = 'DeleteUserAccountPositionLimit',
+    'userAccountRiskParameter/deleteuseraccountriskparameter' = 'DeleteUserAccountRiskParameter',
+    'user/accepttradingpermission' = 'AcceptTradingPermission',
+    'user/activatesecondmarketdatasubscriptionrenewal' = 'ActivateSecondMarketDataSubscriptionRenewal',
+    'user/addmarketdatasubscription' = 'AddMarketDataSubscription',
+    'user/addsecondmarketdatasubscription' = 'AddSecondMarketDataSubscription',
+    'user/addtradovatesubscription' = 'AddTradovateSubscription',
+    'user/cancelsecondmarketdatasubscription' = 'CancelSecondMarketDataSubscription',
+    'user/cancelsecondmarketdatasubscriptionrenewal' = 'CancelSecondMarketDataSubscriptionRenewal',
+    'user/canceltradovatesubscription' = 'CancelTradovateSubscription',
+    'user/modifycredentials' = 'ModifyCredentials',
+    'user/modifyemailaddress' = 'ModifyEmailAddress',
+    'user/modifypassword' = 'ModifyPassword',
+    'user/opendemoaccount' = 'OpenDemoAccount',
+    'user/requesttradingpermission' = 'RequestTradingPermission',
+    'user/revoketradingpermission' = 'RevokeTradingPermission',
+    'user/signuporganizationmember' = 'SignUpOrganizationMember',
+    'user/addentitlementsubscription' = 'AddEntitlementSubscription',
+    'user/changepluginpermission' = 'ChangePluginPermission'
 }
 
 // 1. Take a list of strings as input.

@@ -24,7 +24,9 @@ import {
     Quote,
     Chart,
     DOM,
-    ChartPayload
+    ChartPayload,
+    CustomActionTemplate,
+    RequestAction
 } from './types'
 import {setAvailableAccounts} from './storage'
 import {log} from 'console'
@@ -53,12 +55,15 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
 
     private props: Required<T>
 
-    private D: Dispatcher
+    private D: Dispatcher<U>
 
     constructor(
         params: T,
         initState: U,
-        next: (prevState: U, action: Action) => EventHandlerResults<U>
+        next: (
+            prevState: U,
+            action: Action | CustomActionTemplate<any, any>
+        ) => EventHandlerResults<U>
     ) {
         this.replayMode = params.replayMode
 
@@ -241,7 +246,10 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
         return this.tvSocket
     }
 
-    catchReplaySessionsDefault(prevState: U, action: Action): EventHandlerResults<U> {
+    catchReplaySessionsDefault(
+        prevState: U,
+        action: Action | CustomActionTemplate<any, any>
+    ): EventHandlerResults<U> {
         const {event, payload} = action
         const {data, props} = payload
 
