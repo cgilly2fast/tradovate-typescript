@@ -1,88 +1,98 @@
 import {Bar, Tick, TickPacket, BarPacket} from '../types'
 
-export function BarsTransformer(response: BarPacket): Bar[] {
-    const {bars} = response
-    const results: Bar[] = []
-    if (bars) {
-        bars.forEach((bar: Bar) => {
-            const result = bar
-            results.push(result)
-        })
-    }
-    // console.log('BAR XFORM RESULT')
-    // console.log(results)
-    return results
+export interface DataTransformer {
+    transform(packet: TickPacket | BarPacket): any[]
 }
-
-export function TicksTransformer(response: TickPacket): Tick[] {
-    const {id: subId, bp, bt, ts, tks} = response
-    const result: Tick[] = []
-    if (tks) {
-        tks.forEach(({t, p, s, b, a, bs, as: asks, id}) => {
-            result.push({
-                subscriptionId: subId,
-                id,
-                contractTickSize: ts,
-                timestamp: new Date(bt + t),
-                price: (bp + p) * ts,
-                volume: s,
-                bidPrice: bs && (bp + b) * ts,
-                bidSize: bs,
-                askPrice: asks && (bp + a) * ts,
-                askSize: asks
+export class BarsTransformer implements DataTransformer {
+    transform(packet: BarPacket) {
+        const {bars} = packet
+        const results: Bar[] = []
+        if (bars) {
+            bars.forEach((bar: Bar) => {
+                const result = bar
+                results.push(result)
             })
-        })
+        }
+        return results
     }
-    return result
 }
+export class TicksTransformer implements DataTransformer {
+    transform(packet: TickPacket) {
+        const {id: subId, bp, bt, ts, tks} = packet
+        const result: Tick[] = []
+        if (tks) {
+            tks.forEach(({t, p, s, b, a, bs, as: asks, id}) => {
+                result.push({
+                    subscriptionId: subId,
+                    id,
+                    contractTickSize: ts,
+                    timestamp: new Date(bt + t),
+                    price: (bp + p) * ts,
+                    volume: s,
+                    bidPrice: bs && (bp + b) * ts,
+                    bidSize: bs,
+                    askPrice: asks && (bp + a) * ts,
+                    askSize: asks
+                })
+            })
+        }
+        return result
+    }
+}
+export type TickOrBar<T extends BarsTransformer | TicksTransformer> =
+    T extends TicksTransformer ? Tick : T extends BarsTransformer ? Bar : never
 
-export default class DataBuffer {
-    public transformer: any // BarsTransformer | TicksTransformer
-    public buffer: any[] //Bar[] |Tick[]
-    public lastTs: any
+export type TickOrBarPacket<T extends BarsTransformer | TicksTransformer> =
+    T extends TicksTransformer
+        ? TickPacket
+        : T extends BarsTransformer
+        ? BarPacket
+        : never
+export default class DataBuffer<T extends TicksTransformer & BarsTransformer> {
+    public transformer: T
+    public buffer: TickOrBar<T>[]
+    public lastTs: number
 
     private maxLength: number | null
 
-    constructor(transformer: any = null, data: any[] = []) {
+    constructor(transformer: T, data: TickOrBar<T>[] = []) {
         this.transformer = transformer
-        this.buffer = [...data]
+        this.buffer = data
         this.lastTs = 0
         this.maxLength = null
     }
 
-    push = (tick: BarPacket[] | TickPacket[]) => {
-        let results
-        if (this.transformer && typeof this.transformer === 'function') {
-            results = this.transformer(tick)
-        } else {
-            results = tick
-        }
+    push(packet: TickOrBarPacket<T>) {
+        let items = this.transformer.transform(packet)
 
-        results = results.sort((a: any, b: any) => a.timestamp - b.timestamp)
+        items = items.sort(
+            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        )
 
-        results.forEach((result: any) => {
-            if (this.buffer.length === 0 || result.timestamp > this.lastTs) {
-                this.buffer.push(result)
+        items.forEach(tick => {
+            const timestamp = new Date(tick.timestamp).getTime()
+            if (this.buffer.length === 0 || timestamp > this.lastTs) {
+                this.buffer.push(tick as TickOrBar<T>)
                 if (this.maxLength && this.buffer.length > this.maxLength) {
                     this.buffer.shift()
                 }
-                this.lastTs = result.timestamp
-            } else if (result.timestamp === this.lastTs) {
-                this.buffer[this.buffer.length - 1] = {...result}
+                this.lastTs = timestamp
+            } else if (timestamp === this.lastTs) {
+                this.buffer[this.buffer.length - 1] = {...tick} as TickOrBar<T>
             }
         })
     }
 
     setMaxLength = (max: number) => (this.maxLength = max)
 
-    softPush = (item: any) => this.buffer.push(item)
+    softPush = (item: TickOrBar<T>) => this.buffer.push(item)
 
-    concat = (tick: any) => {
-        this.push(tick)
+    concat = (item: TickOrBarPacket<T>) => {
+        this.push(item)
         return this
     }
 
-    slicePeriod = (period: any) =>
+    slicePeriod = (period: number) =>
         period === null
             ? this.buffer.slice()
             : this.buffer.slice(this.buffer.length - period)
@@ -95,9 +105,9 @@ export default class DataBuffer {
 
     reduce = (callback: any, seed: any) => this.buffer.reduce(callback, seed)
 
-    slice = (start: any, end: any) => this.buffer.slice(start, end)
+    slice = (start: number, end: number) => this.buffer.slice(start, end)
 
-    indexOf = (item: any) => this.buffer.indexOf(item)
+    indexOf = (item: TickOrBar<T>) => this.buffer.indexOf(item)
 
     every = (predicate: any) => this.buffer.every(predicate)
 

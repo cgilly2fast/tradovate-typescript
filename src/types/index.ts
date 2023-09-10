@@ -2034,6 +2034,12 @@ export type EventHandlerResults<T extends StrategyState> = {
     actions: Action[]
 }
 
+export type AccountMini = {
+    id: number
+    name: string
+    userId: number
+}
+
 export enum TvEndpoint {
     ContractDependents = 'contract/deps',
     ContractFind = 'contract/find',
@@ -2352,7 +2358,6 @@ export enum TvEndpoint {
     AddEntitlementSubscription = 'user/addentitlementsubscription',
     ChangePluginPermission = 'user/changepluginpermission'
 }
-//}
 
 enum ReversedTvEndpoint {
     'contract/deps' = 'ContractDependents',
@@ -2671,18 +2676,3 @@ enum ReversedTvEndpoint {
     'user/addentitlementsubscription' = 'AddEntitlementSubscription',
     'user/changepluginpermission' = 'ChangePluginPermission'
 }
-
-// 1. Take a list of strings as input.
-// 2. Create a TypeScript enum following these conditions:
-// 2a.Format using industry-standard TypeScript enum formatting.
-// 2b. Do not make changes to enum keys
-// 2c. Parse the last word of values:
-// 2c1.Remove the last word and append '/'+toLowerCase(last word).
-// 2c2a. Special cases:
-// If the last word of the key is 'lDependents', replace it with '/ldeps'.
-// If the last word of the key  is 'Dependents', replace it with '/deps'.
-// If the last word of the key is 'Snapshot', replace it with '/snapshot'
-// If the last word of the key  is 'Find', replace it with '/find'
-// If the last word of the key  is 'Create', replace it with '/create'
-// If the last word of the key  is 'Update', replace it with '/update'
-// 3. Exclude values like 'GET' and 'POST' from the enum. Input:
