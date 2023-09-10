@@ -6,8 +6,12 @@ import {
     URLs,
     EndpointURLs,
     RequestParams,
-    ResponseMsg
-} from '../utils/types'
+    ResponseMsg,
+    ServerEvent,
+    isServerEvent,
+    isPropsEvent,
+    isUserSyncResponseMsg
+} from '../types'
 import RequestSocket from './RequestSocket'
 
 export default class TradovateSocket implements Socket {
@@ -52,11 +56,16 @@ export default class TradovateSocket implements Socket {
             )
         }
 
-        const removeListener = this.socket.addListener((data: any) => {
-            if (data?.d?.users || data?.e === 'props') {
-                onSubscription(data.d)
+        const removeListener = this.socket.addListener(
+            (data: ResponseMsg<any> | ServerEvent) => {
+                if (
+                    isUserSyncResponseMsg(data) ||
+                    (isServerEvent(data) && isPropsEvent(data))
+                ) {
+                    onSubscription(data.d)
+                }
             }
-        })
+        )
 
         return async () => {
             removeListener()

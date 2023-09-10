@@ -12,9 +12,9 @@ import {
     isClockEventMsg,
     Quote,
     DOM,
-    ChartPayload,
-    CustomActionTemplate
-} from '../utils/types'
+    CustomActionTemplate,
+    Chart
+} from '../types'
 import {setAvailableAccounts} from '../utils/storage'
 import {log} from 'console'
 import {stringify} from '../utils/stringify'
@@ -185,7 +185,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             contract.name,
             chartDescription,
             timeRange,
-            (data: ChartPayload) => {
+            (data: Chart) => {
                 this.runSideFx()
                 this.D.dispatch({event: StrategyEvent.Chart, payload: data})
             }

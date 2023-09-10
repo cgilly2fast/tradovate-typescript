@@ -12,8 +12,9 @@ import {
     Listener,
     ClockEventMsg,
     isServerEvent,
-    isClockEventMsg
-} from '../utils/types'
+    isClockEventMsg,
+    MarketDataSocketSubscribeParams
+} from '../types'
 import TradovateSocket from './TradovateSocket'
 import MarketDataSocket from './MarketDataSocket'
 import RequestSocket from './RequestSocket'
@@ -90,6 +91,12 @@ export default class ReplaySocket implements TvSocket, MdSocket {
 
     synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void> {
         return this.tradovateSocket.synchronize(params)
+    }
+
+    subscribe<T extends EndpointURLs>(
+        params: MarketDataSocketSubscribeParams<T>
+    ): Promise<() => Promise<void>> {
+        return this.marketDataSocket.subscribe(params)
     }
 
     subscribeChart(

@@ -1,7 +1,7 @@
 import {getAccessToken} from '../utils/storage'
-import {URLs} from '../utils/types'
+import {URLs} from '../types'
 import axios from 'axios'
-import {AccessToken, Dictionary} from '../utils/types'
+import {AccessToken, Dictionary} from '../types'
 
 const {DEMO_URL, LIVE_URL} = URLs
 

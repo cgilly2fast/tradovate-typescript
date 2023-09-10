@@ -19,8 +19,13 @@ import {
     isQuoteEventMsg,
     Quote,
     Histogram,
-    isHistogramEventMsg
-} from '../utils/types'
+    isHistogramEventMsg,
+    Chart,
+    isChartSubscription,
+    isDOMSubscription,
+    isQuoteSubscription,
+    isHistogramSubscription
+} from '../types'
 import {tvGet} from '../service/service'
 import RequestSocket from './RequestSocket'
 export default class MarketDataSocket implements MdSocket {
@@ -109,55 +114,61 @@ export default class MarketDataSocket implements MdSocket {
 
         switch (url.toLowerCase()) {
             case 'md/getchart': {
-                removeListener = this.socket.addListener(
-                    (item: ResponseMsg<any> | ServerEvent) => {
-                        if (isServerEvent(item) && isChartEventMsg(item.d)) {
-                            item.d.charts.forEach(chart =>
-                                chart.id === realtimeId ? onSubscription(chart) : null
-                            )
+                if (isChartSubscription(onSubscription))
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isChartEventMsg(item.d)) {
+                                item.d.charts.forEach(chart =>
+                                    chart.id === realtimeId ? onSubscription(chart) : null
+                                )
+                            }
                         }
-                    }
-                )
+                    )
                 break
             }
             case 'md/subscribedom': {
-                removeListener = this.socket.addListener(
-                    (item: ResponseMsg<any> | ServerEvent) => {
-                        if (isServerEvent(item) && isDomEventMsg(item.d)) {
-                            item.d.doms.forEach((dom: DOM) =>
-                                dom.contractId === contractId ? onSubscription(dom) : null
-                            )
+                if (isDOMSubscription(onSubscription))
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isDomEventMsg(item.d)) {
+                                item.d.doms.forEach((dom: DOM) =>
+                                    dom.contractId === contractId
+                                        ? onSubscription(dom)
+                                        : null
+                                )
+                            }
                         }
-                    }
-                )
+                    )
                 break
             }
             case 'md/subscribequote': {
-                removeListener = this.socket.addListener(
-                    (item: ResponseMsg<any> | ServerEvent) => {
-                        if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
-                            item.d.quotes.forEach((quote: Quote) =>
-                                quote.contractId === contractId
-                                    ? onSubscription(quote)
-                                    : null
-                            )
+                if (isQuoteSubscription(onSubscription))
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
+                                item.d.quotes.forEach((quote: Quote) =>
+                                    quote.contractId === contractId
+                                        ? onSubscription(quote)
+                                        : null
+                                )
+                            }
                         }
-                    }
-                )
+                    )
                 break
             }
             case 'md/subscribehistogram': {
-                removeListener = this.socket.addListener(
-                    (item: ResponseMsg<any> | ServerEvent) => {
-                        if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
-                            item.d.histograms.forEach((histogram: Histogram) =>
-                                histogram.contractId === contractId
-                                    ? onSubscription(histogram)
-                                    : null
-                            )
+                if (isHistogramSubscription(onSubscription))
+                    removeListener = this.socket.addListener(
+                        (item: ResponseMsg<any> | ServerEvent) => {
+                            if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
+                                item.d.histograms.forEach((histogram: Histogram) =>
+                                    histogram.contractId === contractId
+                                        ? onSubscription(histogram)
+                                        : null
+                                )
+                            }
                         }
-                    }
-                )
+                    )
                 break
             }
         }
@@ -180,7 +191,7 @@ export default class MarketDataSocket implements MdSocket {
 
     async subscribeQuote(
         symbol: string,
-        onSubscription: (item: any) => void
+        onSubscription: (item: Quote) => void
     ): Promise<() => void> {
         const dispose = await this.subscribe({
             url: 'md/subscribequote',
@@ -194,7 +205,7 @@ export default class MarketDataSocket implements MdSocket {
 
     async subscribeDOM(
         symbol: string,
-        onSubscription: (item: any) => void
+        onSubscription: (item: DOM) => void
     ): Promise<() => void> {
         const dispose = await this.subscribe({
             url: 'md/subscribedom',
@@ -208,7 +219,7 @@ export default class MarketDataSocket implements MdSocket {
 
     async subscribeHistogram(
         symbol: string,
-        onSubscription: (item: any) => void
+        onSubscription: (item: Histogram) => void
     ): Promise<() => void> {
         const dispose = await this.subscribe({
             url: 'md/subscribehistogram',
@@ -224,7 +235,7 @@ export default class MarketDataSocket implements MdSocket {
         symbol: string,
         chartDescription: ChartDescription,
         timeRange: TimeRange,
-        onSubscription: (item: any) => void
+        onSubscription: (item: Chart) => void
     ): Promise<() => void> {
         const dispose = await this.subscribe({
             url: 'md/getchart',

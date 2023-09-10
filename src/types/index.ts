@@ -75,11 +75,11 @@ export enum EntityType {
 }
 
 export enum LongShortMode {
-    Long = '[LongShortMode] Long',
-    Short = '[LongShortMode] Short',
-    Watch = '[LongShortMode] Watch',
-    Setup = '[LongShortMode] Setup', // Looking for a technical set up to occur
-    Entry = '[LongShortMode] Entry' // When a technical set up occurs and looking for desired price to enter
+    Long = 'Long',
+    Short = 'Short',
+    Watch = 'Watch',
+    Setup = 'Setup', // Looking for a technical set up to occur
+    Entry = 'Entry' // When a technical set up occurs and looking for desired price to enter
 }
 
 export enum BarType {
@@ -451,6 +451,14 @@ export function isDomEvent(obj: any): obj is DomEvent {
 export function isChartEvent(obj: any): obj is ChartEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d
 }
+
+export function isPropsEvent(obj: any): obj is PropsEvent {
+    return obj && obj.e === 'props' && obj.d
+}
+
+// export function isUserSyncEvent(obj: any): obj is UserSyncEvent {
+//     return obj && obj
+// }
 
 export type Chart = BarPacket | TickPacket
 export type DOM = {
@@ -1295,6 +1303,12 @@ export type SyncRequestResponse = {
     orderStrategyTypes?: any[]
 }
 
+export function isUserSyncResponseMsg(
+    obj: ResponseMsg<any> | ServerEvent
+): obj is ResponseMsg<'user/syncrequest'> {
+    return obj && obj.d && obj.d.users
+}
+
 export type CommandReport = {
     id?: number
     commandId: number
@@ -1823,11 +1837,11 @@ export function isExecutionReport(obj: any): obj is ExecutionReport {
     )
 }
 
-export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: any) => void}
-export type SubscribeDOMParams = {symbol: string; onSubscription: (item: any) => void}
+export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: Quote) => void}
+export type SubscribeDOMParams = {symbol: string; onSubscription: (item: DOM) => void}
 export type SubscribeHistogramParams = {
-    symbol: string | number
-    onSubscription: (item: any) => void
+    symbol: string
+    onSubscription: (item: Histogram) => void
 }
 export type SubscribeChartParams = {
     symbol: string
@@ -1839,7 +1853,7 @@ export type SubscribeChartParams = {
         asFarAsTimestamp?: string
         asMuchAsElements?: number
     }
-    onSubscription: (item: any) => void
+    onSubscription: (item: Chart) => void
 }
 
 export type SubscribeBodyParams = {
@@ -1880,28 +1894,52 @@ export interface TvSocket extends Socket {
     request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>>
 }
 
+export function isQuoteSubscription(fn: any): fn is QuoteSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+export function isDOMSubscription(fn: any): fn is DOMSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+export function isChartSubscription(fn: any): fn is ChartSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+export function isHistogramSubscription(fn: any): fn is HistogramSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+export type QuoteSubscription = (item: Quote) => void
+export type DOMSubscription = (item: DOM) => void
+export type ChartSubscription = (item: Chart) => void
+export type HistogramSubscription = (item: Histogram) => void
+
 export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
     url: T
     body: EndpointRequestBody[T]
-    onSubscription: (data: Quote | DOM | Chart | Histogram) => void
+    onSubscription:
+        | QuoteSubscription
+        | DOMSubscription
+        | ChartSubscription
+        | HistogramSubscription
 }
 
 export interface MdSocket extends Socket {
-    //subscribe<T extends SubscribeURLs>(params: MarketDataSocketSubscribeParams<T>): Promise<() => Promise<void>>
-    subscribeQuote(
-        symbol: string,
-        onSubscription: (item: any) => void
-    ): Promise<() => void>
-    subscribeDOM(symbol: string, onSubscription: (item: any) => void): Promise<() => void>
+    subscribe<T extends EndpointURLs>(
+        params: MarketDataSocketSubscribeParams<T>
+    ): Promise<() => Promise<void>>
+    subscribeQuote(symbol: string, onSubscription: QuoteSubscription): Promise<() => void>
+    subscribeDOM(symbol: string, onSubscription: DOMSubscription): Promise<() => void>
     subscribeHistogram(
         symbol: string,
-        onSubscription: (item: any) => void
+        onSubscription: HistogramSubscription
     ): Promise<() => void>
     subscribeChart(
         symbol: string,
         chartDescription: ChartDescription,
         timeRange: TimeRange,
-        onSubscription: (item: any) => void
+        onSubscription: ChartSubscription
     ): Promise<() => void>
 }
 

@@ -4,7 +4,7 @@ import {
     Dictionary,
     EventHandlerResults,
     StrategyState
-} from './types'
+} from '../types'
 
 export const deepCopy = (o: any) => {
     let r: any

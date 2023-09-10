@@ -1,4 +1,4 @@
-import {AccessToken, StorageKeys, Account} from './types'
+import {AccessToken, StorageKeys, Account} from '../types'
 
 export type TradovateAccountMini = {
     id: number

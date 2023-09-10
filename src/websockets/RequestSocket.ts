@@ -10,7 +10,7 @@ import {
     Socket,
     EndpointURLs,
     Listener
-} from '../utils/types'
+} from '../types'
 
 export default class RequestSocket implements Socket {
     private counter: number

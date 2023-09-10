@@ -1,12 +1,6 @@
 import {getReplaySocket} from '../utils/socketUtils'
 import {setAvailableAccounts} from '../utils/storage'
-import {
-    Action,
-    Payload,
-    StrategyState,
-    ReplayPeriod,
-    StrategyParams
-} from '../utils/types'
+import {Action, Payload, StrategyState, ReplayPeriod, StrategyParams} from '../types'
 import Dispatcher from '../utils/dispatcher'
 import {stringify} from '../utils/stringify'
 import {log} from 'console'
