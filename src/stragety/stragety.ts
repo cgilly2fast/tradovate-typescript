@@ -1,4 +1,4 @@
-import Dispatcher from './dispatcher'
+import Dispatcher from '../utils/dispatcher'
 import {
     StrategyEvent,
     Action,
@@ -14,8 +14,8 @@ import {
     DOM,
     ChartPayload,
     CustomActionTemplate
-} from './types'
-import {setAvailableAccounts} from './storage'
+} from '../utils/types'
+import {setAvailableAccounts} from '../utils/storage'
 import {log} from 'console'
 import {stringify} from '../utils/stringify'
 import ReplaySocket from '../websockets/ReplaySocket'
