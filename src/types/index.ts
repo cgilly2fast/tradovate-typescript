@@ -7,7 +7,7 @@ export enum OrderType {
     QTS = 'QTS',
     Stop = 'Stop',
     StopLimit = 'StopLimit',
-    TrailingStop = 'TralingStop',
+    TrailingStop = 'TrailingStop',
     TrailingStopLimit = 'TrailingStopLimit'
 }
 
@@ -22,14 +22,6 @@ export enum TimeInForce {
     GTC = 'GTC',
     GTD = 'GTD',
     IOC = 'IOC'
-}
-
-export enum StorageKeys {
-    STORAGE_KEY = 'tradovate-api-access-token',
-    EXPIRATION_KEY = 'tradovate-api-access-expiration',
-    DEVICE_ID_KEY = 'tradovate-device-id',
-    AVAIL_ACCTS_KEY = 'tradovate-api-available-accounts',
-    USER_DATA_KEY = 'tradovate-user-data'
 }
 
 export enum StrategyEvent {
@@ -75,35 +67,44 @@ export enum EntityType {
 }
 
 export enum LongShortMode {
-    Long = 'Long',
-    Short = 'Short',
-    Watch = 'Watch',
-    Setup = 'Setup', // Looking for a technical set up to occur
-    Entry = 'Entry' // When a technical set up occurs and looking for desired price to enter
+    Long = 'long',
+    Short = 'short',
+    Watch = 'watch',
+    Setup = 'setup', // Looking for a technical set up to occur
+    Entry = 'entry' // When a technical set up occurs and looking for desired price to enter
 }
 
 export enum BarType {
-    MINUTE_BAR = 'MinuteBar',
-    TICK = 'Tick',
+    MinuteBar = 'MinuteBar',
+    Tick = 'Tick',
     DOM = 'DOM',
-    DAILY = 'DailyBar',
-    CUSTOM = 'Custom'
+    DailyBar = 'DailyBar',
+    Custom = 'Custom'
 }
+
+export enum StorageKeys {
+    StorageKey = 'tradovate-api-access-token',
+    ExpirationKey = 'tradovate-api-access-expiration',
+    DeviceIdKey = 'tradovate-device-id',
+    AvailAcctsKey = 'tradovate-api-available-accounts',
+    UserDataKey = 'tradovate-user-data'
+}
+
 export enum ElementSizeUnit {
-    UNDERLYING_UNITS = 'UnderlyingUnits',
-    VOLUME = 'Volume',
-    RANGE = 'Range',
-    RENKO = 'Renko',
-    MOMENTUM_RANGE = 'MomentumRange',
-    POINT_AND_FIGURE = 'PointAndFigure',
-    OFA_Range = 'OFARange'
+    UnderlyingUnits = 'UnderlyingUnits',
+    Volume = 'Volume',
+    Range = 'Range',
+    Renko = 'Renko',
+    MomentumRange = 'MomentumRange',
+    PointAndFigure = 'PointAndFigure',
+    OFARange = 'OFARange'
 }
 
 export enum TimeRangeType {
-    AS_MUCH_AS_ELEMENTS = 'asMuchAsElements',
-    AS_FAR_AS_TIMESTAMP = 'asFarAsTimestamp',
-    CLOSEST_TIMESTAMP = 'closestTimestamp',
-    CLOSEST_TICK_ID = 'closestTickId'
+    AsMuchAsElements = 'asMuchAsElements',
+    AsFarAsTimestamp = 'asFarAsTimestamp',
+    ClosestTimestamp = 'closestTimestamp',
+    ClosestTickId = 'closestTickId'
 }
 
 export type Bar = {
@@ -1111,12 +1112,6 @@ export function isErrorResponse(
     return (item as ErrorResponse).s !== 200
 }
 
-// export function isServerEvent<T extends keyof SubscribeEventResponse>(
-//     item: ResponseMsg<'simple'> | ServerEvent<T> | ErrorResponse
-// ): item is ServerEvent<T> {
-//     return 'e' in item
-// }
-
 export function isValidResponseMsg<T extends EndpointURLs>(
     item: ResponseMsg<T> | ErrorResponse
 ): item is ResponseMsg<T> {
@@ -1153,48 +1148,48 @@ export type CheckReplaySessionResponse = {
     startTimestamp: string | undefined
 }
 
-export enum CheckStatus {
-    INELIGIBLE = 'Ineligible',
-    OK = 'OK',
-    START_TIMESTAMP_ADJUSTED = 'StartTimestampAdjusted'
-}
-
 export type CommandResponse = {
     failureReason?: FailureReason
     failureText?: string
     commandId?: number
 }
 
+export enum CheckStatus {
+    Ineligible = 'Ineligible',
+    OK = 'OK',
+    StartTimestampAdjusted = 'StartTimestampAdjusted'
+}
+
 export enum FailureReason {
-    ACCOUNT_CLOSED = 'AccountClosed',
-    ADVANCED_TRAILING_STOP_UNSUPPORTED = 'AdvancedTrailingStopUnsupported',
-    ANOTHER_COMMAND_PENDING = 'AnotherCommandPending',
-    BACK_MONTH_PENDING = 'BackMonthProhibited',
-    EXECUTION_PROVIDER_NOT_CONFIGURED = 'ExecutionProviderNotConfigured',
-    EXECUTION_PROVIDER_UNAVAILABLE = 'ExecutionProviderUnavailable',
-    INVALID_CONTRACT = 'InvalidContract',
-    INVALID_PRICE = 'InvalidPrice',
-    LIQUIDATION_ONLY = 'LiquidationOnly',
-    LIQUIDATION_ONLY_BEFORE_EXPIRATION = 'LiquidationOnlyBeforeExpiration',
-    MAX_ORDER_QTY_IS_NOT_SPECIFIED = 'MaxOrderQtyIsNotSpecified',
-    MAX_ORDER_QTY_LIMIT_REACHED = 'MaxOrderQtyLimitReached',
-    MAX_POS_LIMIT_MISCONFIGURED = 'MaxPosLimitMisconfigured',
-    MAX_POS_LIMIT_REACHED = 'MaxPosLimitReached',
-    MAX_TOTAL_POS_LIMIT_REACHED = 'MaxTotalPosLimitReached',
-    MULTIPLE_ACCOUNT_PLAN_REQUIRED = 'MultipleAccountPlanRequired',
-    NO_QUOTE = 'NoQuote',
-    NOT_ENOUGH_LIQUIDITY = 'NotEnoughLiquidity',
-    OTHER_EXECUTION_RELATED = 'OtherExecutionRelated',
-    PARENT_REJECTED = 'ParentRejected',
-    RISK_CHECK_TIMEOUT = 'RiskCheckTimeout',
-    SESSION_CLOSED = 'SessionClosed',
-    SUCCESS = 'Success',
-    TOO_LATE = 'TooLate',
-    TRADING_LOCKED = 'TradingLocked',
-    TRAILING_STOP_NON_ORDER_QTY_MODIFY = 'TrailingStopNonOrderQtyModify',
-    UNAUTHORIZED = 'Unauthorized',
-    UNKNOWN_REASON = 'UnknownReason',
-    UNSUPPORTED = 'Unsupported'
+    AccountClosed = 'AccountClosed',
+    AdvancedTrailingStopUnsupported = 'AdvancedTrailingStopUnsupported',
+    AnotherCommandPending = 'AnotherCommandPending',
+    BackMonthProhibited = 'BackMonthProhibited',
+    ExecutionProviderNotConfigured = 'ExecutionProviderNotConfigured',
+    ExecutionProviderUnavailable = 'ExecutionProviderUnavailable',
+    InvalidContract = 'InvalidContract',
+    InvalidPrice = 'InvalidPrice',
+    LiquidationOnly = 'LiquidationOnly',
+    LiquidationOnlyBeforeExpiration = 'LiquidationOnlyBeforeExpiration',
+    MaxOrderQtyIsNotSpecified = 'MaxOrderQtyIsNotSpecified',
+    MaxOrderQtyLimitReached = 'MaxOrderQtyLimitReached',
+    MaxPosLimitMisconfigured = 'MaxPosLimitMisconfigured',
+    MaxPosLimitReached = 'MaxPosLimitReached',
+    MaxTotalPosLimitReached = 'MaxTotalPosLimitReached',
+    MultipleAccountPlanRequired = 'MultipleAccountPlanRequired',
+    NoQuote = 'NoQuote',
+    NotEnoughLiquidity = 'NotEnoughLiquidity',
+    OtherExecutionRelated = 'OtherExecutionRelated',
+    ParentRejected = 'ParentRejected',
+    RiskCheckTimeout = 'RiskCheckTimeout',
+    SessionClosed = 'SessionClosed',
+    Success = 'Success',
+    TooLate = 'TooLate',
+    TradingLocked = 'TradingLocked',
+    TrailingStopNonOrderQtyModify = 'TrailingStopNonOrderQtyModify',
+    Unauthorized = 'Unauthorized',
+    UnknownReason = 'UnknownReason',
+    Unsupported = 'Unsupported'
 }
 
 export type SimpleResponse = {
@@ -1224,47 +1219,42 @@ export type AccountListResponse = Account[]
 export type AccountSuggestResponse = Account
 
 export enum AccountType {
-    CUSTOMER = 'Customer',
-    GIVEUP = 'Giveup',
-    HOUSE = 'HOUSE',
-    OMNIBUS = 'Omnibus',
-    WASH = 'Wash'
+    Customer = 'Customer',
+    Giveup = 'Giveup',
+    House = 'HOUSE',
+    Omnibus = 'Omnibus',
+    Wash = 'Wash'
 }
 
-export enum MarginAccountype {
-    HEDGER = 'Hedger',
-    SPECULATOR = 'Speculator'
+export enum MarginAccountType {
+    Hedger = 'Hedger',
+    Speculator = 'Speculator'
 }
 
 export enum LegalStatus {
-    CORPORATION = 'Corporation',
+    Corporation = 'Corporation',
     GP = 'GP',
-    INDIVIDUAL = 'Individual',
-    JOINT = 'Joint',
+    Individual = 'Individual',
+    Joint = 'Joint',
     LLC = 'LLC',
     LLP = 'LLP',
     LP = 'LP',
     PTR = 'PTR',
-    TRUST = 'Trust'
-}
-
-export enum OrderAction {
-    BUY = 'Buy',
-    SELL = 'Sell'
+    Trust = 'Trust'
 }
 
 export enum OrderStatus {
-    CANCELED = 'Canceled',
-    COMPLETE = 'Completed',
-    EXPIRED = 'Expired',
-    FILLED = 'Filled',
-    PENDING_CANCELLED = 'PendingCancel',
-    PENDING_NEW = 'PendingNew',
-    PENDING_REPLACE = 'PendingReplace',
-    REJECTED = 'Rejected',
-    SUSPENDED = 'Suspended',
-    UNKNOWN = 'Unknown',
-    WORKING = 'Working'
+    Canceled = 'Canceled',
+    Completed = 'Completed',
+    Expired = 'Expired',
+    Filled = 'Filled',
+    PendingCancelled = 'PendingCancel',
+    PendingNew = 'PendingNew',
+    PendingReplace = 'PendingReplace',
+    Rejected = 'Rejected',
+    Suspended = 'Suspended',
+    Unknown = 'Unknown',
+    Working = 'Working'
 }
 
 export type OrderItemResponse = Order
@@ -1343,7 +1333,7 @@ export type Account = {
     clearingHouseId: number
     riskCategoryId: number
     autoLiqProfileId: number
-    marginAccountType: MarginAccountype
+    marginAccountType: MarginAccountType
     legalStatus: LegalStatus
     archived: boolean
     timestamp: string
@@ -1389,10 +1379,10 @@ export type Properties = {
 }
 
 export enum PropertyType {
-    BOOLEAN = 'Boolean',
-    ENUM = 'Enum',
-    INTEGER = 'INTEGER',
-    STRING = 'String'
+    Boolean = 'Boolean',
+    Enum = 'Enum',
+    Integer = 'Integer',
+    String = 'String'
 }
 
 export type UserProperties = {
@@ -1725,13 +1715,13 @@ export type OrderStrategy = {
 }
 
 export enum StartOrderStrategyStatus {
-    ACTIVE_STRATEGY = 'ActiveStrategy',
-    EXECUTION_FAILED = 'ExecutionFailed',
-    EXECUTION_FINISHED = 'ExecutionFinished',
-    EXECUTION_INTERRUPTED = 'ExecutionInterrupted',
-    INACTIVE_STRATEGY = 'InactiveStrategy',
-    NOT_ENOUGH_LIQUIDITY = 'NotEnoughLiquidity',
-    STOPPED_BY_USER = 'StoppedByUser'
+    ActiveStrategy = 'ActiveStrategy',
+    ExecutionFailed = 'ExecutionFailed',
+    ExecutionFinished = 'ExecutionFinished',
+    ExecutionInterrupted = 'ExecutionInterrupted',
+    InactiveStrategy = 'InactiveStrategy',
+    NotEnoughLiquidity = 'NotEnoughLiquidity',
+    StoppedByUser = 'StoppedByUser'
 }
 
 export function isCommandReport(obj: any): obj is CommandReport {
