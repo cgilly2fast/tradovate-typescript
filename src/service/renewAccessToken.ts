@@ -1,23 +1,16 @@
-import { tvGet } from '../utils/service'
+import {tvGet} from './service'
 import {
     getAccessToken,
     setAccessToken,
     tokenIsValid,
-    tokenNearExpiry,
+    tokenNearExpiry
 } from '../utils/storage'
-import { waitForMs } from '../utils/wait'
+import {waitForMs} from '../utils/wait'
 
 export const renewAccessToken = async (live: boolean = false) => {
-    const { token, expiration } = getAccessToken()
-    if (
-        token &&
-        expiration &&
-        tokenIsValid(expiration) &&
-        !tokenNearExpiry(expiration)
-    ) {
-        console.log(
-            '[DevX Trader]: Already have an access token. Using existing token.',
-        )
+    const {token, expiration} = getAccessToken()
+    if (token && expiration && tokenIsValid(expiration) && !tokenNearExpiry(expiration)) {
+        console.log('[DevX Trader]: Already have an access token. Using existing token.')
         return
     }
 
@@ -34,7 +27,7 @@ export const renewAccessToken = async (live: boolean = false) => {
             userId,
             userStatus,
             name,
-            expirationTime,
+            expirationTime
         } = authResponse
 
         if (errorText) {
@@ -45,7 +38,7 @@ export const renewAccessToken = async (live: boolean = false) => {
         setAccessToken(accessToken, mdAccessToken, expirationTime)
 
         console.log(
-            `[DevX Trader]: Successfully stored RENEWED access token ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`,
+            `[DevX Trader]: Successfully stored RENEWED access token ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
         )
         return authResponse
     }
@@ -58,13 +51,13 @@ const handleRetry = async (env: string, json: any) => {
 
     if (captcha) {
         console.error(
-            '[DevX Trader]: Captcha present, cannot retry auth request via third party application. Please try again in an hour.',
+            '[DevX Trader]: Captcha present, cannot retry auth request via third party application. Please try again in an hour.'
         )
         return
     }
 
     console.log(
-        `[DevX Trader]: Time Penalty present. Retrying operation in ${time}s. P-Ticket: ${ticket}`,
+        `[DevX Trader]: Time Penalty present. Retrying operation in ${time}s. P-Ticket: ${ticket}`
     )
 
     await waitForMs(time * 1000)

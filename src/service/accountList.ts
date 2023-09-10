@@ -1,5 +1,5 @@
-import { tvGet } from "../utils/service"
+import {tvGet} from './service'
 
-export const accountList = async () =>{
+export const accountList = async () => {
     return await tvGet('/account/list')
 }

@@ -21,7 +21,7 @@ import {
     Histogram,
     isHistogramEventMsg
 } from '../utils/types'
-import {tvGet} from '../utils/service'
+import {tvGet} from '../service/service'
 import RequestSocket from './RequestSocket'
 export default class MarketDataSocket implements MdSocket {
     private socket: RequestSocket

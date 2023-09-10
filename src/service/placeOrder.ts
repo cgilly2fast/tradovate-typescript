@@ -1,6 +1,6 @@
 // import { DEMO_URL } from './credentials'
 import {getAccessToken, getCurrentAccount} from '../utils/storage'
-import {tvPost} from '../utils/service'
+import {tvPost} from './service'
 
 export type OrderParams = {
     accountSpec?: string
