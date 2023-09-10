@@ -40,8 +40,8 @@ export const tvGet = async (endpoint: string, query: Dictionary = {}, env = 'dem
 
         const url = query !== null ? baseURL + endpoint + q : baseURL + endpoint
 
-        console.log('[DevX Trader]: ' + url)
-        console.log('[DevX Trader]: With query:', q.toString() || '<no query>')
+        console.log('[Tradovate]: ' + url)
+        console.log('[Tradovate]: With query:', q.toString() || '<no query>')
 
         const res = await axios({
             url: url,
@@ -57,7 +57,7 @@ export const tvGet = async (endpoint: string, query: Dictionary = {}, env = 'dem
 
         return results
     } catch (err) {
-        console.error('[DevX Trader]: tvGet' + err)
+        console.error('[Tradovate]: tvGet' + err)
     }
 }
 
@@ -99,7 +99,7 @@ export const tvPost = async (
             `[Services:tvPost] => 'env' variable should be either 'live' or 'demo'.`
         )
 
-    console.log('[DevX Trader]: ' + baseURL + endpoint)
+    console.log('[Tradovate]: ' + baseURL + endpoint)
 
     try {
         const res = await axios({
@@ -117,6 +117,6 @@ export const tvPost = async (
 
         return results
     } catch (err) {
-        console.error('[DevX Trader]: tvPost: ' + err)
+        console.error('[Tradovate]: tvPost: ' + err)
     }
 }

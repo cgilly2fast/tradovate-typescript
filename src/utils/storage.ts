@@ -49,7 +49,7 @@ export const queryAvailableAccounts = (predicate: any) => {
 }
 
 export const setAccessToken = (token: string, md_token: string, expiration: string) => {
-    //if(!token || !expiration) throw new Error('[DevX Trader]: Attempted to set undefined token')
+    //if(!token || !expiration) throw new Error('[Tradovate]: Attempted to set undefined token')
     process.env.ACCESS_TOKEN = token
     process.env.MD_ACCESS_TOKEN = md_token
     process.env.EXPIRATION_KEY = expiration
@@ -60,7 +60,7 @@ export const getAccessToken = (): AccessToken => {
     const expiration = process.env.EXPIRATION_KEY
     if (!token) {
         console.warn(
-            '[DevX Trader]: No access token retrieved. Please request an access token.'
+            '[Tradovate]: No access token retrieved. Please request an access token.'
         )
     }
     return {token, expiration}

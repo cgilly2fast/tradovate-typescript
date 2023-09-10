@@ -11,7 +11,7 @@ import {waitForMs} from '../utils/wait'
 export const connect = async (data: any) => {
     const {token, expiration} = getAccessToken()
     if (token && expiration && tokenIsValid(expiration) && !tokenNearExpiry(expiration)) {
-        console.log('[DevX Trader]: Already have an access token. Using existing token.')
+        console.log('[Tradovate]: Already have an access token. Using existing token.')
         return
     }
 
@@ -29,7 +29,7 @@ export const connect = async (data: any) => {
             expirationTime
         } = authResponse
         if (errorText) {
-            console.error(`[DevX Trader]: P-Ticket Error: ${errorText}`)
+            console.error(`[Tradovate]: P-Ticket Error: ${errorText}`)
             return
         }
 
@@ -40,7 +40,7 @@ export const connect = async (data: any) => {
         setAvailableAccounts(accounts)
 
         console.log(
-            `[DevX Trader]: Successfully stored access token ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
+            `[Tradovate]: Successfully stored access token ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
         )
         return authResponse
     }
@@ -53,12 +53,12 @@ const handleRetry = async (data: any, json: any) => {
 
     if (captcha) {
         console.error(
-            '[DevX Trader]: Captcha present, cannot retry auth request via third party application. Please try again in an hour.'
+            '[Tradovate]: Captcha present, cannot retry auth request via third party application. Please try again in an hour.'
         )
         return
     }
 
-    console.log(`[DevX Trader]: Time Penalty present. Retrying operation in ${time}s`)
+    console.log(`[Tradovate]: Time Penalty present. Retrying operation in ${time}s`)
 
     await waitForMs(time * 1000)
     await connect({...data, 'p-ticket': ticket})

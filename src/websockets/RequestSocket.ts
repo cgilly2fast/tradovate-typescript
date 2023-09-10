@@ -91,10 +91,10 @@ export default class RequestSocket implements Socket {
     }
 
     disconnect() {
-        log('[DevX Trader]: Closing ' + this.listeningURL + ' connection...')
+        log('[Tradovate]: Closing ' + this.listeningURL + ' connection...')
         this.removeListeners()
         this.ws = {} as WebSocket
-        log('[DevX Trader]: ' + this.listeningURL + ' removed.')
+        log('[Tradovate]: ' + this.listeningURL + ' removed.')
     }
 
     isConnected() {
@@ -141,7 +141,7 @@ export default class RequestSocket implements Socket {
                 if (T === 'o') {
                     await this.request({url: 'authorize', body: {token}})
 
-                    log('[DevX Trader]: connected.')
+                    log('[Tradovate]: connected.')
 
                     this.ws.removeEventListener('message', onConnect)
                     heartbeatInterval = setInterval(sendHeartbeat, 2500)
@@ -152,7 +152,7 @@ export default class RequestSocket implements Socket {
                 this.ws.addEventListener('message', onConnect)
                 res()
             } catch (err) {
-                log(`[DevX Trader]: RequestSocket: Could not add listeners ${err}`)
+                log(`[Tradovate]: RequestSocket: Could not add listeners ${err}`)
                 rej(err)
             }
         })
@@ -164,7 +164,7 @@ export default class RequestSocket implements Socket {
         return new Promise((res, rej) => {
             if (url === undefined)
                 rej('url undefined. Pass as request<T> or in param object.')
-            if (!this.isConnected()) rej('[DevX Trader]: Websocket not connect ')
+            if (!this.isConnected()) rej('[Tradovate]: Websocket not connect ')
 
             const id = this.increment()
 
@@ -192,7 +192,7 @@ export default class RequestSocket implements Socket {
                     )}`
                 )
             } catch (err) {
-                log(`[DevX Trader]: Socket request: ${stringify({url, query, body})}`)
+                log(`[Tradovate]: Socket request: ${stringify({url, query, body})}`)
                 throw err
             }
         })

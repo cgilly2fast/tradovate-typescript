@@ -20,16 +20,16 @@ export default class TradovateSocket implements Socket {
 
     async connect() {
         log(
-            `[DevX Trader]: connecting TradovateSocket to ${this.socket.getListeningUrl()}...`
+            `[Tradovate]: connecting TradovateSocket to ${this.socket.getListeningUrl()}...`
         )
         await this.socket.connect()
-        log(`[DevX Trader]: TradovateSocket connected`)
+        log(`[Tradovate]: TradovateSocket connected`)
     }
 
     disconnect() {
-        log('[DevX Trader]: Closing TradovateSocket connection...')
+        log('[Tradovate]: Closing TradovateSocket connection...')
         this.socket.disconnect()
-        log('[DevX Trader]: TradovateSocket removed.')
+        log('[Tradovate]: TradovateSocket removed.')
     }
 
     isConnected() {

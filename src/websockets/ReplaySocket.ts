@@ -43,10 +43,10 @@ export default class ReplaySocket implements TvSocket, MdSocket {
     }
 
     async disconnect() {
-        log('[DevX Trader]: Closing ReplaySocket connection...')
+        log('[Tradovate]: Closing ReplaySocket connection...')
         await this.marketDataSocket.disposeSubscriptions()
         this.socket.disconnect()
-        log('[DevX Trader]: ReplaySocket removed.')
+        log('[Tradovate]: ReplaySocket removed.')
     }
 
     checkReplaySession(startTimestamp: string) {

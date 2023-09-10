@@ -47,10 +47,10 @@ export default class MarketDataSocket implements MdSocket {
     }
 
     async disconnect(): Promise<void> {
-        log('[DevX Trader]: Closing MarketDataSocket connection...')
+        log('[Tradovate]: Closing MarketDataSocket connection...')
         await this.disposeSubscriptions()
         this.socket.disconnect()
-        log('[DevX Trader]: MarketDataSocket removed.')
+        log('[Tradovate]: MarketDataSocket removed.')
     }
 
     isSubscribeUrl(url: EndpointURLs): boolean {

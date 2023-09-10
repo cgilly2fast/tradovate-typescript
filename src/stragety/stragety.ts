@@ -91,7 +91,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
         if (actions && actions.length && actions.length > 0) {
             actions.forEach((fx: Action) => {
                 log(
-                    '[DevX Trader]: Side Effect:',
+                    '[Tradovate]: Side Effect:',
                     fx.event,
                     JSON.stringify(fx.payload, null, 2)
                 )
@@ -110,7 +110,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
     private async replayModeSetup() {
         const {replayPeriods} = this.props
         try {
-            log('[DevX Trader]: Checking new replay period...')
+            log('[Tradovate]: Checking new replay period...')
             await this.replaySocket!.checkReplaySession(replayPeriods![0].start)
 
             const subscription = (item: any) => {
@@ -123,11 +123,11 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
                         })
 
                         log(
-                            `[DevX Trader]: Replay socket speed restored to ${this.props.replaySpeed}`
+                            `[Tradovate]: Replay socket speed restored to ${this.props.replaySpeed}`
                         )
                     } catch (err) {
                         log(
-                            `[DevX Trader]: Error Replay socket speed restoration ${stringify(
+                            `[Tradovate]: Error Replay socket speed restoration ${stringify(
                                 item
                             )}`
                         )
@@ -150,9 +150,9 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             await this.setupEventCatcher(this.replaySocket!, this.replaySocket!)
             setAvailableAccounts([account!])
 
-            log(`[DevX Trader]: account: ${stringify(account)}`)
+            log(`[Tradovate]: account: ${stringify(account)}`)
         } catch (err) {
-            log(`[DevX Trader]: replayModeSetup: ${err}`)
+            log(`[Tradovate]: replayModeSetup: ${err}`)
         }
     }
 
@@ -256,7 +256,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             if (curStop && new Date(t) > new Date(curStop)) {
                 log('[DevX Trader}: Go to next replay')
                 if (current_period === replayPeriods.length) {
-                    log('[DevX Trader]: Dispatched replay complete]')
+                    log('[Tradovate]: Dispatched replay complete]')
                     return {
                         state: prevState,
                         actions: [
