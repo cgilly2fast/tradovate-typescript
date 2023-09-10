@@ -1,6 +1,6 @@
 import ReplaySocket from '../websockets/ReplaySocket'
 
-export enum ORDER_TYPE {
+export enum OrderType {
     Limit = 'Limit',
     MIT = 'MIT',
     Market = 'Market',
@@ -11,12 +11,12 @@ export enum ORDER_TYPE {
     TrailingStopLimit = 'TrailingStopLimit'
 }
 
-export enum ORDER_ACTION {
+export enum OrderAction {
     Buy = 'Buy',
     Sell = 'Sell'
 }
 
-export enum TIME_IN_FORCE {
+export enum TimeInForce {
     Day = 'Day',
     FOK = 'FOK',
     GTC = 'GTC',
@@ -24,7 +24,7 @@ export enum TIME_IN_FORCE {
     IOC = 'IOC'
 }
 
-export enum STORAGE_KEYS {
+export enum StorageKeys {
     STORAGE_KEY = 'tradovate-api-access-token',
     EXPIRATION_KEY = 'tradovate-api-access-expiration',
     DEVICE_ID_KEY = 'tradovate-device-id',
@@ -820,12 +820,12 @@ export type ModifyOrderRequestBody = {
     orderId: number
     clOrdId?: string
     orderQty: number
-    orderType: ORDER_TYPE
+    orderType: OrderType
     price?: number
     stopPrice?: number
     maxShow?: number
     pegDifference?: number
-    timeInForce?: TIME_IN_FORCE
+    timeInForce?: TimeInForce
     expireTime?: string
     text?: string
     activationTime?: string
@@ -847,12 +847,12 @@ export type PlaceOCORequestBody = {
     action: OrderAction
     symbol: string
     orderQty: number
-    orderType: ORDER_TYPE
+    orderType: OrderType
     price?: number
     stopPrice?: number
     maxShow?: number
     pegDifference?: number
-    timeInForce?: TIME_IN_FORCE
+    timeInForce?: TimeInForce
     expireTime?: string
     text?: string
     activationTime?: string
@@ -864,12 +864,12 @@ export type PlaceOCORequestBody = {
 export type OtherOrderOCO = {
     action: OrderAction
     clOrdId?: string
-    orderType: ORDER_TYPE
+    orderType: OrderType
     price?: number
     stopPrice?: number
     maxShow?: number
     pegDifference?: number
-    timeInForce?: TIME_IN_FORCE
+    timeInForce?: TimeInForce
     expireTime?: string
     text?: string
 }
@@ -887,12 +887,12 @@ export type PlaceOrderRequestBody = {
     action: OrderAction
     symbol: string
     orderQty: number
-    orderType: ORDER_TYPE
+    orderType: OrderType
     price?: number
     stopPrice?: number
     maxShow?: number
     pegDifference?: number
-    timeInForce?: TIME_IN_FORCE
+    timeInForce?: TimeInForce
     expireTime?: string
     text?: string
     activationTime?: string
@@ -918,7 +918,7 @@ export type StartOrderStrategyRequestBody = {
 
 export type EntryVersion = {
     orderQty: number
-    orderType: ORDER_TYPE
+    orderType: OrderType
 }
 
 export type OrderBracket = {
@@ -1412,12 +1412,12 @@ export type OrderVersion = {
     id?: number
     orderId: number
     orderQty: number
-    orderType: ORDER_TYPE
+    orderType: OrderType
     price?: number
     stopPrice?: number
     maxShow?: number
     pegDifference?: number
-    timeInForce?: TIME_IN_FORCE
+    timeInForce?: TimeInForce
     expireTime?: string
     text?: string
 }
@@ -1980,7 +1980,7 @@ export type StartOrderStrategyPayload = {
 
 export type PlaceOrderPayload = {
     contract: Contract
-    orderType: ORDER_TYPE
+    orderType: OrderType
     action: OrderAction
     orderQty: number
     price: number
@@ -1988,7 +1988,7 @@ export type PlaceOrderPayload = {
 
 export type PlaceOCOPayload = {
     contract: Contract
-    orderType: ORDER_TYPE
+    orderType: OrderType
     action: OrderAction
     orderQty: number
     price: number
