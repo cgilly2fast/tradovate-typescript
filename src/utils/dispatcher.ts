@@ -2,9 +2,7 @@ import {
     Action,
     CustomActionTemplate,
     Dictionary,
-    EndpointURLs,
     EventHandlerResults,
-    RequestAction,
     StrategyState
 } from './types'
 

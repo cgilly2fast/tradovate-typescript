@@ -2,7 +2,7 @@ import MarketDataSocket from '../websockets/MarketDataSocket'
 import ReplaySocket from '../websockets/ReplaySocket'
 import TradovateSocket from '../websockets/TradovateSocket'
 import {renewAccessToken} from '../endpoints/renewAccessToken'
-import {ReplaySessionResults, URLs} from './types'
+import {ReplaySessionResults} from './types'
 
 //need to deal with live condition
 const socket = new TradovateSocket()

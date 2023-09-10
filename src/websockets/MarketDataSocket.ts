@@ -84,12 +84,12 @@ export default class MarketDataSocket implements MdSocket {
         const {symbol} = body as SubscribeBodyParams
 
         let removeListener: () => void
-        let cancelUrl = this.subscribeCancelMap[url]
+        const cancelUrl = this.subscribeCancelMap[url]
         let cancelBody: CancelBody | CancelChartBody
         let contractId: number
         let realtimeId: number
 
-        let response = await this.socket.request<T>({
+        const response = await this.socket.request<T>({
             url,
             body
         })
@@ -107,72 +107,68 @@ export default class MarketDataSocket implements MdSocket {
             cancelBody = {symbol}
         }
 
-        return new Promise((res, rej) => {
-            switch (url.toLowerCase()) {
-                case 'md/getchart': {
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isChartEventMsg(item.d)) {
-                                item.d.charts.forEach(chart =>
-                                    chart.id === realtimeId ? onSubscription(chart) : null
-                                )
-                            }
+        switch (url.toLowerCase()) {
+            case 'md/getchart': {
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (isServerEvent(item) && isChartEventMsg(item.d)) {
+                            item.d.charts.forEach(chart =>
+                                chart.id === realtimeId ? onSubscription(chart) : null
+                            )
                         }
-                    )
-                    break
-                }
-                case 'md/subscribedom': {
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isDomEventMsg(item.d)) {
-                                item.d.doms.forEach((dom: DOM) =>
-                                    dom.contractId === contractId
-                                        ? onSubscription(dom)
-                                        : null
-                                )
-                            }
-                        }
-                    )
-                    break
-                }
-                case 'md/subscribequote': {
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
-                                item.d.quotes.forEach((quote: Quote) =>
-                                    quote.contractId === contractId
-                                        ? onSubscription(quote)
-                                        : null
-                                )
-                            }
-                        }
-                    )
-                    break
-                }
-                case 'md/subscribehistogram': {
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
-                                item.d.histograms.forEach((histogram: Histogram) =>
-                                    histogram.contractId === contractId
-                                        ? onSubscription(histogram)
-                                        : null
-                                )
-                            }
-                        }
-                    )
-                    break
-                }
+                    }
+                )
+                break
             }
+            case 'md/subscribedom': {
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (isServerEvent(item) && isDomEventMsg(item.d)) {
+                            item.d.doms.forEach((dom: DOM) =>
+                                dom.contractId === contractId ? onSubscription(dom) : null
+                            )
+                        }
+                    }
+                )
+                break
+            }
+            case 'md/subscribequote': {
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
+                            item.d.quotes.forEach((quote: Quote) =>
+                                quote.contractId === contractId
+                                    ? onSubscription(quote)
+                                    : null
+                            )
+                        }
+                    }
+                )
+                break
+            }
+            case 'md/subscribehistogram': {
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
+                            item.d.histograms.forEach((histogram: Histogram) =>
+                                histogram.contractId === contractId
+                                    ? onSubscription(histogram)
+                                    : null
+                            )
+                        }
+                    }
+                )
+                break
+            }
+        }
 
-            res(async () => {
-                removeListener()
-                await this.socket.request({
-                    url: cancelUrl,
-                    body: cancelBody
-                })
+        return async () => {
+            removeListener()
+            await this.socket.request({
+                url: cancelUrl,
+                body: cancelBody
             })
-        })
+        }
     }
 
     disposeSubscriptions() {

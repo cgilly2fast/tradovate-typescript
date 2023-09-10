@@ -1,32 +1,19 @@
-import {nextReplayPeriod} from '../websocketMiddleware/nextReplayPeriod'
-import {placeOCO} from '../websocketMiddleware/placeOCO'
-import {placeOrder} from '../websocketMiddleware/placeOrder'
-import {productFind} from '../websocketMiddleware/findProduct'
-import {replayComplete} from '../websocketMiddleware/replayComplete'
-import {startOrderStrategy} from '../websocketMiddleware/startOrderStrategy'
-import Dispatcher, {pipeMiddleware} from './dispatcher'
-import {getSocket, getMdSocket, getReplaySocket} from './socketUtils'
+import Dispatcher from './dispatcher'
 import {
     StrategyEvent,
-    BarType,
-    Contract,
     Action,
     EventHandlerResults,
     isServerEvent,
-    StrategyProps,
     TvSocket,
     MdSocket,
     TimeRange,
     StrategyParams,
     StrategyState,
-    SocketsParams,
     isClockEventMsg,
     Quote,
-    Chart,
     DOM,
     ChartPayload,
-    CustomActionTemplate,
-    RequestAction
+    CustomActionTemplate
 } from './types'
 import {setAvailableAccounts} from './storage'
 import {log} from 'console'
@@ -42,16 +29,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
     private model
     private live
 
-    // private underlyingType: BarType
-    // private elementSize
-    // private contract: Contract
-    // private elementSizeUnit
-    // private timeRangeType
-    // private timeRangeValue
-    // private withHistogram
     private replayMode: boolean
-    // private replaySpeed
-    // private replayPeriods
 
     private props: Required<T>
 

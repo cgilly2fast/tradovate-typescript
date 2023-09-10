@@ -1,5 +1,4 @@
 import ReplaySocket from '../websockets/ReplaySocket'
-import Dispatcher from './dispatcher'
 
 export enum ORDER_TYPE {
     Limit = 'Limit',
@@ -594,7 +593,7 @@ export function isRequestAction(action: any): action is RequestAction {
     )
 }
 
-export type ReplayCompletePayload = {}
+export type ReplayCompletePayload = {[key: string]: any}
 
 export type ProductFoundPayload = {name: string}
 
@@ -1098,7 +1097,7 @@ export function isErrorResponse<T extends EndpointURLs>(
     item: ResponseMsg<T> | ErrorResponse
 ): item is ErrorResponse
 
-export function isErrorResponse<T extends keyof SubscribeEventResponse>(
+export function isErrorResponse(
     item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent
 ): item is ErrorResponse {
     return (item as ErrorResponse).s !== 200
