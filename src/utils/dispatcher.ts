@@ -1,10 +1,4 @@
-import {
-    Action,
-    CustomActionTemplate,
-    Dictionary,
-    EventHandlerResults,
-    StrategyState
-} from '../types'
+import {Action, CustomActionTemplate, EventHandlerResults, StrategyState} from '../types'
 
 export const deepCopy = (o: any) => {
     let r: any
@@ -18,32 +12,6 @@ export const deepCopy = (o: any) => {
         r = o
     }
     return r
-}
-
-export const pipeMiddleware =
-    (...fns: any) =>
-    (model: Dictionary, action: Action) => {
-        let result = action
-        fns.forEach((fn: any) => {
-            result = fn(model, result)
-        })
-        return result
-    }
-
-/**
- * @template T
- * @typedef {[k: string, data: T]} Action
- */
-
-/**
- * @template T
- * @typedef {{ id: string, state: () => any, dispatch: (action: string, data: unknown) => void}} Store
- */
-export type Store = {
-    id?: string
-    state: () => any
-    effects: any
-    dispatch: (action: string, data: any) => void
 }
 
 export type DispatcherParams<T extends StrategyState, U extends string, V> = {
