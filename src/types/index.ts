@@ -108,7 +108,7 @@ export enum TimeRangeType {
 }
 
 export type Bar = {
-    timestamp: Date
+    timestamp: string
     open: number
     high: number
     low: number
@@ -125,7 +125,7 @@ export type Tick = {
     subscriptionId: number
     id: number
     contractTickSize: number
-    timestamp: Date
+    timestamp: string
     price: number
     volume: number
     bidPrice: number
@@ -610,7 +610,7 @@ export type UserSyncPayload = SyncRequestResponse
 
 export type PropsPayload = PropsEventMsg
 
-export type ChartPayload = BarPacket[] | TickPacket[]
+export type ChartPayload = BarPacket | TickPacket
 
 export type Action =
     | ChartAction

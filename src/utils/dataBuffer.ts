@@ -1,5 +1,4 @@
 import {Bar, Tick, TickPacket, BarPacket} from '../types'
-
 export interface DataTransformer {
     transform(packet: TickPacket | BarPacket): any[]
 }
@@ -26,7 +25,7 @@ export class TicksTransformer implements DataTransformer {
                     subscriptionId: subId,
                     id,
                     contractTickSize: ts,
-                    timestamp: new Date(bt + t),
+                    timestamp: new Date(bt + t).toISOString(),
                     price: (bp + p) * ts,
                     volume: s,
                     bidPrice: bs && (bp + b) * ts,
@@ -48,7 +47,7 @@ export type TickOrBarPacket<T extends BarsTransformer | TicksTransformer> =
         : T extends BarsTransformer
         ? BarPacket
         : never
-export default class DataBuffer<T extends TicksTransformer & BarsTransformer> {
+export default class DataBuffer<T extends TicksTransformer | BarsTransformer> {
     public transformer: T
     public buffer: TickOrBar<T>[]
     public lastTs: number
@@ -63,7 +62,7 @@ export default class DataBuffer<T extends TicksTransformer & BarsTransformer> {
     }
 
     push(packet: TickOrBarPacket<T>) {
-        let items = this.transformer.transform(packet)
+        let items = this.transformer.transform(packet as TickPacket & BarPacket)
 
         items = items.sort(
             (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()

@@ -21,5 +21,6 @@
         "noUnusedLocals": true
     },
     "compileOnSave": true,
-    "file": ["src/index.ts"]
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"]
 }

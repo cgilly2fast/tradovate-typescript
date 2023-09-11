@@ -7,4 +7,8 @@ export {default as Strategy} from './strategy'
 
 export {default as Storage} from './storage'
 
-export {default as Service} from './service'
+export {default as TradovateService} from './service'
+
+export * from './utils'
+
+export * from './types'

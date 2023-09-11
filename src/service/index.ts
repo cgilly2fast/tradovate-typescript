@@ -6,7 +6,7 @@ import {stringifyQueryParams} from '../utils/stringify'
 
 const {DEMO_URL, LIVE_URL} = URLs
 
-export default class Service {
+export default class TradovateService {
     private storage: Storage
 
     constructor() {
