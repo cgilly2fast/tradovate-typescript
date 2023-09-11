@@ -1,6 +1,6 @@
 import WebSocket, {MessageEvent, Data} from 'ws'
 import {log} from 'console'
-import {stringify} from '../utils/stringify'
+import {stringify, stringifyQueryParams} from '../utils/stringify'
 import {
     ResponseMsg,
     ErrorResponse,
@@ -63,17 +63,6 @@ export default class RequestSocket implements Socket {
 
     private dataToListeners(data: any[]) {
         this.listeners.forEach(listener => data.forEach((item: any) => listener(item)))
-    }
-
-    private parseQueryParams(params: any): string {
-        const queryParams = []
-        for (const key in params) {
-            if (key in params) {
-                const value = encodeURIComponent(params[key])
-                queryParams.push(`${key}=${value}`)
-            }
-        }
-        return queryParams.join('&')
     }
 
     getListeningUrl() {
@@ -183,9 +172,7 @@ export default class RequestSocket implements Socket {
             try {
                 this.ws.addEventListener('message', onRequest)
                 this.ws.send(
-                    `${url}\n${id}\n${this.parseQueryParams(query) || ''}\n${stringify(
-                        body
-                    )}`
+                    `${url}\n${id}\n${stringifyQueryParams(query!)}\n${stringify(body)}`
                 )
             } catch (err) {
                 log(`[Tradovate]: Socket request: ${stringify({url, query, body})}`)

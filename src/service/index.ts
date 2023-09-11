@@ -2,6 +2,7 @@ import axios from 'axios'
 import {URLs, AccessToken, Dictionary} from '../types'
 import Storage from '../storage'
 import {waitForMs} from '../utils/wait'
+import {stringifyQueryParams} from '../utils/stringify'
 
 const {DEMO_URL, LIVE_URL} = URLs
 
@@ -26,16 +27,16 @@ export default class Service {
      * @param {'demo' | 'live'} env
      * @returns
      */
-    async get(endpoint: string, query: Dictionary = {}, env = 'demo') {
+    async get(
+        endpoint: string,
+        query: Record<string, string | number> = {},
+        env = 'demo'
+    ) {
         const {accessToken} = this.storage.getAccessToken()
         try {
             let q = ''
             if (query) {
-                q = Object.keys(query).reduce((acc, next, i, arr) => {
-                    acc += next + '=' + query[next]
-                    if (i !== arr.length - 1) acc += '&'
-                    return acc
-                }, '?')
+                q = stringifyQueryParams(query)
             }
 
             const baseURL = env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
