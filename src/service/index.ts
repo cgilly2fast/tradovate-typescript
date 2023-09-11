@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {URLs, AccessToken, Dictionary} from '../types'
-import Storage from '../storage/storage'
+import Storage from '../storage'
 import {waitForMs} from '../utils/wait'
 
 const {DEMO_URL, LIVE_URL} = URLs
