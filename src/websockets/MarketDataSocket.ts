@@ -26,7 +26,6 @@ import {
     isQuoteSubscription,
     isHistogramSubscription
 } from '../types'
-import {tvGet} from '../service/service'
 import RequestSocket from './RequestSocket'
 export default class MarketDataSocket implements MdSocket {
     private socket: RequestSocket
@@ -103,12 +102,16 @@ export default class MarketDataSocket implements MdSocket {
             realtimeId = response.d.realtimeId! || response.d.subscriptionId!
             cancelBody = {subscriptionId: realtimeId}
         } else {
-            const contract = await tvGet('/contract/find', {name: symbol})
-            if (!contract.id)
+            const contract = await this.socket.request({
+                url: 'contract/find',
+                query: {name: symbol}
+            })
+
+            if (!contract.d.id)
                 throw new Error(
                     `Subscribe: ${url} Could not find contract id for symbol ${symbol}`
                 )
-            contractId = contract.id
+            contractId = contract.d.id
             cancelBody = {symbol}
         }
 

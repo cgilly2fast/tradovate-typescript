@@ -51,10 +51,6 @@ export default class RequestSocket implements Socket {
         this.curTime = t === this.curTime ? this.curTime : t
     }
 
-    private getCurTime() {
-        return this.curTime
-    }
-
     private increment() {
         return this.counter++
     }

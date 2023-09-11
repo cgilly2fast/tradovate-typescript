@@ -1,5 +1,5 @@
 import {getReplaySocket} from '../utils/socketUtils'
-import {Action, Item, Dictionary} from '../types'
+import {Action, Dictionary} from '../types'
 
 export const replayComplete = (state: Dictionary, action: Action) => {
     const {event, payload} = action

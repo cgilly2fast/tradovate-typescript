@@ -1,4 +1,3 @@
-import {getCurrentAccount} from '../utils/storage'
 import {log} from 'console'
 import {
     TradovateSocketSynchronizeParams,
@@ -45,9 +44,15 @@ export default class TradovateSocket implements Socket {
         const {WS_DEMO_URL, WS_LIVE_URL} = URLs
         const listeningURL = this.socket.getListeningUrl()
 
+        const accountRes = await this.socket.request({
+            url: 'account/list'
+        })
+
+        const account = accountRes.d.find(account => account.active)
+
         await this.socket.request({
             url: 'user/syncrequest',
-            body: {accounts: [getCurrentAccount().id]}
+            body: {accounts: [account!.id!]}
         })
 
         if (listeningURL !== WS_DEMO_URL && listeningURL !== WS_LIVE_URL) {

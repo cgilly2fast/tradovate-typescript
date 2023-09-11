@@ -15,7 +15,6 @@ import {
     CustomActionTemplate,
     Chart
 } from '../types'
-import {setAvailableAccounts} from '../utils/storage'
 import {log} from 'console'
 import {stringify} from '../utils/stringify'
 import ReplaySocket from '../websockets/ReplaySocket'
@@ -147,8 +146,9 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             })
 
             const account = accountRes.d.find(account => account.active)
+            log('replay account test ' + account)
             await this.setupEventCatcher(this.replaySocket!, this.replaySocket!)
-            setAvailableAccounts([account!])
+            //setAvailableAccounts([account!])
 
             log(`[Tradovate]: account: ${stringify(account)}`)
         } catch (err) {

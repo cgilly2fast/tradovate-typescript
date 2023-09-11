@@ -641,7 +641,12 @@ export enum Trend {
 }
 
 export type AccessToken = {
-    token?: string
+    accessToken?: string
+    expiration?: string
+}
+
+export type MdAccessToken = {
+    mdAccessToken?: string
     expiration?: string
 }
 

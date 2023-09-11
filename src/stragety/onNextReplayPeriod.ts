@@ -1,5 +1,5 @@
 import {getReplaySocket} from '../utils/socketUtils'
-import {setAvailableAccounts} from '../utils/storage'
+import {setAvailableAccounts} from '../storage/storage'
 import {Action, Payload, StrategyState, ReplayPeriod, StrategyParams} from '../types'
 import Dispatcher from '../utils/dispatcher'
 import {stringify} from '../utils/stringify'
@@ -34,7 +34,7 @@ async function startNextReplayPeriod(
     props: StrategyParams,
     replayPeriods: ReplayPeriod[],
     current_period: number,
-    dispatcher: Dispatcher,
+    dispatcher: Dispatcher<T>,
     payload: Payload
 ) {
     log('[Tradovate]: Moving to next replay period..')
@@ -93,7 +93,7 @@ async function startNextReplayPeriod(
             url: 'account/list'
         })
 
-        const account = accountRes.d.find(account => account.active)
+        const account = accountRes.d.find((account: TradovateAccount => account.active)
         log(`[Tradovate]: account: ${stringify(account)}`)
 
         setAvailableAccounts([account!])
