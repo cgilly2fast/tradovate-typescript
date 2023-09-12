@@ -1,5 +1,8 @@
 import {AccessToken, MdAccessToken, Account, AccountMini} from '../types'
 
+/**
+ * Represents a storage utility class for managing user data and access tokens.
+ */
 export default class Storage {
     private deviceId: string
     private availableAccounts: Account[]
@@ -10,6 +13,9 @@ export default class Storage {
     private mdAccessToken: string
     private expiration: string
 
+    /**
+     * Initializes a new instance of the Storage class.
+     */
     constructor() {
         this.deviceId = ''
         this.availableAccounts = []
@@ -20,35 +26,49 @@ export default class Storage {
         this.mdAccessToken = ''
         this.expiration = ''
     }
-    setDeviceId(id: string) {
+
+    /**
+     * Sets the device ID.
+     * @param {string} id - The device ID to set.
+     */
+    setDeviceId(id: string): void {
         this.deviceId = id
     }
 
-    getDeviceId() {
+    /**
+     * Gets the device ID.
+     * @returns {string} The device ID.
+     */
+    getDeviceId(): string {
         return this.deviceId
     }
 
-    setAvailableAccounts(accounts: Account[]) {
+    /**
+     * Sets the available accounts.
+     * @param {Account[]} accounts - An array of available accounts.
+     * @throws {Error} Throws an error if an empty array is passed.
+     */
+    setAvailableAccounts(accounts: Account[]): void {
         if (accounts.length === 0)
             throw new Error('[Tradovate]: Empty account passed setAvailableAccounts')
         this.availableAccounts = accounts
-        // is this right? shouldnt I need to find account == active?
+        // is this right? shouldn't I need to find account == active?
         this.accountId = accounts[0].id!
         this.spec = accounts[0].name
         this.userId = accounts[0].userId
     }
 
     /**
-     * Returns and array of available accounts or undefined.
-     * @returns Account[]
+     * Returns an array of available accounts or undefined.
+     * @returns {Account[]} An array of available accounts.
      */
     getAvailableAccounts(): Account[] {
         return this.availableAccounts
     }
 
     /**
-     * Returns and array of available accounts or undefined.
-     * @returns Account
+     * Returns the current account as an AccountMini object.
+     * @returns {AccountMini} The current account as an AccountMini object.
      */
     getCurrentAccount(): AccountMini {
         return {
@@ -59,20 +79,35 @@ export default class Storage {
     }
 
     /**
-     * Use a predicate function to find an account. May be undefined.
+     * Uses a predicate function to find an account. May be undefined.
+     * @param {function} predicate - A predicate function to filter accounts.
+     * @returns {Account | undefined} The first matching account or undefined.
      */
-    queryAvailableAccounts(predicate: any) {
+    queryAvailableAccounts(
+        predicate: (account: Account) => boolean
+    ): Account | undefined {
         return this.getAvailableAccounts().find(predicate)
     }
 
-    setAccessToken(token: string, md_token: string, expiration: string) {
+    /**
+     * Sets the access tokens and expiration date.
+     * @param {string} token - The access token.
+     * @param {string} md_token - The market data access token.
+     * @param {string} expiration - The expiration date of the tokens.
+     * @throws {Error} Throws an error if either token or expiration is undefined.
+     */
+    setAccessToken(token: string, md_token: string, expiration: string): void {
         if (!token || !expiration)
-            throw new Error('[Tradovate]: Attempted to set undefined token')
+            throw new Error('[Tradovate]: Attempted to set an undefined token')
         this.accessToken = token
         this.mdAccessToken = md_token
         this.expiration = expiration
     }
 
+    /**
+     * Gets the access token and its expiration date.
+     * @returns {AccessToken} An AccessToken object.
+     */
     getAccessToken(): AccessToken {
         const accessToken = this.accessToken
         const expiration = this.expiration
@@ -84,32 +119,51 @@ export default class Storage {
         return {accessToken, expiration}
     }
 
+    /**
+     * Gets the market data access token and its expiration date.
+     * @returns {MdAccessToken} A MdAccessToken object.
+     */
     getMdAccessToken(): MdAccessToken {
         const mdAccessToken = this.mdAccessToken
         const expiration = this.expiration
         if (!mdAccessToken) {
             console.warn(
-                '[Tradovate]: No access token retrieved. Please request an access token.'
+                '[Tradovate]: No market data access token retrieved. Please request an access token.'
             )
         }
         return {mdAccessToken, expiration}
     }
 
+    /**
+     * Checks if a token is valid based on its expiration date.
+     * @param {string} expiration - The expiration date of the token.
+     * @returns {boolean} A boolean indicating whether the token is valid.
+     */
     tokenIsValid(expiration: string): boolean {
-        return new Date(expiration).getMilliseconds() - new Date().getMilliseconds() > 0
+        return new Date(expiration).getTime() - new Date().getTime() > 0
     }
 
+    /**
+     * Checks if a token is near its expiry based on its expiration date.
+     * @param {string} expiration - The expiration date of the token.
+     * @returns {boolean} A boolean indicating whether the token is near its expiry.
+     */
     tokenNearExpiry(expiration: string): boolean {
-        return (
-            new Date(expiration).getMilliseconds() - new Date().getMilliseconds() <
-            10 * 60 * 1000
-        )
+        return new Date(expiration).getTime() - new Date().getTime() < 10 * 60 * 1000
     }
 
-    setUserData(data: any) {
+    /**
+     * Sets user data as an environment variable.
+     * @param {any} data - User data to be stored.
+     */
+    setUserData(data: any): void {
         process.env.USER_DATA = JSON.stringify(data)
     }
 
+    /**
+     * Gets user data from the environment variable.
+     * @returns {any} User data.
+     */
     getUserData(): any {
         return JSON.parse(process.env.USER_DATA!)
     }

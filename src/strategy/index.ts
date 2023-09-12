@@ -233,10 +233,6 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
 
         if (event === StrategyEvent.Stop) {
             log('LOOK AT WHEN event === stop')
-            // const socket = getReplaySocket()
-            // const ws = socket.getSocket()
-            // ws.close()
-            // ws.removeAllListeners('message')
             //this.shouldRun = false
             return {state: prevState, actions: []}
         }

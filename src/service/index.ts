@@ -1,11 +1,13 @@
 import axios from 'axios'
-import {URLs, AccessToken, Dictionary} from '../types'
+import {URLs, AccessToken, Dictionary, AccessTokenRequestBody} from '../types'
 import Storage from '../storage'
 import {waitForMs} from '../utils/wait'
 import {stringifyQueryParams} from '../utils/stringify'
 
 const {DEMO_URL, LIVE_URL} = URLs
-
+/**
+ * Provides functionality for making HTTP requests to the Tradovate REST API.
+ */
 export default class TradovateService {
     private storage: Storage
 
@@ -13,7 +15,8 @@ export default class TradovateService {
         this.storage = new Storage()
     }
     /**
-     * Call to make GET requests to the Tradovate REST API. The passed `query` object will be reconstructed to a query string and placed in the query position of the URL.
+     * Makes a GET requests to the Tradovate REST API. The passed `query` object will be reconstructed to a query string and placed in the query position of the URL.
+     * @example
      * ```js
      * //no parameters
      *  const jsonResponseA = await tvGet('/account/list')
@@ -22,10 +25,10 @@ export default class TradovateService {
      * const jsonResponseB = await tvGet('/contract/item', { id: 2287764 })
      * ```
      *
-     * @param {string} endpoint
-     * @param {{[k:string]: any}} query object key-value-pairs will be converted into query, for ?masterid=1234 use `{masterid: 1234}`
-     * @param {'demo' | 'live'} env
-     * @returns
+     * @param {string} endpoint - The API endpoint to call.
+     * @param {{ [k: string]: any }} query - The query parameters as key-value pairs.
+     * @param {'demo' | 'live'} env - The environment (demo or live).
+     * @returns {Promise<any>} A promise that resolves to the response data.
      */
     async get(
         endpoint: string,
@@ -69,7 +72,8 @@ export default class TradovateService {
     }
 
     /**
-     * Use this function to make POST requests to the Tradovate REST API. `data` will be placed in the body of the request as JSON.
+     * Makes a POST requests to the Tradovate REST API. `data` will be placed in the body of the request as JSON.
+     * @example
      * ```js
      * //placing an order with tvPost
      * const jsonResponseC = await tvPost('/order/placeorder', {
@@ -83,11 +87,11 @@ export default class TradovateService {
      * })
      * ```
      *
-     * @param {string} endpoint
-     * @param {{[k:string]: any}} data
-     * @param {boolean} usetoken
-     * @param {'live' | 'demo'} env
-     * @returns
+     * @param {string} endpoint - The API endpoint to call.
+     * @param {{ [k: string]: any }} data - The data to send in the request body as JSON.
+     * @param {boolean} usetoken - Indicates whether to use an access token in the request.
+     * @param {'live' | 'demo'} env - The environment (demo or live).
+     * @returns {Promise<any>} A promise that resolves to the response data.
      */
     async post(
         endpoint: string,
@@ -129,7 +133,11 @@ export default class TradovateService {
             console.error('[Tradovate]: tvPost: ' + err)
         }
     }
-
+    /**
+     * Renews the stored access token.
+     * @param {boolean} live - Indicates whether to renew the access token for the live environment.
+     * @returns {Promise<any>} A promise that resolves to the renewed access token information.
+     */
     renewAccessToken = async (live: boolean = false) => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (
@@ -175,7 +183,11 @@ export default class TradovateService {
             return authResponse
         }
     }
-
+    /**
+     * Handles retrying an operation when a time penalty is present.
+     * @param {string} env - The environment (demo or live).
+     * @param {any} json - The response data.
+     */
     handleRenewRetry = async (env: string, json: any) => {
         const ticket = json['p-ticket'],
             time = json['p-time'],
@@ -195,8 +207,12 @@ export default class TradovateService {
         await waitForMs(time * 1000)
         await this.get('/auth/renewaccesstoken', {}, env)
     }
-
-    connect = async (data: any) => {
+    /**
+     * Connects to the Tradovate API.
+     * @param {AccessTokenRequestBody} data - The data for connecting to the API.
+     * @returns {Promise<any>} A promise that resolves to the response data.
+     */
+    connect = async (data: AccessTokenRequestBody) => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (
             accessToken &&
