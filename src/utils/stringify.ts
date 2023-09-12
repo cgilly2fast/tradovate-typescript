@@ -13,14 +13,15 @@ export function stringify(...args: any[]): string {
 
 /**
  * Converts a dictionary of query parameters into a URL-encoded query string.
- * @param params - The dictionary of query parameters.
+ * @param query - The dictionary of query parameters.
  * @returns A URL-encoded query string.
  */
-export function stringifyQueryParams(params: {[k: string]: any}): string {
+export function stringifyQueryParams(query: any): string {
+    if (query === undefined || Object.keys(query).length === 0) return ''
     const queryParams = []
-    for (const key in params) {
-        if (Object.prototype.hasOwnProperty.call(params, key)) {
-            const value = encodeURIComponent(params[key].toString())
+    for (const key in query) {
+        if (Object.prototype.hasOwnProperty.call(query, key)) {
+            const value = encodeURIComponent(query[key].toString())
             queryParams.push(`${key}=${value}`)
         }
     }

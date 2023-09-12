@@ -21,6 +21,11 @@ import ReplaySocket from '../websockets/ReplaySocket'
 import TradovateSocket from '../websockets/TradovateSocket'
 import MarketDataSocket from '../websockets/MarketDataSocket'
 
+/**
+ * Represents a trading.
+ * @template T - The type for strategy parameters.
+ * @template U - The type for strategy state.
+ */
 export default class Strategy<T extends StrategyParams, U extends StrategyState> {
     private tvSocket: TvSocket
     private mdSocket: MdSocket
@@ -33,7 +38,13 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
     private props: Required<T>
 
     private D: Dispatcher<U>
-
+    /**
+     * Creates a new instance of the Strategy class.
+     * @param params - The parameters for initializing the strategy.
+     * @param initState - The initial state of the strategy.
+     * @param next - The function to handle and update the strategy state based on actions.
+     * @throws Throws an error if required parameters are missing in replay mode.
+     */
     constructor(
         params: T,
         initState: U,
@@ -83,7 +94,9 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             this.setupEventCatcher(this.tvSocket, this.mdSocket)
         }
     }
-
+    /**
+     * Runs side effects based on the actions processed by the strategy.
+     */
     runSideFx = () => {
         const actions = this.D.actions()
 
@@ -219,11 +232,19 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             }
         })
     }
-
+    /**
+     * Retrieves the request socket associated with the strategy.
+     * @returns The request socket used for communication.
+     */
     getRequestSocket() {
         return this.tvSocket
     }
-
+    /**
+     * Default implementation for handling replay sessions and clock events.
+     * @param prevState - The previous state of the strategy.
+     * @param action - The action to process.
+     * @returns An object containing the updated state and actions to perform.
+     */
     catchReplaySessionsDefault(
         prevState: U,
         action: Action | CustomActionTemplate<any, any>
