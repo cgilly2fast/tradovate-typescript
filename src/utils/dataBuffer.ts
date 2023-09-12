@@ -45,7 +45,7 @@ export function TicksTransformer(packet: TickPacket) {
 }
 
 export default class DataBuffer<
-    T extends typeof TicksTransformer | typeof BarsTransformer
+    T extends {(packet: TickPacket): Tick[]} | {(packet: BarPacket): Bar[]}
 > {
     public transformer: T
     public buffer: TickOrBar<T>[]
