@@ -1,0 +1,5 @@
+{
+    "out": "docs",
+    "entryPoints": ["src"],
+    "exclude": ["**/*.spec.ts", "**/dist", "**/node_modules"]
+}

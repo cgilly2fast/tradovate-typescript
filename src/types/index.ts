@@ -1,4 +1,5 @@
 import ReplaySocket from '../websockets/ReplaySocket'
+import {BarsTransformer, TicksTransformer} from '../utils'
 
 export enum OrderType {
     Limit = 'Limit',
@@ -704,7 +705,7 @@ export type LiquidatePositionRequestBody = {
     customTag50?: string
 }
 
-type PlaceOSORequestBody = {
+export type PlaceOSORequestBody = {
     accountSpec: string
     accountId: number
     clOrdId: string
@@ -819,7 +820,7 @@ export type ModifyCredentialsRequestBody = {
     currentPassword: string
 }
 
-type CancelTradovateSubscriptionRequestBody = {
+export type CancelTradovateSubscriptionRequestBody = {
     tradovateSubscriptionId: number
     cancelReason?: string
     expire: boolean
@@ -2113,7 +2114,7 @@ export type AdminAlertSignalResponse = {
     adminAlertSignal: AdminAlertSignal
 }
 
-type AdminAlert = {
+export type AdminAlert = {
     id: number
     name: string
     timestamp: string
@@ -4633,3 +4634,46 @@ export enum Enviroment {
     Live = 'live',
     Demo = 'demo'
 }
+
+export type CalculatePnLParams = {
+    price: number
+    position: Position
+    product: Product
+}
+
+/**
+ * Represents parameters for creating a Dispatcher instance.
+ * @typeparam T - The type of the StrategyState.
+ * @typeparam U - The type of the custom action template.
+ * @typeparam V - The type of the custom action value.
+ */
+export type DispatcherParams<T extends StrategyState, U extends string, V> = {
+    id?: string
+    model: T
+    reducer: (
+        prevState: T,
+        action: Action | CustomActionTemplate<U, V>
+    ) => EventHandlerResults<T>
+}
+
+/**
+ * Represents a type that is either a Tick or a Bar based on the transformer function provided.
+ * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
+ */
+export type TickOrBar<T extends typeof BarsTransformer | typeof TicksTransformer> =
+    T extends typeof TicksTransformer
+        ? Tick
+        : T extends typeof BarsTransformer
+        ? Bar
+        : never
+
+/**
+ * Represents a type that is either a TickPacket or a BarPacket based on the transformer function provided.
+ * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
+ */
+export type TickOrBarPacket<T extends typeof BarsTransformer | typeof TicksTransformer> =
+    T extends typeof TicksTransformer
+        ? TickPacket
+        : T extends typeof BarsTransformer
+        ? BarPacket
+        : never

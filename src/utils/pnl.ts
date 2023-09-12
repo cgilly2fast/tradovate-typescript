@@ -1,15 +1,4 @@
-import {Position, Product} from '../types'
-
-/**
- * Represents the parameters required to calculate Profit and Loss (PnL).
- */
-export type CalculatePnLParams = {
-    /** The current price of the product. */
-    price: number
-    position: Position
-    product: Product
-}
-
+import {CalculatePnLParams} from '../types'
 /**
  * Calculates the Profit and Loss (PnL) based on the given parameters.
  * @param params - The parameters required for PnL calculation.

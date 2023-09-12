@@ -1,4 +1,10 @@
-import {Action, CustomActionTemplate, EventHandlerResults, StrategyState} from '../types'
+import {
+    Action,
+    CustomActionTemplate,
+    EventHandlerResults,
+    StrategyState,
+    DispatcherParams
+} from '../types'
 
 /**
  * Performs a deep copy of an object or array.
@@ -17,21 +23,6 @@ export const deepCopy = (o: any) => {
         r = o
     }
     return r
-}
-
-/**
- * Represents parameters for creating a Dispatcher instance.
- * @typeparam T - The type of the StrategyState.
- * @typeparam U - The type of the custom action template.
- * @typeparam V - The type of the custom action value.
- */
-export type DispatcherParams<T extends StrategyState, U extends string, V> = {
-    id?: string
-    model: T
-    reducer: (
-        prevState: T,
-        action: Action | CustomActionTemplate<U, V>
-    ) => EventHandlerResults<T>
 }
 
 /**

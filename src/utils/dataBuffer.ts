@@ -1,4 +1,5 @@
 import {Bar, Tick, TickPacket, BarPacket} from '../types'
+import {TickOrBar, TickOrBarPacket} from '../types'
 
 /**
  * Represents a utility function to transform BarPacket data into an array of Bar objects.
@@ -43,27 +44,6 @@ export function TicksTransformer(packet: TickPacket) {
     return result
 }
 
-/**
- * Represents a type that is either a Tick or a Bar based on the transformer function provided.
- * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
- */
-export type TickOrBar<T extends typeof BarsTransformer | typeof TicksTransformer> =
-    T extends typeof TicksTransformer
-        ? Tick
-        : T extends typeof BarsTransformer
-        ? Bar
-        : never
-
-/**
- * Represents a type that is either a TickPacket or a BarPacket based on the transformer function provided.
- * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
- */
-export type TickOrBarPacket<T extends typeof BarsTransformer | typeof TicksTransformer> =
-    T extends typeof TicksTransformer
-        ? TickPacket
-        : T extends typeof BarsTransformer
-        ? BarPacket
-        : never
 export default class DataBuffer<
     T extends typeof TicksTransformer | typeof BarsTransformer
 > {
