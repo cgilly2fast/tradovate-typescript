@@ -1,9 +1,4 @@
-export {
-    default as DataBuffer,
-    BarsTransformer,
-    TicksTransformer,
-    DataTransformer
-} from './dataBuffer'
+export {default as DataBuffer, BarsTransformer, TicksTransformer} from './dataBuffer'
 
 export {default as Dispatcher} from './dispatcher'
 
