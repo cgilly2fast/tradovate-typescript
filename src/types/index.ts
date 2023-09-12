@@ -697,20 +697,156 @@ export type EndpointURLs = keyof EndpointResponse &
     keyof EndpointRequestQuery
 export type SubscribeURLs = keyof SubscribeEventResponse & keyof SubscribeRequestBody
 
+export type LiquidatePositionRequestBody = {
+    accountId: number
+    contractId: number
+    admin: boolean
+    customTag50?: string
+}
+
+type PlaceOSORequestBody = {
+    accountSpec: string
+    accountId: number
+    clOrdId: string
+    action: OrderAction
+    symbol: string
+    orderQty: number
+    orderType: OrderType
+    price?: number
+    stopPrice?: number
+    maxShow: number
+    pegDifference?: number
+    timeInForce: TimeInForce
+    expireTime?: string
+    text: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated: boolean
+    bracket1: RestrainedOrderVersion
+    bracket2: RestrainedOrderVersion
+}
+
+export type RestrainedOrderVersion = {
+    action: OrderAction
+    clOrdId: string
+    orderType: OrderType
+    price?: number
+    stopPrice?: number
+    maxShow: number
+    pegDifference?: number
+    timeInForce: TimeInForce
+    expireTime?: string
+    text: string
+}
+export type MarketDataSubscription = {
+    id: number
+    userId: number
+    timestamp: string
+    planPrice: number
+    creditCardTransactionId: number
+    cashBalanceLogId: number
+    creditCardId: number
+    accountId: number
+    marketDataSubscriptionPlanId: number
+    year: number
+    month: number
+    renewalCreditCardId: number
+    renewalAccountId: number
+}
+export type TradovateSubscription = {
+    id?: number
+    userId: number
+    timestamp: string
+    planPrice: number
+    creditCardTransactionId?: number
+    cashBalanceLogId?: number
+    creditCardId?: number
+    accountId?: number
+    tradovateSubscriptionPlanId: number
+    startDate: TradeDate
+    expirationDate: TradeDate
+    paidAmount: number
+    cancelledRenewal: boolean
+    cancelReason?: string
+}
+export type PostChatMessageRequestBody = {
+    userId: number
+    category: 'Support' | 'TradeDesk'
+    text: string
+}
+export type ChangePluginPermissionRequestBody = {
+    userId: number
+    pluginName: string
+    approval: boolean
+}
+export type AddEntitlementSubscriptionRequestBody = {
+    entitlementId: number
+    creditCardId: number
+    accountId: number
+    userId: number
+}
+
+export type SignUpOrganizationMemberRequestBody = {
+    name: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+}
+
+export type RequestTradingPermissionRequestBody = {
+    accountId: number
+    ctaContact: string
+    ctaEmail: string
+}
+
+export type OpenDemoAccountRequestBody = {
+    templateAccountId: number
+    name: string
+    initialBalance: number
+}
+
+export type ModifyPasswordRequestBody = {
+    userId: number
+    password: string
+    currentPassword: string
+}
+
+export type ModifyCredentialsRequestBody = {
+    userId: number
+    name: string
+    password: string
+    currentPassword: string
+}
+
+type CancelTradovateSubscriptionRequestBody = {
+    tradovateSubscriptionId: number
+    cancelReason?: string
+    expire: boolean
+}
+
+export type AddTradovateSubscriptionRequestBody = {
+    tradovateSubscriptionPlanId: number
+    creditCardId: number
+    accountId: number
+    userId: number
+}
+export type AddMarketDataSubscriptionRequestBody = {
+    marketDataSubscriptionPlanIds: number[]
+    year: number
+    month: number
+    creditCardId?: number
+    accountId?: number
+    userId: number
+}
+export type AddSecondMarketDataSubscriptionRequestBody = {
+    year: number
+    month: number
+    creditCardId?: number
+    accountId?: number
+    userId?: number
+}
 export type EndpointRequestBody = {
-    'account/list': undefined
-    'order/list': undefined
-    'order/item': undefined
-    'order/cancelorder': {orderId: number}
-    authorize: {token: string}
-    'replay/checkreplaysession': {startTimestamp: string}
-    'replay/initializeclock': {
-        startTimestamp: string
-        speed: number
-        initialBalance: number
-    }
-    'replay/changespeed': {speed: number}
-    'user/syncrequest': {accounts: number[]}
     'md/subscribequote': {symbol: string}
     'md/getchart': {
         symbol: string
@@ -723,6 +859,7 @@ export type EndpointRequestBody = {
     'md/unsubscribequote': CancelBody
     'md/unsubscribedom': CancelBody
     'md/cancelchart': CancelChartBody
+    authorize: {token: string}
     'auth/accessTokenRequest': AccessTokenRequestBody
     'auth/me': undefined
     'auth/oauthtoken': OAuthTokenRequestBody
@@ -735,23 +872,331 @@ export type EndpointRequestBody = {
     'contract/ldeps': undefined
     'contract/rollcontract': RollContractRequestBody
     'contract/suggest': undefined
+    'contractGroup/find': undefined
+    'contractGroup/item': undefined
+    'contractGroup/items': undefined
+    'contractGroup/list': undefined
+    'contractGroup/suggest': undefined
+    'contractMaturity/deps': undefined
+    'contractMaturity/item': undefined
+    'contractMaturity/items': undefined
+    'contractMaturity/ldeps': undefined
+    'currency/find': undefined
+    'currency/item': undefined
+    'currency/items': undefined
+    'currency/list': undefined
+    'currency/suggest': undefined
+    'currencyRate/deps': undefined
+    'currencyRate/item': undefined
+    'currencyRate/items': undefined
+    'currencyRate/ldeps': undefined
+    'currencyRate/list': undefined
+    'exchange/find': undefined
+    'exchange/item': undefined
+    'exchange/items': undefined
+    'exchange/list': undefined
+    'exchange/suggest': undefined
+    'product/deps': undefined
+    'product/find': undefined
+    'product/item': undefined
+    'product/items': undefined
+    'product/ldeps': undefined
+    'product/list': undefined
+    'product/suggest': undefined
+    'productSession/deps': undefined
+    'productSession/item': undefined
+    'productSession/items': undefined
+    'productSession/ldeps': undefined
+    'spreadDefinition/item': undefined
+    'spreadDefinition/items': undefined
+    'accountRiskStatus/deps': undefined
+    'accountRiskStatus/item': undefined
+    'accountRiskStatus/items': undefined
+    'accountRiskStatus/ldeps': undefined
+    'accountRiskStatus/list': undefined
+    'contractMargin/deps': undefined
+    'contractMargin/item': undefined
+    'contractMargin/items': undefined
+    'contractMargin/ldeps': undefined
+    'productMargin/deps': undefined
+    'productMargin/item': undefined
+    'productMargin/items': undefined
+    'productMargin/ldeps': undefined
+    'productMargin/list': undefined
+    'userAccountAutoLiq/create': UserAccountAutoLiq
+    'userAccountAutoLiq/deps': undefined
+    'userAccountAutoLiq/item': undefined
+    'userAccountAutoLiq/items': undefined
+    'userAccountAutoLiq/ldeps': undefined
+    'userAccountAutoLiq/list': undefined
+    'userAccountAutoLiq/update': UserAccountAutoLiq
+    'userAccountPositionLimit/create': UserAccountAutoLiq
+    'userAccountPositionLimit/deps': undefined
+    'userAccountPositionLimit/item': undefined
+    'userAccountPositionLimit/items': undefined
+    'userAccountPositionLimit/ldeps': undefined
+    'userAccountPositionLimit/update': UserAccountPositionLimit
+    'userAccountRiskParameter/create': UserAccountPositionLimit
+    'userAccountRiskParameter/deps': undefined
+    'userAccountRiskParameter/item': undefined
+    'userAccountRiskParameter/items': undefined
+    'userAccountRiskParameter/ldeps': undefined
+    'userAccountRiskParameter/update': UserAccountRiskParameter
+    'command/deps': undefined
+    'command/item': undefined
+    'command/items': undefined
+    'command/ldeps': undefined
+    'command/list': undefined
     'commandReport/deps': undefined
-    'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
+    'commandReport/item': undefined
+    'commandReport/items': undefined
+    'commandReport/ldeps': undefined
+    'commandReport/list': undefined
+    'executionReport/deps': undefined
+    'executionReport/find': undefined
+    'executionReport/item': undefined
+    'executionReport/items': undefined
+    'executionReport/ldeps': undefined
+    'executionReport/list': undefined
+    'executionReport/suggest': undefined
+    'fill/deps': undefined
+    'fill/item': undefined
+    'fill/items': undefined
+    'fill/ldeps': undefined
+    'fill/list': undefined
+    'fillFee/deps': undefined
+    'fillFee/item': undefined
+    'fillFee/items': undefined
+    'fillFee/ldeps': undefined
+    'fillFee/list': undefined
+    'order/deps': undefined
+    'order/item': undefined
+    'order/items': undefined
+    'order/ldeps': undefined
+    'order/liquidatePosition': LiquidatePositionRequestBody
+    'order/list': undefined
     'order/placeOrder': PlaceOrderRequestBody
     'order/placeOCO': PlaceOCORequestBody
     'order/modifyorder': ModifyOrderRequestBody
+    'order/placeoso': PlaceOSORequestBody
+    'orderStrategy/deps': undefined
+    'orderStrategy/interruptOrderStrategy': undefined
+    'orderStrategy/item': undefined
+    'orderStrategy/items': undefined
+    'orderStrategy/ldeps': undefined
+    'orderStrategy/list': undefined
+    'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
+    'orderStrategyLink/deps': undefined
+    'orderStrategyLink/item': undefined
+    'orderStrategyLink/items': undefined
+    'orderStrategyLink/ldeps': undefined
+    'orderStrategyLink/list': undefined
+    'orderVersion/deps': undefined
+    'orderVersion/item': undefined
+    'orderVersion/items': undefined
+    'orderVersion/ldeps': undefined
+    'orderVersion/list': undefined
+    'fillPair/deps': undefined
+    'fillPair/item': undefined
+    'fillPair/items': undefined
+    'fillPair/ldeps': undefined
+    'fillPair/list': undefined
+    'position/deps': undefined
+    'position/find': undefined
+    'position/item': undefined
+    'position/items': undefined
+    'position/ldeps': undefined
+    'position/list': undefined
+    'account/deps': undefined
+    'account/find': undefined
+    'account/item': undefined
+    'account/items': undefined
+    'account/ldeps': undefined
+    'account/list': undefined
+    'account/suggest': undefined
+    'cashBalance/deps': undefined
+    'cashBalance/getcashbalancesnapshot': {accountId: number}
+    'cashBalance/item': undefined
+    'cashBalance/items': undefined
+    'cashBalance/ldeps': undefined
+    'cashBalance/list': undefined
+    'cashBalanceLog/deps': undefined
+    'cashBalanceLog/item': undefined
+    'cashBalanceLog/items': undefined
+    'cashBalanceLog/ldeps': undefined
+    'marginSnapshot/deps': undefined
+    'marginSnapshot/item': undefined
+    'marginSnapshot/items': undefined
+    'marginSnapshot/ldeps': undefined
+    'marginSnapshot/list': undefined
+    'tradingPermission/deps': undefined
+    'tradingPermission/item': undefined
+    'tradingPermission/items': undefined
+    'tradingPermission/ldeps': undefined
+    'tradingPermission/list': undefined
+    'marketDataSubscriptionExchangeScope/find': undefined
+    'marketDataSubscriptionExchangeScope/item': undefined
+    'marketDataSubscriptionExchangeScope/items': undefined
+    'marketDataSubscriptionExchangeScope/list': undefined
+    'marketDataSubscriptionExchangeScope/suggest': undefined
+    'marketDataSubscriptionPlan/find': undefined
+    'marketDataSubscriptionPlan/item': undefined
+    'marketDataSubscriptionPlan/items': undefined
+    'marketDataSubscriptionPlan/list': undefined
+    'marketDataSubscriptionPlan/suggest': undefined
+    'tradovateSubscriptionPlan/find': undefined
+    'tradovateSubscriptionPlan/item': undefined
+    'tradovateSubscriptionPlan/items': undefined
+    'tradovateSubscriptionPlan/list': undefined
+    'tradovateSubscriptionPlan/suggest': undefined
+    'replay/changespeed': {speed: number}
+    'replay/checkreplaysession': {startTimestamp: string}
+    'replay/initializeclock': {
+        startTimestamp: string
+        speed: number
+        initialBalance: number
+    }
+    'adminAlertSignal/completealertsignal': {adminAlertSignalId: number}
+    'adminAlertSignal/takealertsignalownership': {adminAlertSignalId: number}
+    'adminAlert/deps': undefined
+    'adminAlert/item': undefined
+    'adminAlert/items': undefined
+    'adminAlert/ldeps': undefined
+    'adminAlert/list': undefined
+    'adminAlertSignal/deps': undefined
+    'adminAlertSignal/item': undefined
+    'adminAlertSignal/items': undefined
+    'adminAlertSignal/ldeps': undefined
+    'adminAlertSignal/list': undefined
+    'alert/createalert': undefined
+    'alret/deletealert': undefined
+    'alert/deps': undefined
+    'alert/dismissalert': undefined
+    'alert/item': undefined
+    'alert/items': undefined
+    'alert/ldeps': undefined
+    'alert/list': undefined
+    'alert/markreadalertsignal': undefined
+    'alert/modifyalert': undefined
+    'alert/resetalert': undefined
+    'alertSignal/deps': undefined
+    'alertSignal/item': undefined
+    'alertSignal/items': undefined
+    'alertSignal/ldeps': undefined
+    'alertSignal/list': undefined
+    'clearingHouse/deps': undefined
+    'clearingHouse/item': undefined
+    'clearingHouse/items': undefined
+    'clearingHouse/list': undefined
+    'clearingHouse/suggest': undefined
+    'entitlement/item': undefined
+    'entitlement/items': undefined
+    'entitlement/list': undefined
+    'orderStrategyType/find': undefined
+    'orderStrategyType/item': undefined
+    'orderStrategyType/items': undefined
+    'orderStrategyType/list': undefined
+    'orderStrategyType/suggest': undefined
+    'property/find': undefined
+    'property/item': undefined
+    'property/items': undefined
+    'property/list': undefined
+    'property/suggest': undefined
+    'contactInfo/deps': undefined
+    'contactInfo/item': undefined
+    'contactInfo/items': undefined
+    'contactInfo/ldeps': undefined
+    'marketDataSubscription/create': MarketDataSubscription
+    'marketDataSubscription/deps': undefined
+    'marketDataSubscription/item': undefined
+    'marketDataSubscription/items': undefined
+    'marketDataSubscription/ldeps': undefined
+    'marketDataSubscription/list': undefined
+    'marketDataSubscription/update': MarketDataSubscription
+    'organization/find': undefined
+    'organization/item': undefined
+    'organization/items': undefined
+    'organization/list': undefined
+    'organization/suggest': undefined
+    'secondMarketDataSubscription/deps': undefined
+    'secondMarketDataSubscription/item': undefined
+    'secondMarketDataSubscription/items': undefined
+    'secondMarketDataSubscription/ldeps': undefined
+    'secondMarketDataSubscription/list': undefined
+    'tradovateSubscription/create': TradovateSubscription
+    'tradovateSubscription/deps': undefined
+    'tradovateSubscription/item': undefined
+    'tradovateSubscription/items': undefined
+    'tradovateSubscription/ldeps': undefined
+    'tradovateSubscription/list': undefined
+    'tradovateSubscription/update': TradovateSubscription
+    'user/find': undefined
+    'user/getaccounttradingpermissions': undefined
+    'user/item': undefined
+    'user/items': undefined
+    'user/list': undefined
+    'user/suggest': undefined
+    'user/syncrequest': {accounts: number[]}
+    'userPlugin/create': UserPlugin
+    'userPlugin/deps': undefined
+    'userPlugin/item': undefined
+    'userPlugin/items': undefined
+    'userPlugin/ldeps': undefined
+    'userPlugin/list': undefined
+    'userPlugin/update': UserPlugin
+    'userProperty/deps': undefined
+    'userProperty/item': undefined
+    'userProperty/items': undefined
+    'userProperty/ldeps': undefined
+    'userSession/item': undefined
+    'userSession/items': undefined
+    'userSessionStats/deps': undefined
+    'userSessionStats/item': undefined
+    'userSessionStats/items': undefined
+    'userSessionStats/ldeps': undefined
+    'userSessionStats/list': undefined
+    'chat/closechat': undefined
+    'chat/deps': undefined
+    'chat/item': undefined
+    'chat/items': undefined
+    'chat/ldeps': undefined
+    'chat/list': undefined
+    'chat/markAsReadChatMessage': {chatMessageId: number}
+    'chat/postChatMessage': PostChatMessageRequestBody
+    'chatMessage/deps': undefined
+    'chatMessage/item': undefined
+    'chatMessage/items': undefined
+    'chatMessage/ldeps': undefined
+    'userAccountPositionLimit/deleteuseraccountpositionlimit': {
+        userAccountPositionLimitId: number
+    }
+    'userAccountPositionLimit/deleteuseraccountriskparameter': {
+        userAccountRiskParameterId: number
+    }
+    'user/accepttradingpermission': {tradingPermissionId: number}
+    'user/activatesecondmarketdatasubscriptionrenewal': {
+        secondMarketDataSubscriptionId: number
+    }
+    'user/addmarketdatasubscription': AddMarketDataSubscriptionRequestBody
+    'user/addsecondmarketdatasubscription': AddSecondMarketDataSubscriptionRequestBody
+    'user/addtradovatesubscription': AddTradovateSubscriptionRequestBody
+    'user/cancelsecondmarketdatasubscription': {secondMarketDataSubscriptionId: number}
+    'user/cancelsecondmarketdatasubscriptionrenewal': {
+        secondMarketDataSubscriptionId: number
+    }
+    'user/canceltradovatesubscription': CancelTradovateSubscriptionRequestBody
+    'user/modifycredentials': ModifyCredentialsRequestBody
+    'user/modifyemailaddress': {userid?: number; email: string}
+    'user/modifypassword': ModifyPasswordRequestBody
+    'user/opendemoaccount': OpenDemoAccountRequestBody
+    'user/requesttradingpermission': RequestTradingPermissionRequestBody
+    'user/revoketradingpermission': {revoketradingpermission: number}
+    'user/signuporganizationmember': SignUpOrganizationMemberRequestBody
+    'user/addentitlementsubscription': AddEntitlementSubscriptionRequestBody
+    'user/changepluginpermission': ChangePluginPermissionRequestBody
 }
 
 export type EndpointRequestQuery = {
-    'account/list': undefined
-    'order/list': undefined
-    'order/item': {id: number}
-    'order/cancelorder': {orderId: number}
-    authorize: undefined
-    'user/syncrequest': undefined
-    'replay/checkreplaysession': undefined
-    'replay/initializeclock': undefined
-    'replay/changespeed': undefined
     'md/getchart': undefined
     'md/subscribehistogram': undefined
     'md/subscribequote': undefined
@@ -760,6 +1205,7 @@ export type EndpointRequestQuery = {
     'md/unsubscribequote': undefined
     'md/unsubscribedom': undefined
     'md/cancelchart': undefined
+    authorize: undefined
     'auth/accessTokenRequest': undefined
     'auth/me': undefined
     'auth/oauthtoken': undefined
@@ -772,23 +1218,325 @@ export type EndpointRequestQuery = {
     'contract/ldeps': QueryMasterIds
     'contract/rollcontract': undefined
     'contract/suggest': ContractSuggestQuery
+    'contractGroup/find': QueryName
+    'contractGroup/item': QueryId
+    'contractGroup/items': QueryIds
+    'contractGroup/list': undefined
+    'contractGroup/suggest': QuerySuggest
+    'contractMaturity/deps': QueryMasterId
+    'contractMaturity/item': QueryId
+    'contractMaturity/items': QueryIds
+    'contractMaturity/ldeps': QueryMasterIds
+    'currency/find': QueryName
+    'currency/item': QueryId
+    'currency/items': QueryIds
+    'currency/list': undefined
+    'currency/suggest': QuerySuggest
+    'currencyRate/deps': QueryMasterId
+    'currencyRate/item': QueryId
+    'currencyRate/items': QueryIds
+    'currencyRate/ldeps': QueryMasterIds
+    'currencyRate/list': undefined
+    'exchange/find': QueryName
+    'exchange/item': QueryId
+    'exchange/items': QueryIds
+    'exchange/list': undefined
+    'exchange/suggest': QuerySuggest
+    'product/deps': QueryMasterId
+    'product/find': QueryName
+    'product/item': QueryId
+    'product/items': QueryIds
+    'product/ldeps': QueryMasterIds
+    'product/list': undefined
+    'product/suggest': QuerySuggest
+    'productSession/deps': QueryMasterId
+    'productSession/item': QueryId
+    'productSession/items': QueryIds
+    'productSession/ldeps': QueryMasterIds
+    'spreadDefinition/item': QueryId
+    'spreadDefinition/items': QueryIds
+    'accountRiskStatus/deps': QueryMasterId
+    'accountRiskStatus/item': QueryId
+    'accountRiskStatus/items': QueryIds
+    'accountRiskStatus/ldeps': QueryMasterIds
+    'accountRiskStatus/list': undefined
+    'contractMargin/deps': QueryMasterId
+    'contractMargin/item': QueryId
+    'contractMargin/items': QueryIds
+    'contractMargin/ldeps': QueryMasterIds
+    'productMargin/deps': QueryMasterId
+    'productMargin/item': QueryId
+    'productMargin/items': QueryIds
+    'productMargin/ldeps': QueryMasterIds
+    'productMargin/list': undefined
+    'userAccountAutoLiq/create': undefined
+    'userAccountAutoLiq/deps': QueryMasterId
+    'userAccountAutoLiq/item': QueryId
+    'userAccountAutoLiq/items': QueryIds
+    'userAccountAutoLiq/ldeps': QueryMasterIds
+    'userAccountAutoLiq/list': undefined
+    'userAccountAutoLiq/update': undefined
+    'userAccountPositionLimit/create': undefined
+    'userAccountPositionLimit/deps': QueryMasterId
+    'userAccountPositionLimit/item': QueryId
+    'userAccountPositionLimit/items': QueryIds
+    'userAccountPositionLimit/ldeps': QueryMasterIds
+    'userAccountPositionLimit/update': undefined
+    'userAccountRiskParameter/create': undefined
+    'userAccountRiskParameter/deps': QueryMasterId
+    'userAccountRiskParameter/item': QueryId
+    'userAccountRiskParameter/items': QueryIds
+    'userAccountRiskParameter/ldeps': QueryMasterIds
+    'userAccountRiskParameter/update': undefined
+    'command/deps': QueryMasterId
+    'command/item': QueryId
+    'command/items': QueryIds
+    'command/ldeps': QueryMasterIds
+    'command/list': undefined
     'commandReport/deps': QueryMasterId
-    'orderStrategy/startOrderStrategy': undefined
-    'order/placeOrder': undefined
-    'order/placeOCO': undefined
+    'commandReport/item': QueryId
+    'commandReport/items': QueryIds
+    'commandReport/ldeps': QueryMasterIds
+    'commandReport/list': undefined
+    'executionReport/deps': QueryMasterIds
+    'executionReport/find': QueryName
+    'executionReport/item': QueryId
+    'executionReport/items': QueryIds
+    'executionReport/ldeps': QueryMasterIds
+    'executionReport/list': undefined
+    'executionReport/suggest': QuerySuggest
+    'fill/deps': QueryMasterIds
+    'fill/item': QueryId
+    'fill/items': QueryIds
+    'fill/ldeps': QueryMasterIds
+    'fill/list': undefined
+    'fillFee/deps': QueryMasterIds
+    'fillFee/item': QueryId
+    'fillFee/items': QueryIds
+    'fillFee/ldeps': QueryMasterIds
+    'fillFee/list': undefined
+    'order/deps': QueryMasterIds
+    'order/item': QueryId
+    'order/items': QueryIds
+    'order/ldeps': QueryMasterIds
+    'order/liquidatePosition': undefined
+    'order/list': undefined
     'order/modifyorder': undefined
+    'order/placeoco': undefined
+    'order/placeorder': undefined
+    'order/placeoso': undefined
+    'orderStrategy/deps': QueryMasterIds
+    'orderStrategy/interruptOrderStrategy': undefined
+    'orderStrategy/item': QueryId
+    'orderStrategy/items': QueryIds
+    'orderStrategy/ldeps': QueryMasterIds
+    'orderStrategy/list': undefined
+    'orderStrategy/modifyOrderStrategy': undefined
+    'orderStrategy/startOrderStrategy': undefined
+    'orderStrategyLink/deps': QueryMasterIds
+    'orderStrategyLink/item': QueryId
+    'orderStrategyLink/items': QueryIds
+    'orderStrategyLink/ldeps': QueryMasterIds
+    'orderStrategyLink/list': undefined
+    'orderVersion/deps': QueryMasterIds
+    'orderVersion/item': QueryId
+    'orderVersion/items': QueryIds
+    'orderVersion/ldeps': QueryMasterIds
+    'orderVersion/list': undefined
+    'fillPair/deps': QueryMasterIds
+    'fillPair/item': QueryId
+    'fillPair/items': QueryIds
+    'fillPair/ldeps': QueryMasterIds
+    'fillPair/list': undefined
+    'position/deps': QueryMasterIds
+    'position/find': QueryName
+    'position/item': QueryId
+    'position/items': QueryIds
+    'position/ldeps': QueryMasterIds
+    'position/list': undefined
+    'account/deps': QueryMasterIds
+    'account/find': QueryName
+    'account/item': QueryId
+    'account/items': QueryIds
+    'account/ldeps': QueryMasterIds
+    'account/list': undefined
+    'account/suggest': QuerySuggest
+    'cashBalance/deps': QueryMasterIds
+    'cashBalance/getcashbalancesnapshot': undefined
+    'cashBalance/item': QueryId
+    'cashBalance/items': QueryIds
+    'cashBalance/ldeps': QueryMasterIds
+    'cashBalance/list': undefined
+    'cashBalanceLog/deps': QueryMasterIds
+    'cashBalanceLog/item': QueryId
+    'cashBalanceLog/items': QueryIds
+    'cashBalanceLog/ldeps': QueryMasterIds
+    'marginSnapshot/deps': QueryMasterIds
+    'marginSnapshot/item': QueryId
+    'marginSnapshot/items': QueryIds
+    'marginSnapshot/ldeps': QueryMasterIds
+    'marginSnapshot/list': undefined
+    'tradingPermission/deps': QueryMasterIds
+    'tradingPermission/item': QueryId
+    'tradingPermission/items': QueryIds
+    'tradingPermission/ldeps': QueryMasterIds
+    'tradingPermission/list': undefined
+    'marketDataSubscriptionExchangeScope/find': QueryName
+    'marketDataSubscriptionExchangeScope/item': QueryId
+    'marketDataSubscriptionExchangeScope/items': QueryIds
+    'marketDataSubscriptionExchangeScope/list': undefined
+    'marketDataSubscriptionExchangeScope/suggest': QuerySuggest
+    'marketDataSubscriptionPlan/find': QueryName
+    'marketDataSubscriptionPlan/item': QueryId
+    'marketDataSubscriptionPlan/items': QueryIds
+    'marketDataSubscriptionPlan/list': undefined
+    'marketDataSubscriptionPlan/suggest': QuerySuggest
+    'tradovateSubscriptionPlan/find': QueryName
+    'tradovateSubscriptionPlan/item': QueryId
+    'tradovateSubscriptionPlan/items': QueryIds
+    'tradovateSubscriptionPlan/list': undefined
+    'tradovateSubscriptionPlan/suggest': QuerySuggest
+    'replay/changespeed': undefined
+    'replay/checkreplaysession': undefined
+    'replay/initializeclock': undefined
+    'adminAlertSignal/completealertsignal': undefined
+    'adminAlert/deps': QueryMasterIds
+    'adminAlert/item': QueryId
+    'adminAlert/items': QueryIds
+    'adminAlert/ldeps': QueryMasterIds
+    'adminAlert/list': undefined
+    'adminAlertSignal/takealertsignalownership': undefined
+    'alert/createalert': undefined
+    'alert/deletealert': undefined
+    'alert/deps': QueryMasterIds
+    'alert/dismissalert': undefined
+    'alert/item': QueryId
+    'alert/items': QueryIds
+    'alert/ldeps': QueryMasterIds
+    'alert/list': undefined
+    'alert/markreadalertsignal': undefined
+    'alert/modifyalert': undefined
+    'alert/resetalert': undefined
+    'alertSignal/deps': QueryMasterIds
+    'alertSignal/item': QueryId
+    'alertSignal/items': QueryIds
+    'alertSignal/ldeps': QueryMasterIds
+    'alertSignal/list': undefined
+    'adminAlertSignal/deps': QueryMasterIds
+    'adminAlertSignal/item': QueryId
+    'adminAlertSignal/items': QueryIds
+    'adminAlertSignal/ldeps': QueryMasterIds
+    'adminAlertSignal/list': undefined
+    'clearingHouse/deps': QueryMasterIds
+    'clearingHouse/item': QueryId
+    'clearingHouse/items': QueryIds
+    'clearingHouse/list': undefined
+    'clearingHouse/suggest': QuerySuggest
+    'entitlement/item': QueryId
+    'entitlement/items': QueryIds
+    'entitlement/list': undefined
+    'orderStrategyType/find': QueryName
+    'orderStrategyType/item': QueryId
+    'orderStrategyType/items': QueryIds
+    'orderStrategyType/list': undefined
+    'orderStrategyType/suggest': QuerySuggest
+    'property/find': QueryName
+    'property/item': QueryId
+    'property/items': QueryIds
+    'property/list': undefined
+    'property/suggest': QuerySuggest
+    'contactInfo/deps': QueryMasterIds
+    'contactInfo/item': QueryId
+    'contactInfo/items': QueryIds
+    'contactInfo/ldeps': QueryMasterIds
+    'marketDataSubscription/create': undefined
+    'marketDataSubscription/deps': QueryMasterIds
+    'marketDataSubscription/item': QueryId
+    'marketDataSubscription/items': QueryIds
+    'marketDataSubscription/ldeps': QueryMasterIds
+    'marketDataSubscription/list': undefined
+    'marketDataSubscription/update': undefined
+    'organization/find': QueryName
+    'organization/item': QueryId
+    'organization/items': QueryIds
+    'organization/list': undefined
+    'organization/suggest': QuerySuggest
+    'secondMarketDataSubscription/deps': QueryMasterIds
+    'secondMarketDataSubscription/item': QueryId
+    'secondMarketDataSubscription/items': QueryIds
+    'secondMarketDataSubscription/ldeps': QueryMasterIds
+    'secondMarketDataSubscription/list': undefined
+    'tradovateSubscription/create': undefined
+    'tradovateSubscription/deps': QueryMasterIds
+    'tradovateSubscription/item': QueryId
+    'tradovateSubscription/items': QueryIds
+    'tradovateSubscription/ldeps': QueryMasterIds
+    'tradovateSubscription/list': undefined
+    'tradovateSubscription/update': undefined
+    'user/find': QueryName
+    'user/getaccounttradingpermissions': undefined
+    'user/item': QueryId
+    'user/items': QueryIds
+    'user/list': undefined
+    'user/suggest': QuerySuggest
+    'user/syncrequest': undefined
+    'userPlugin/create': undefined
+    'userPlugin/deps': QueryMasterIds
+    'userPlugin/item': QueryId
+    'userPlugin/items': QueryIds
+    'userPlugin/ldeps': QueryMasterIds
+    'userPlugin/list': undefined
+    'userPlugin/update': undefined
+    'userProperty/deps': QueryMasterIds
+    'userProperty/item': QueryId
+    'userProperty/items': QueryIds
+    'userProperty/ldeps': QueryMasterIds
+    'userSession/item': QueryId
+    'userSession/items': QueryIds
+    'userSessionStats/deps': QueryMasterIds
+    'userSessionStats/item': QueryId
+    'userSessionStats/items': QueryIds
+    'userSessionStats/ldeps': QueryMasterIds
+    'userSessionStats/list': undefined
+    'chat/closechat': undefined
+    'chat/deps': QueryMasterIds
+    'chat/item': QueryId
+    'chat/items': QueryIds
+    'chat/ldeps': QueryMasterIds
+    'chat/list': undefined
+    'chat/markAsReadChatMessage': undefined
+    'chat/postChatMessage': undefined
+    'chatMessage/deps': QueryMasterIds
+    'chatMessage/item': QueryId
+    'chatMessage/items': QueryIds
+    'chatMessage/ldeps': QueryMasterIds
+    'userAccountPositionLimit/deleteuseruccountpositionlimit': undefined
+    'userAccountRiskParameter/deleteuseraccountriskparameter': undefined
+    'user/accepttradingpermission': undefined
+    'user/activatesecondmarketdatasubscriptionrenewal': undefined
+    'user/addmarketdatasubscription': undefined
+    'user/addsecondmarketdatasubscription': undefined
+    'user/addtradovatesubscription': undefined
+    'user/cancelsecondmarketdatasubscription': undefined
+    'user/cancelsecondmarketdatasubscriptionrenewal': undefined
+    'user/canceltradovatesubscription': undefined
+    'user/modifycredentials': undefined
+    'user/modifyemailaddress': undefined
+    'user/modifypassword': undefined
+    'user/opendemoaccount': undefined
+    'user/requesttradingpermission': undefined
+    'user/revoketradingpermission': undefined
+    'user/signuporganizationmember': undefined
+    'user/addentitlementsubscription': undefined
+    'user/changepluginpermission': undefined
+}
+
+export type QuerySuggest = {
+    t: string
+    l: number
 }
 
 export type EndpointResponse = {
-    'account/list': AccountListResponse
-    'order/list': OrderListResponse
-    'order/item': OrderItemResponse
-    'order/cancelorder': CommandResponse
-    authorize: undefined
-    'user/syncrequest': SyncRequestResponse
-    'replay/checkreplaysession': CheckReplaySessionResponse
-    'replay/initializeclock': SimpleResponse
-    'replay/changespeed': SimpleResponse
     'md/getchart': GetChartResponse
     'md/subscribehistogram': SimpleResponse
     'md/subscribequote': SimpleResponse
@@ -798,9 +1546,10 @@ export type EndpointResponse = {
     'md/unsubscribequote': SimpleResponse
     'md/unsubscribedom': SimpleResponse
     'md/cancelchart': SimpleResponse
-    'auth/accessTokenRequest': AccessTokenResponse
+    authorize: undefined
     'auth/me': MeResponse
     'auth/oauthtoken': OAuthTokenResponse
+    'auth/accessTokenRequest': AccessTokenResponse
     'auth/renewaccesstoken': AccessTokenResponse
     'contract/deps': Contract[]
     'contract/find': Contract
@@ -810,11 +1559,840 @@ export type EndpointResponse = {
     'contract/ldeps': Contract[]
     'contract/rollcontract': RollContractResponse
     'contract/suggest': Contract[]
+    'contractGroup/find': ContractGroup
+    'contractGroup/item': ContractGroup
+    'contractGroup/items': ContractGroup[]
+    'contractGroup/list': ContractGroup[]
+    'contractGroup/suggest': ContractGroup[]
+    'contractMaturity/deps': ContractMaturity[]
+    'contractMaturity/item': ContractMaturity
+    'contractMaturity/items': ContractMaturity[]
+    'contractMaturity/ldeps': ContractMaturity[]
+    'currency/find': Currency
+    'currency/item': Currency
+    'currency/items': Currency[]
+    'currency/list': Currency[]
+    'currency/suggest': Currency[]
+    'currencyRate/deps': CurrencyRate[]
+    'currencyRate/item': CurrencyRate
+    'currencyRate/items': CurrencyRate[]
+    'currencyRate/ldeps': CurrencyRate[]
+    'currencyRate/list': CurrencyRate[]
+    'exchange/find': Exchange
+    'exchange/item': Exchange[]
+    'exchange/items': Exchange[]
+    'exchange/list': Exchange[]
+    'exchange/suggest': Exchange[]
+    'product/deps': Product[]
+    'product/find': Product
+    'product/item': Product
+    'product/items': Product[]
+    'product/ldeps': Product[]
+    'product/list': Product[]
+    'product/suggest': Product[]
+    'productSession/deps': ProductSession[]
+    'productSession/item': ProductSession
+    'productSession/items': ProductSession[]
+    'productSession/ldeps': ProductSession[]
+    'spreadDefinition/item': SpreadDefinition
+    'spreadDefinition/items': SpreadDefinition[]
+    'accountRiskStatus/deps': AccountRiskStatus[]
+    'accountRiskStatus/item': AccountRiskStatus
+    'accountRiskStatus/items': AccountRiskStatus[]
+    'accountRiskStatus/ldeps': AccountRiskStatus[]
+    'accountRiskStatus/list': AccountRiskStatus[]
+    'contractMargin/deps': ContractMargin[]
+    'contractMargin/item': ContractMargin
+    'contractMargin/items': ContractMargin[]
+    'contractMargin/ldeps': ContractMargin[]
+    'productMargin/deps': ProductMargin[]
+    'productMargin/item': ProductMargin
+    'productMargin/items': ProductMargin[]
+    'productMargin/ldeps': ProductMargin[]
+    'productMargin/list': ProductMargin[]
+    'userAccountAutoLiq/create': UserAccountAutoLiq
+    'userAccountAutoLiq/deps': UserAccountAutoLiq[]
+    'userAccountAutoLiq/item': UserAccountAutoLiq
+    'userAccountAutoLiq/items': UserAccountAutoLiq[]
+    'userAccountAutoLiq/ldeps': UserAccountAutoLiq[]
+    'userAccountAutoLiq/list': UserAccountAutoLiq[]
+    'userAccountAutoLiq/update': UserAccountAutoLiq
+    'userAccountPositionLimit/create': UserAccountPositionLimit
+    'userAccountPositionLimit/deps': UserAccountPositionLimit[]
+    'userAccountPositionLimit/item': UserAccountPositionLimit
+    'userAccountPositionLimit/items': UserAccountPositionLimit[]
+    'userAccountPositionLimit/ldeps': UserAccountPositionLimit[]
+    'userAccountPositionLimit/update': UserAccountPositionLimit
+    'userAccountRiskParameter/create': UserAccountRiskParameter
+    'userAccountRiskParameter/deps': UserAccountRiskParameter[]
+    'userAccountRiskParameter/item': UserAccountRiskParameter
+    'userAccountRiskParameter/items': UserAccountRiskParameter[]
+    'userAccountRiskParameter/ldeps': UserAccountRiskParameter[]
+    'userAccountRiskParameter/update': UserAccountRiskParameter
+    'command/deps': Command[]
+    'command/item': Command
+    'command/items': Command[]
+    'command/ldeps': Command[]
+    'command/list': Command[]
     'commandReport/deps': CommandReport[]
-    'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
-    'order/placeOrder': PlaceOrderResponse
-    'order/placeOCO': PlaceOCOOrderResponse
+    'commandReport/item': CommandReport
+    'commandReport/items': CommandReport[]
+    'commandReport/ldeps': CommandReport[]
+    'commandReport/list': CommandReport[]
+    'executionReport/deps': ExecutionReport[]
+    'executionReport/find': ExecutionReport
+    'executionReport/item': ExecutionReport
+    'executionReport/items': ExecutionReport[]
+    'executionReport/ldeps': ExecutionReport[]
+    'executionReport/list': ExecutionReport[]
+    'executionReport/suggest': ExecutionReport[]
+    'fill/deps': Fill[]
+    'fill/item': Fill
+    'fill/items': Fill[]
+    'fill/ldeps': Fill[]
+    'fill/list': Fill[]
+    'fillFee/deps': FillFee[]
+    'fillFee/item': FillFee
+    'fillFee/items': FillFee[]
+    'fillFee/ldeps': FillFee[]
+    'fillFee/list': FillFee[]
+    'order/deps': Order[]
+    'order/item': Order
+    'order/items': Order[]
+    'order/ldeps': Order[]
+    'order/liquidatePosition': PlaceOrderResponse
+    'order/list': Order[]
     'order/modifyorder': CommandResponse
+    'order/placeoco': PlaceOCOOrderResponse
+    'order/placeorder': PlaceOrderResponse
+    'order/placeoso': PLaceOSOResult
+    'orderStrategy/deps': OrderStrategy[]
+    'orderStrategy/interruptOrderStrategy': OrderStrategyStatusResponse
+    'orderStrategy/item': OrderStrategy
+    'orderStrategy/items': OrderStrategy[]
+    'orderStrategy/ldeps': OrderStrategy[]
+    'orderStrategy/list': OrderStrategy[]
+    'orderStrategy/modifyOrderStrategy': OrderStrategyStatusResponse
+    'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
+    'orderStrategyLink/deps': OrderStrategyLink[]
+    'orderStrategyLink/item': OrderStrategyLink
+    'orderStrategyLink/items': OrderStrategyLink[]
+    'orderStrategyLink/ldeps': OrderStrategyLink[]
+    'orderStrategyLink/list': OrderStrategyLink[]
+    'orderVersion/deps': OrderVersion[]
+    'orderVersion/item': OrderVersion
+    'orderVersion/items': OrderVersion[]
+    'orderVersion/ldeps': OrderVersion[]
+    'orderVersion/list': OrderVersion[]
+    'fillPair/deps': FillPair[]
+    'fillPair/item': FillPair
+    'fillPair/items': FillPair[]
+    'fillPair/ldeps': FillPair[]
+    'fillPair/list': FillPair[]
+    'position/deps': Position[]
+    'position/find': Position
+    'position/item': Position
+    'position/items': Position[]
+    'position/ldeps': Position[]
+    'position/list': Position[]
+    'account/deps': Account[]
+    'account/find': Account
+    'account/item': Account
+    'account/items': Account[]
+    'account/ldeps': Account[]
+    'account/list': Account[]
+    'account/suggest': Account[]
+    'cashBalance/deps': CashBalance[]
+    'cashBalance/getcashbalancesnapshot': CashBalanceSnapshot
+    'cashBalance/item': CashBalance
+    'cashBalance/items': CashBalance[]
+    'cashBalance/ldeps': CashBalance[]
+    'cashBalance/list': CashBalance[]
+    'cashBalanceLog/deps': CashBalanceLog[]
+    'cashBalanceLog/item': CashBalanceLog
+    'cashBalanceLog/items': CashBalanceLog[]
+    'cashBalanceLog/ldeps': CashBalanceLog[]
+    'marginSnapshot/deps': MarginSnapshot[]
+    'marginSnapshot/item': MarginSnapshot
+    'marginSnapshot/items': MarginSnapshot[]
+    'marginSnapshot/ldeps': MarginSnapshot[]
+    'marginSnapshot/list': MarginSnapshot[]
+    'tradingPermission/deps': TradingPermission[]
+    'tradingPermission/item': TradingPermission
+    'tradingPermission/items': TradingPermission[]
+    'tradingPermission/ldeps': TradingPermission[]
+    'tradingPermission/list': TradingPermission[]
+    'marketDataSubscriptionExchangeScope/find': MarketDataSubscriptionExchangeScope
+    'marketDataSubscriptionExchangeScope/item': MarketDataSubscriptionExchangeScope
+    'marketDataSubscriptionExchangeScope/items': MarketDataSubscriptionExchangeScope[]
+    'marketDataSubscriptionExchangeScope/list': MarketDataSubscriptionExchangeScope[]
+    'marketDataSubscriptionExchangeScope/suggest': MarketDataSubscriptionExchangeScope[]
+    'marketDataSubscriptionPlan/find': MarketDataSubscriptionPlan
+    'marketDataSubscriptionPlan/item': MarketDataSubscriptionPlan
+    'marketDataSubscriptionPlan/items': MarketDataSubscriptionPlan[]
+    'marketDataSubscriptionPlan/list': MarketDataSubscriptionPlan[]
+    'marketDataSubscriptionPlan/suggest': MarketDataSubscriptionPlan[]
+    'tradovateSubscriptionPlan/find': TradovateSubscriptionPlan
+    'tradovateSubscriptionPlan/item': TradovateSubscriptionPlan
+    'tradovateSubscriptionPlan/items': TradovateSubscriptionPlan[]
+    'tradovateSubscriptionPlan/list': TradovateSubscriptionPlan[]
+    'tradovateSubscriptionPlan/suggest': TradovateSubscriptionPlan[]
+    'replay/changespeed': ChangeSpeedResponse
+    'replay/checkreplaysession': CheckReplaySessionResponse
+    'replay/initializeclock': SimpleResponse
+    'adminAlertSignal/completealertsignal': AdminAlertSignalResponse
+    'adminAlert/deps': AdminAlert[]
+    'adminAlert/item': AdminAlert
+    'adminAlert/items': AdminAlert[]
+    'adminAlert/ldeps': AdminAlert[]
+    'adminAlert/list': AdminAlert[]
+    'adminAlertSignal/takealertsignalownership': AdminAlertSignalResponse
+    'alert/createalert': AlertResponse
+    'alert/deletealert': AlertResponse
+    'alert/deps': Alert[]
+    'alret/dismissalert': AlertResponse
+    'alert/item': Alert
+    'alert/items': Alert[]
+    'alert/ldeps': Alert[]
+    'alert/list': Alert[]
+    'alert/markreadalertsignal': AlertResponse
+    'alert/modifyalert': AlertResponse
+    'alert/resetalert': AlertResponse
+    'alertSignal/deps': AlertSignal
+    'alertSignal/item': AlertSignal
+    'alertSignal/items': AlertSignal[]
+    'alertSignal/ldeps': AlertSignal[]
+    'alertSignal/list': AlertSignal[]
+    'adminAlertSignal/deps': AdminAlertSignal[]
+    'adminAlertSignal/item': AdminAlertSignal
+    'adminAlertSignal/items': AdminAlertSignal[]
+    'adminAlertSignal/ldeps': AdminAlertSignal[]
+    'adminAlertSignal/list': AdminAlertSignal[]
+    'clearingHouse/deps': ClearingHouse[]
+    'clearingHouse/item': ClearingHouse
+    'clearingHouse/items': ClearingHouse[]
+    'clearingHouse/list': ClearingHouse[]
+    'clearingHouse/suggest': ClearingHouse[]
+    'entitlement/item': Entitlement
+    'entitlement/items': Entitlement[]
+    'entitlement/list': Entitlement[]
+    'orderStrategyType/find': OrderStrategyType
+    'orderStrategyType/item': OrderStrategyType
+    'orderStrategyType/items': OrderStrategyType[]
+    'orderStrategyType/list': OrderStrategyType[]
+    'orderStrategyType/suggest': OrderStrategyType[]
+    'property/find': Property
+    'property/item': Property
+    'property/items': Property[]
+    'property/list': Property[]
+    'property/suggest': Property[]
+    'contactInfo/deps': ContactInfo[]
+    'contactInfo/item': ContactInfo
+    'contactInfo/items': ContactInfo[]
+    'contactInfo/ldeps': ContactInfo[]
+    'marketDataSubscription/create': MarketDataSubscription
+    'marketDataSubscription/deps': MarketDataSubscription[]
+    'marketDataSubscription/item': MarketDataSubscription
+    'marketDataSubscription/items': MarketDataSubscription[]
+    'marketDataSubscription/ldeps': MarketDataSubscription[]
+    'marketDataSubscription/list': MarketDataSubscription[]
+    'marketDataSubscription/update': MarketDataSubscription
+    'organization/find': Organization
+    'organization/item': Organization
+    'organization/items': Organization[]
+    'organization/list': Organization[]
+    'organization/suggest': Organization[]
+    'secondMarketDataSubscription/deps': SecondMarketDataSubscription[]
+    'secondMarketDataSubscription/item': SecondMarketDataSubscription
+    'secondMarketDataSubscription/items': SecondMarketDataSubscription[]
+    'secondMarketDataSubscription/ldeps': SecondMarketDataSubscription[]
+    'secondMarketDataSubscription/list': SecondMarketDataSubscription[]
+    'tradovateSubscription/create': TradovateSubscription
+    'tradovateSubscription/deps': TradovateSubscription[]
+    'tradovateSubscription/item': TradovateSubscription
+    'tradovateSubscription/items': TradovateSubscription[]
+    'tradovateSubscription/ldeps': TradovateSubscription[]
+    'tradovateSubscription/list': TradovateSubscription[]
+    'tradovateSubscription/update': TradovateSubscription
+    'user/find': User
+    'user/getaccounttradingpermissions': {tradingPermissions: TradingPermission[]}
+    'user/item': User
+    'user/items': User[]
+    'user/list': User[]
+    'user/suggest': User[]
+    'user/syncrequest': SyncRequestResponse
+    'userPlugin/create': UserPlugin
+    'userPlugin/deps': UserPlugin[]
+    'userPlugin/item': UserPlugin
+    'userPlugin/items': UserPlugin[]
+    'userPlugin/ldeps': UserPlugin[]
+    'userPlugin/list': UserPlugin[]
+    'userPlugin/update': UserPlugin
+    'userProperty/deps': UserProperty[]
+    'userProperty/item': UserProperty
+    'userProperty/items': UserProperty[]
+    'userProperty/ldeps': UserProperty[]
+    'userSession/item': UserSession
+    'userSession/items': UserSession[]
+    'userSessionStats/deps': UserSessionStats[]
+    'userSessionStats/item': UserSessionStats
+    'userSessionStats/items': UserSessionStats[]
+    'userSessionStats/ldeps': UserSessionStats[]
+    'userSessionStats/list': UserSessionStats[]
+    'chat/closechat': ChatResponse
+    'chat/deps': Chat[]
+    'chat/item': Chat
+    'chat/items': Chat[]
+    'chat/ldeps': Chat[]
+    'chat/list': Chat[]
+    'chat/markAsReadChatMessage': ChatMessageResponse
+    'chat/postChatMessage': ChatMessageResponse
+    'chatMessage/deps': ChatMessage[]
+    'chatMessage/item': ChatMessage
+    'chatMessage/items': ChatMessage[]
+    'chatMessage/ldeps': ChatMessage[]
+    'userAccountPositionLimit/deleteuseraccountpositionlimit': DeleteResultResponse
+    'userAccountRiskParameter/deleteuseraccountriskparameter': DeleteResultResponse
+    'user/accepttradingpermission': {tradingPermissionId: number}
+    'user/activatesecondmarketdatasubscriptionrenewal': SecondMarketDataSubscriptionResponse
+    'user/addmarketdatasubscription': MarketDataSubscriptionResponse
+    'user/addsecondmarketdatasubscription': SecondMarketDataSubscriptionResponse
+    'user/addtradovatesubscription': TradovateSubscriptionResponse
+    'user/cancelsecondmarketdatasubscription': SecondMarketDataSubscriptionResponse
+    'user/cancelsecondmarketdatasubscriptionrenewal': SecondMarketDataSubscriptionResponse
+    'user/canceltradovatesubscription': TradovateSubscriptionResponse
+    'user/modifycredentials': AccessTokenResponse
+    'user/modifyemailaddress': UserStatusMessage
+    'user/modifypassword': AccessTokenResponse
+    'user/opendemoaccount': OpenDemoAccountResponse
+    'user/requesttradingpermission': TradingPermissionResponse
+    'user/revoketradingpermission': TradingPermissionResponse
+    'user/signuporganizationmember': SignUpResponse
+    'user/addentitlementsubscription': EntitlementSubscriptionResponse
+    'user/changepluginpermission': SimpleResponse
+}
+
+export type EntitlementSubscriptionResponse = {
+    errorText?: string
+    errorCode: ErrorCode
+    entitlementSubscription: UserPlugin
+}
+
+export enum ErrorCode {
+    DataError = 'DataError',
+    EmailAlreadyRegistered = 'EmailAlreadyRegistered',
+    EmailPolicyFailed = 'EmailPolicyFailed',
+    FailedRecaptcha = 'FailedRecaptcha',
+    Success = 'Success',
+    UnknownError = 'UnknownError',
+    UserAlreadyExists = 'UserAlreadyExists',
+    WeakPassword = 'WeakPassword',
+    WrongChallenge = 'WrongChallenge',
+    WrongChallengeOrigin = 'WrongChallengeOrigin'
+}
+
+export type SignUpResponse = {
+    errorText?: string
+    errorCode: ErrorCode
+    userId: number
+    emailVerified: boolean
+}
+
+export type TradingPermissionResponse = {
+    errorText: string
+    tradingPermission: TradingPermission
+}
+
+export type OpenDemoAccountResponse = {
+    errorText?: string
+    accountId?: number
+}
+
+export type UserStatusMessage = {
+    errorText?: string
+    status: UserStatus
+}
+
+export enum SubscriptionResponseErrorCode {
+    ConflictWithExisting = 'ConflictWithExisting',
+    DowngradeNotAllowed = 'DowngradeNotAllowed',
+    IncompatibleCMEMarketDataSubscriptionPlans = 'IncompatibleCMEMarketDataSubscriptionPlans',
+    IncorrectPaymentMethod = 'IncorrectPaymentMethod',
+    InsufficientFunds = 'InsufficientFunds',
+    PaymentProviderError = 'PaymentProviderError',
+    PlanDiscontinued = 'PlanDiscontinued',
+    SingleTrialOnly = 'SingleTrialOnly',
+    Success = 'Success',
+    UnknownError = 'UnknownError'
+}
+
+export type SecondMarketDataSubscriptionResponse = {
+    errorText?: string
+    errorCode: SubscriptionResponseErrorCode
+
+    secondMarketDataSubscription?: SecondMarketDataSubscription
+}
+
+export type MarketDataSubscriptionResponse = {
+    errorText?: string
+    errorCode: SubscriptionResponseErrorCode
+
+    marketDataSubscription?: MarketDataSubscription
+}
+
+export type TradovateSubscriptionResponse = {
+    errorText?: string
+    errorCode: SubscriptionResponseErrorCode
+
+    marketDataSubscription?: TradovateSubscription
+}
+
+export type DeleteResultResponse = {
+    errorText?: string
+    success: boolean
+}
+export type UserAccountPositionLimit = {
+    id: number
+    contractId: number
+    productId: number
+    exchangeId: number
+    productType: ProductType
+    riskDiscountContractGroupId: number
+    productVerificationStatus: ProductVerificationStatus
+    contractGroupId: number
+    active: boolean
+    riskTimePeriodId: number
+    totalBy: TotalBy
+    shortLimit: number
+    longLimit: number
+    exposedLimit: number
+    description: string
+    accountId: number
+}
+
+export type PLaceOSOResult = {
+    failureReason?: FailureReason
+    failureText?: string
+    orderId?: number
+    oso1Id?: number
+    oso2Id?: number
+}
+
+export type OrderStrategyStatusResponse = {
+    errorText: string
+    orderStrategy: OrderStrategy
+}
+
+export type CashBalanceSnapshot = {
+    errorText?: string
+    totalCashValue?: number
+    totalPnL?: number
+    initialMargin?: number
+    maintenanceMargin?: number
+    netLiq?: number
+    openPnL?: number
+    realizedPnL?: number
+    weekRealizedPnL?: number
+}
+
+export type FillFee = {
+    id?: number
+    clearingFee?: number
+    clearingCurrencyId?: number
+    exchangeFee?: number
+    exchangeCurrencyId?: number
+    nfaFee?: number
+    nfaCurrencyId?: number
+    brokerageFee?: number
+    brokerageCurrencyId?: number
+    ipFee?: number
+    ipCurrencyId?: number
+    commission?: number
+    commissionCurrencyId?: number
+    orderRoutingFee?: number
+    orderRoutingCurrencyId?: number
+}
+
+export enum CashChangeType {
+    AddUserFee = 'AddUserFee',
+    AutomaticReconciliation = 'AutomaticReconciliation',
+    BrokerageFee = 'BrokerageFee',
+    CancelledPairedTrade = 'CancelledPairedTrade',
+    CashSettlement = 'CashSettlement',
+    ClearingFee = 'ClearingFee',
+    Commission = 'Commission',
+    Courtesy = 'Courtesy',
+    Debit = 'Debit',
+    DepositFee = 'DepositFee',
+    DeskFee = 'DeskFee',
+    EntitlementSubscription = 'EntitlementSubscription',
+    ExchangeFee = 'ExchangeFee',
+    FundTransaction = 'FundTransaction',
+    FundTransactionFee = 'FundTransactionFee',
+    IPFee = 'IPFee',
+    InactivityFee = 'InactivityFee',
+    LiquidationFee = 'LiquidationFee',
+    LiquidationFee2 = 'LiquidationFee2',
+    ManualAdjustment = 'ManualAdjustment',
+    MarketDataSubscription = 'MarketDataSubscription',
+    NewSession = 'NewSession',
+    NfaFee = 'NfaFee',
+    OptionsTrade = 'OptionsTrade',
+    OrderRoutingFee = 'OrderRoutingFee',
+    PROMO = 'PROMO',
+    RithmicFee = 'RithmicFee',
+    StopPaymentFee = 'StopPaymentFee',
+    ThirdPartyFee = 'ThirdPartyFee',
+    TradePaired = 'TradePaired',
+    TradovateSubscription = 'TradovateSubscription'
+}
+
+export type CashBalanceLog = {
+    id: number
+    accountId: number
+    timestamp: string
+    tradeDate: {
+        date: string
+        timezone_type: number
+        timezone: string
+    }
+    currencyId: number
+    amount: number
+    realizedPnL?: number
+    weekRealizedPnL?: number
+    cashChangeType: CashChangeType
+    fillPairId?: number
+    fillId?: number
+    fundTransactionId?: number
+    comment?: string
+    delta: number
+    senderId?: number
+}
+
+export type MarketDataSubscriptionExchangeScope = {
+    id: number
+    name: string
+    bundleOf?: string
+}
+
+export type MarketDataSubscriptionPlan = {
+    id: number
+    name: string
+    title: string
+    price: number
+    startDate: TradeDate
+    discontinuedDate: TradeDate
+    exchangeScopeId: number
+    dataType: 'DOM' | 'Top'
+    professional: 'Either' | 'NonProfessional' | 'Professional'
+    tooltip?: string
+}
+
+export type TradovateSubscriptionPlan = {
+    id: number
+    name: string
+    title: string
+    price: number
+    startDate: TradeDate
+    discontinuedDate: TradeDate
+    category: string
+    trial: boolean
+    duration: number
+    durationUnits: 'Month' | 'Quarter' | 'Week' | 'Year'
+    riskCategoryId: number
+    multipleAccounts: boolean
+    organizationId: number
+    replaySessions: number
+    footnote: string
+    simOnly: boolean
+}
+
+export type AdminAlertSignalResponse = {
+    errorText: string
+    adminAlertSignal: AdminAlertSignal
+}
+
+type AdminAlert = {
+    id: number
+    name: string
+    timestamp: string
+}
+
+export enum AlertStatus {
+    Active = 'Active',
+    Expired = 'Expired',
+    Failed = 'Failed',
+    Inactive = 'Inactive',
+    TriggeredOut = 'TriggeredOut'
+}
+
+export type Alert = {
+    id: number
+    timestamp: string
+    userId: number
+    status: AlertStatus
+    expression: string
+    validUntil: string
+    triggerLimits: number
+    triggeredCounter: number
+    failure: string
+    message: string
+}
+
+export type AlertResponse = {
+    errorText: string
+    alert: Alert
+}
+
+export type AlertSignal = {
+    id: number
+    timestamp: string
+    alertId: number
+    isRead: boolean
+    text: string
+}
+
+export type AdminAlertSignal = {
+    id: number
+    timestamp: string
+    adminAlertId: number
+    relatedToAccountId?: number
+    relatedToUserId?: number
+    ownedByAdminId?: number
+    completed?: string
+    text: string
+    emailSent: boolean
+    subjectId: number
+}
+export type Entitlement = {
+    id: number
+    title: string
+    price: number
+    startDate: TradeDate
+    discontinuedDate: TradeDate
+    name: string
+    duration: number
+    durationUnits: 'Month' | 'Quarter' | 'Week' | 'Year'
+    autorenewal: boolean
+}
+
+export type OrderStrategyType = {
+    id?: number
+    name: string
+    enabled: boolean
+}
+
+export type ContactInfo = {
+    id: number
+    userId: number
+    firstName: string
+    lastName: string
+    streetAddress1: string
+    streetAddress2?: string
+    city: string
+    state: string
+    postCode: string
+    country: string
+    phone: string
+    mailingIsDifferent: boolean
+    mailingStreetAddress1?: string
+    mailingStreetAddress2?: string
+    mailingCity?: string
+    mailingState?: string
+    mailingPostCode?: string
+    mailingCountry?: string
+    jointFirstName?: string
+    jointLastName?: string
+}
+export type ClearingHouse = {
+    id?: number
+    name: string
+}
+export type Organization = {
+    id?: number
+    name: string
+}
+
+export type SecondMarketDataSubscription = {
+    id: number
+    userId: number
+    timestamp: string
+    year: number
+    month: number
+    cancelledRenewal: boolean
+    cancellationTimestamp?: string
+}
+
+export enum TradingPermissionStatus {
+    Accepted = 'Accepted',
+    Approved = 'Approved',
+    Declined = 'Declined',
+    Requested = 'Requested',
+    Revoked = 'Revoked'
+}
+
+export type TradingPermission = {
+    id?: number
+    userId: number
+    accountId: number
+    accountHolderContact: string
+    accountHolderEmail: string
+    ctaContact: string
+    ctaEmail: string
+    status: TradingPermissionStatus
+    updated: string
+    approvedById?: number
+}
+
+export type UserProperty = {
+    id?: number
+    userId: number
+    propertyId: number
+    value: string
+}
+
+export type UserSession = {
+    id?: number
+    userId: number
+    startTime: string
+    endTime?: string
+    ipAddress?: string
+    appId?: string
+    appVersion?: string
+    clientAppId: number
+}
+
+export type UserSessionStats = {
+    id?: number
+    lastSessionTime: string
+    failedPasswords: number
+}
+
+export type ChatCategory = 'Support' | 'TradeDesk'
+
+export type Chat = {
+    id?: number
+    userId: number
+    timestamp: string
+    category: ChatCategory
+    assignedSupportId: number
+    closedById: number
+    closeTimestamp: string
+    updatedTimestamp: string
+}
+export type ChatResponse = {
+    errorText: string
+    chatMessage: Chat
+}
+
+export type ChatMessageResponse = {
+    errorText: string
+    chatMessage: ChatMessage
+}
+export type ChatMessage = {
+    id?: number
+    timestamp: string
+    chatId: number
+    senderId: number
+    senderName: string
+    text: string
+    readStatus: boolean
+}
+export type Property = {
+    id?: number
+    name: string
+    propertyType: PropertyType
+    enumOptions?: string
+    defaultValue?: string
+}
+
+export enum ProductVerificationStatus {
+    Inactive = 'Inactive',
+    Locked = 'Locked',
+    ReadyForContracts = 'ReadyForContracts',
+    ReadyToTrade = 'ReadyToTrade',
+    Verified = 'Verified'
+}
+
+export type UserAccountRiskParameter = {
+    id: number
+    contractId: number
+    productId: number
+    exchangeId: number
+    productType: ProductType
+    riskDiscountContractGroupId: number
+    productVerificationStatus: ProductVerificationStatus
+    contractGroupId: number
+    maxOpeningOrderQty?: number
+    maxClosingOrderQty?: number
+    maxBackMonth?: number
+    preExpirationDays?: number
+    marginPercentage?: number
+    marginDollarValue?: number
+    hardLimit: boolean
+    userAccountPositionLimitId: number
+}
+
+export enum TotalBy {
+    Contract = 'Contract',
+    ContractGroup = 'ContractGroup',
+    DiscountGroup = 'DiscountGroup',
+    Exchange = 'Exchange',
+    Overall = 'Overall',
+    Product = 'Product',
+    ProductType = 'ProductType'
+}
+
+export type UserAccountAutoLiq = {
+    id?: number
+    changesLocked?: boolean
+    marginPercentageAlert?: number
+    dailyLossPercentageAlert?: number
+    dailyLossAlert?: number
+    marginPercentageLiqOnly?: number
+    dailyLossPercentageLiqOnly?: number
+    dailyLossLiqOnly?: number
+    marginPercentageAutoLiq?: number
+    dailyLossPercentageAutoLiq?: number
+    dailyLossAutoLiq?: number
+    weeklyLossAutoLiq?: number
+    flattenTimestamp?: string // Should be a valid date-time format
+    trailingMaxDrawdown?: number
+    trailingMaxDrawdownLimit?: number
+    trailingMaxDrawdownMode?: 'EOD' | 'RealTime'
+    dailyProfitAutoLiq?: number
+    weeklyProfitAutoLiq?: number
+    doNotUnlock?: boolean
+}
+
+export type ContractMargin = {
+    id: number
+    initialMargin: number
+    maintenanceMargin: number
+    timestamp: string
+}
+
+export type ProductSession = {
+    id: number
+    openTime: TradeTime
+    startTime: TradeTime
+    stopTime: TradeTime
+    closeTime: TradeTime
+    sundayOpenTime?: TradeTime
+}
+
+export type TradeTime = {
+    hour: number
+    minute: number
+}
+export type CurrencyRate = {
+    id?: number
+    timestamp: string
+    rate: number
+}
+
+export type ContractGroupFindRequest = {
+    name: string
 }
 
 export enum CommandStatus {
@@ -1058,11 +2636,11 @@ export type AccessTokenResponse = {
 }
 
 export enum UserStatus {
-    ACTIVE = 'active',
-    CLOSED = 'Closed',
-    INITIATED = 'Initiated',
-    TEMPORARY_LOCKED = 'Temporary_Locked',
-    UNCONFIRMED_EMAIL = 'UnconfirmedEmail'
+    Active = 'active',
+    Closed = 'Closed',
+    Initiated = 'Initiated',
+    TemporaryLocked = 'Temporary_Locked',
+    UnconfirmedEmail = 'UnconfirmedEmail'
 }
 
 export type SubscribeRequestBody = {
@@ -2112,8 +3690,8 @@ export enum TvEndpoint {
     UserAccountAutoLiqLDependents = 'userAccountAutoLiq/ldeps',
     UserAccountAutoLiqList = 'userAccountAutoLiq/list',
     UserAccountAutoLiqUpdate = 'userAccountAutoLiq/update',
-    UserAccountPositionLimitCreate = 'userAccountPositionLimit/create',
-    UserAccountPositionLimitDependents = 'userAccountPositionLimit/deps',
+    Create = 'userAccountPositionLimit/create',
+    Dependents = 'userAccountPositionLimit/deps',
     UserAccountPositionLimitItem = 'userAccountPositionLimit/item',
     UserAccountPositionLimitItems = 'userAccountPositionLimit/items',
     UserAccountPositionLimitLDependents = 'userAccountPositionLimit/ldeps',
@@ -2158,7 +3736,7 @@ export enum TvEndpoint {
     OrderLDependents = 'order/ldeps',
     LiquidatePosition = 'order/liquidatePosition',
     OrderList = 'order/list',
-    ModifyOrder = 'order/modifyrder',
+    ModifyOrder = 'order/modifyorder',
     PlaceOCO = 'order/placeoco',
     PlaceOrder = 'order/placeorder',
     PlaceOSO = 'order/placeoso',
@@ -2199,7 +3777,7 @@ export enum TvEndpoint {
     AccountList = 'account/list',
     AccountSuggest = 'account/suggest',
     CashBalanceDependents = 'cashBalance/deps',
-    CashBalanceSnapshot = 'getCashBalance/snapshot',
+    CashBalanceSnapshot = 'cashBalance/getcashbalancesnapshot',
     CashBalanceItem = 'cashBalance/item',
     CashBalanceItems = 'cashBalance/items',
     CashBalanceLDependents = 'cashBalance/ldeps',
@@ -2236,31 +3814,30 @@ export enum TvEndpoint {
     ChangeSpeed = 'replay/changespeed',
     CheckReplaySession = 'replay/checkreplaysession',
     InitializeClock = 'replay/initializeclock',
-    CompleteAlertSnapshot = 'completeAlert/snapshot',
-    AdminAlertSnapshot = 'adminAlert/snapshot',
+    CompleteAlertSnapshot = 'adminAlertSignal/completealertsignal',
+    AdminAlertSnapshot = 'adminAlert/deps',
     AdminAlertItem = 'adminAlert/item',
     AdminAlertItems = 'adminAlert/items',
     AdminAlertLDepends = 'adminAlert/ldeps',
     AdminAlertList = 'adminAlert/list',
-    TakeAlertOwnership = 'takeAlert/ownership',
-    CreateAlert = 'create/alert',
-    DeleteAlert = 'delete/alert',
-    AlertSnapshot = 'alert/snapshot',
-    DismissAlert = 'dismiss/alert',
+    TakeAlertOwnership = 'adminAlertSignal/takealertsignalownership',
+    CreateAlert = 'alert/createalert',
+    DeleteAlert = 'alert/deletealert',
+    AlertDependents = 'alert/deps',
+    DismissAlert = 'alret/dismissalert',
     AlertItem = 'alert/item',
     AlertItems = 'alert/items',
     AlertLDepends = 'alert/ldeps',
     AlertList = 'alert/list',
-    MarkReadAlertSnapshot = 'markReadAlert/snapshot',
-    ModifyAlert = 'modify/alert',
-    ResetAlert = 'reset/alert',
-    AlertSignalSnapshot = 'alertSignal/snapshot',
+    MarkReadAlertSignal = 'alert/markreadalertsignal',
+    ModifyAlert = 'alert/modifyalert',
+    ResetAlert = 'alert/resetalert',
+    AlertSignalDependents = 'alertSignal/deps',
     AlertSignalItem = 'alertSignal/item',
     AlertSignalItems = 'alertSignal/items',
     AlertSignalLDepends = 'alertSignal/ldeps',
     AlertSignalList = 'alertSignal/list',
-    AdminAlertSuggest = 'adminAlert/suggest',
-    ClearingHouseSnapshot = 'clearingHouse/snapshot',
+    ClearingHouseDependents = 'clearingHouse/deps',
     ClearingHouseItem = 'clearingHouse/item',
     ClearingHouseItems = 'clearingHouse/items',
     ClearingHouseList = 'clearingHouse/list',
@@ -2268,17 +3845,17 @@ export enum TvEndpoint {
     EntitlementItem = 'entitlement/item',
     EntitlementItems = 'entitlement/items',
     EntitlementList = 'entitlement/list',
-    OrderStrategyTypeSnapshot = 'orderStrategyType/snapshot',
+    OrderStrategyTypeFind = 'orderStrategyType/find',
     OrderStrategyTypeItem = 'orderStrategyType/item',
     OrderStrategyTypeItems = 'orderStrategyType/items',
     OrderStrategyTypeList = 'orderStrategyType/list',
     OrderStrategyTypeSuggest = 'orderStrategyType/suggest',
-    PropertySnapshot = 'property/snapshot',
+    PropertyFind = 'property/find',
     PropertyItem = 'property/item',
     PropertyItems = 'property/items',
     PropertyList = 'property/list',
     PropertySuggest = 'property/suggest',
-    ContactInfoSnapshot = 'contactInfo/snapshot',
+    ContactInfoDependents = 'contactInfo/deps',
     ContactInfoItem = 'contactInfo/item',
     ContactInfoItems = 'contactInfo/items',
     ContactInfoLDepends = 'contactInfo/ldeps',
@@ -2289,7 +3866,7 @@ export enum TvEndpoint {
     MarketDataSubscriptionLDepends = 'marketDataSubscription/ldeps',
     MarketDataSubscriptionList = 'marketDataSubscription/list',
     MarketDataSubscriptionUpdate = 'marketDataSubscription/update',
-    OrganizationSnapshot = 'organization/snapshot',
+    OrganizationFind = 'organization/find',
     OrganizationItem = 'organization/item',
     OrganizationItems = 'organization/items',
     OrganizationList = 'organization/list',
@@ -2306,8 +3883,8 @@ export enum TvEndpoint {
     TradovateSubscriptionLDepends = 'tradovateSubscription/ldeps',
     TradovateSubscriptionList = 'tradovateSubscription/list',
     TradovateSubscriptionUpdate = 'tradovateSubscription/update',
-    UserSnapshot = 'user/snapshot',
-    GetAccountTradingPermissions = 'getAccountTradingPermissions',
+    UserFind = 'user/find',
+    GetAccountTradingPermissions = 'user/getaccounttradingpermissions',
     UserItem = 'user/item',
     UserItems = 'user/items',
     UserList = 'user/list',
@@ -2335,10 +3912,10 @@ export enum TvEndpoint {
     ChatDepends = 'chat/deps',
     ChatItem = 'chat/item',
     ChatItems = 'chat/items',
-    ChatLDepends = 'chat/ldeps',
+    ChatLDependents = 'chat/ldeps',
     ChatList = 'chat/list',
-    MarkAsReadChatMessage = 'markAsReadChatMessage',
-    PostChatMessage = 'postChatMessage',
+    MarkAsReadChatMessage = 'chat/markAsReadChatMessage',
+    PostChatMessage = 'chat/postChatMessage',
     ChatMessageDepends = 'chatMessage/deps',
     ChatMessageItem = 'chatMessage/item',
     ChatMessageItems = 'chatMessage/items',
@@ -2361,7 +3938,12 @@ export enum TvEndpoint {
     RevokeTradingPermission = 'user/revoketradingpermission',
     SignUpOrganizationMember = 'user/signuporganizationmember',
     AddEntitlementSubscription = 'user/addentitlementsubscription',
-    ChangePluginPermission = 'user/changepluginpermission'
+    ChangePluginPermission = 'user/changepluginpermission',
+    AdminAlertSignalDependents = 'adminAlertSignal/deps',
+    AdminAlertSignalItem = 'adminAlertSignal/item',
+    AdminAlertSignalItems = 'adminAlertSignal/items',
+    AdminAlertSignalLDependents = 'adminAlertSignal/ldeps',
+    AdminAlertSignalList = 'adminAlertSignal/list'
 }
 
 enum ReversedTvEndpoint {
@@ -2476,7 +4058,7 @@ enum ReversedTvEndpoint {
     'order/ldeps' = 'OrderLDependents',
     'order/liquidatePosition' = 'LiquidatePosition',
     'order/list' = 'OrderList',
-    'order/modifyrder' = 'ModifyOrder',
+    'order/modifyorder' = 'ModifyOrder',
     'order/placeoco' = 'PlaceOCO',
     'order/placeorder' = 'PlaceOrder',
     'order/placeoso' = 'PlaceOSO',
@@ -2517,7 +4099,7 @@ enum ReversedTvEndpoint {
     'account/list' = 'AccountList',
     'account/suggest' = 'AccountSuggest',
     'cashBalance/deps' = 'CashBalanceDependents',
-    'getCashBalance/snapshot' = 'CashBalanceSnapshot',
+    'cashBalance/getcashbalancesnapshot' = 'CashBalanceSnapshot',
     'cashBalance/item' = 'CashBalanceItem',
     'cashBalance/items' = 'CashBalanceItems',
     'cashBalance/ldeps' = 'CashBalanceLDependents',
@@ -2554,31 +4136,30 @@ enum ReversedTvEndpoint {
     'replay/changespeed' = 'ChangeSpeed',
     'replay/checkreplaysession' = 'CheckReplaySession',
     'replay/initializeclock' = 'InitializeClock',
-    'completeAlert/snapshot' = 'CompleteAlertSnapshot',
-    'adminAlert/snapshot' = 'AdminAlertSnapshot',
+    'adminAlertSignal/completealertsignal' = 'CompleteAlertSnapshot',
+    'adminAlert/deps' = 'AdminAlertSnapshot',
     'adminAlert/item' = 'AdminAlertItem',
     'adminAlert/items' = 'AdminAlertItems',
     'adminAlert/ldeps' = 'AdminAlertLDepends',
     'adminAlert/list' = 'AdminAlertList',
-    'takeAlert/ownership' = 'TakeAlertOwnership',
-    'create/alert' = 'CreateAlert',
-    'delete/alert' = 'DeleteAlert',
-    'alert/snapshot' = 'AlertSnapshot',
-    'dismiss/alert' = 'DismissAlert',
+    'adminAlertSignal/takealertsignalownership' = 'TakeAlertOwnership',
+    'alert/createalert' = 'CreateAlert',
+    'alret/deletealert' = 'DeleteAlert',
+    'alert/deps' = 'AlertDependents',
+    'alert/dismissalert' = 'DismissAlert',
     'alert/item' = 'AlertItem',
     'alert/items' = 'AlertItems',
     'alert/ldeps' = 'AlertLDepends',
     'alert/list' = 'AlertList',
-    'markReadAlert/snapshot' = 'MarkReadAlertSnapshot',
-    'modify/alert' = 'ModifyAlert',
-    'reset/alert' = 'ResetAlert',
-    'alertSignal/snapshot' = 'AlertSignalSnapshot',
+    'alert/markreadalertsignal' = 'MarkReadAlertSignal',
+    'alert/modifyalert' = 'ModifyAlert',
+    'alert/resetalert' = 'ResetAlert',
+    'alertSignal/deps' = 'AlertSignalDependents',
     'alertSignal/item' = 'AlertSignalItem',
     'alertSignal/items' = 'AlertSignalItems',
     'alertSignal/ldeps' = 'AlertSignalLDepends',
     'alertSignal/list' = 'AlertSignalList',
-    'adminAlert/suggest' = 'AdminAlertSuggest',
-    'clearingHouse/snapshot' = 'ClearingHouseSnapshot',
+    'clearingHouse/deps' = 'ClearingHouseDependents',
     'clearingHouse/item' = 'ClearingHouseItem',
     'clearingHouse/items' = 'ClearingHouseItems',
     'clearingHouse/list' = 'ClearingHouseList',
@@ -2586,17 +4167,17 @@ enum ReversedTvEndpoint {
     'entitlement/item' = 'EntitlementItem',
     'entitlement/items' = 'EntitlementItems',
     'entitlement/list' = 'EntitlementList',
-    'orderStrategyType/snapshot' = 'OrderStrategyTypeSnapshot',
+    'orderStrategyType/find' = 'OrderStrategyTypeFind',
     'orderStrategyType/item' = 'OrderStrategyTypeItem',
     'orderStrategyType/items' = 'OrderStrategyTypeItems',
     'orderStrategyType/list' = 'OrderStrategyTypeList',
     'orderStrategyType/suggest' = 'OrderStrategyTypeSuggest',
-    'property/snapshot' = 'PropertySnapshot',
+    'property/find' = 'PropertyFind',
     'property/item' = 'PropertyItem',
     'property/items' = 'PropertyItems',
     'property/list' = 'PropertyList',
     'property/suggest' = 'PropertySuggest',
-    'contactInfo/snapshot' = 'ContactInfoSnapshot',
+    'contactInfo/deps' = 'ContactInfoDependents',
     'contactInfo/item' = 'ContactInfoItem',
     'contactInfo/items' = 'ContactInfoItems',
     'contactInfo/ldeps' = 'ContactInfoLDepends',
@@ -2607,7 +4188,7 @@ enum ReversedTvEndpoint {
     'marketDataSubscription/ldeps' = 'MarketDataSubscriptionLDepends',
     'marketDataSubscription/list' = 'MarketDataSubscriptionList',
     'marketDataSubscription/update' = 'MarketDataSubscriptionUpdate',
-    'organization/snapshot' = 'OrganizationSnapshot',
+    '' = 'OrganizationFind',
     'organization/item' = 'OrganizationItem',
     'organization/items' = 'OrganizationItems',
     'organization/list' = 'OrganizationList',
@@ -2624,8 +4205,8 @@ enum ReversedTvEndpoint {
     'tradovateSubscription/ldeps' = 'TradovateSubscriptionLDepends',
     'tradovateSubscription/list' = 'TradovateSubscriptionList',
     'tradovateSubscription/update' = 'TradovateSubscriptionUpdate',
-    'user/snapshot' = 'UserSnapshot',
-    'getAccountTradingPermissions' = 'GetAccountTradingPermissions',
+    'user/find' = 'UserFind',
+    'user/getaccounttradingpermissions' = 'GetAccountTradingPermissions',
     'user/item' = 'UserItem',
     'user/items' = 'UserItems',
     'user/list' = 'UserList',
@@ -2653,10 +4234,10 @@ enum ReversedTvEndpoint {
     'chat/deps' = 'ChatDepends',
     'chat/item' = 'ChatItem',
     'chat/items' = 'ChatItems',
-    'chat/ldeps' = 'ChatLDepends',
+    'chat/ldeps' = 'ChatLDependents',
     'chat/list' = 'ChatList',
-    'markAsReadChatMessage' = 'MarkAsReadChatMessage',
-    'postChatMessage' = 'PostChatMessage',
+    'chat/markAsReadChatMessage' = 'MarkAsReadChatMessage',
+    'chat/postChatMessage' = 'PostChatMessage',
     'chatMessage/deps' = 'ChatMessageDepends',
     'chatMessage/item' = 'ChatMessageItem',
     'chatMessage/items' = 'ChatMessageItems',
@@ -2679,5 +4260,10 @@ enum ReversedTvEndpoint {
     'user/revoketradingpermission' = 'RevokeTradingPermission',
     'user/signuporganizationmember' = 'SignUpOrganizationMember',
     'user/addentitlementsubscription' = 'AddEntitlementSubscription',
-    'user/changepluginpermission' = 'ChangePluginPermission'
+    'user/changepluginpermission' = 'ChangePluginPermission',
+    'adminAlertSignal/deps' = 'AdminAlertSignalDependents',
+    'adminAlertSignal/item' = 'AdminAlertSignalItem',
+    'adminAlertSignal/items' = 'AdminAlertSignalItems',
+    'adminAlertSignal/ldeps' = 'AdminAlertSignalLDependents',
+    'adminAlertSignal/list' = 'AdminAlertSignalList'
 }
