@@ -1,3 +1,0 @@
-[**tradovate**](README.md)
-
-***
