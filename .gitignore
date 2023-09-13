@@ -6,6 +6,7 @@
 # testing
 /coverage
 .vscode
+/docs
 
 # production
 /dist
