@@ -6,5 +6,9 @@ module.exports = {
     },
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint'],
-    root: true
+    root: true,
+    ignorePatterns: [
+        'node_modules/', // Ignore all files and folders inside 'node_modules'
+        'dist/' // Ignore all files and folders inside 'dist'
+    ]
 }

@@ -9,5 +9,6 @@
     "trailingComma": "none",
     "bracketSpacing": false,
     "arrayBracketSpacing": false,
-    "objectCurlySpacing": false
+    "objectCurlySpacing": false,
+    "ignore": ["node_modules/**", "dist/**", ".env"]
 }
