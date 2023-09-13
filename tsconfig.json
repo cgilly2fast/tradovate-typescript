@@ -18,8 +18,10 @@
         // "strictPropertyInitialization": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "baseUrl": "."
     },
+    "extends": "@tsconfig/docusaurus/tsconfig.json",
     "compileOnSave": true,
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

@@ -7,7 +7,7 @@ import {
     GetEndpointQueryParams,
     GetEndpoints,
     EndpointResponse,
-    Enviroment,
+    Environment,
     PostEndpoints,
     PostEndpointBodyParams,
     isPenaltyResponse,
@@ -47,7 +47,7 @@ export default class TradovateService {
      */
     get = async <T extends GetEndpoints>(
         endpoint: T,
-        env: Enviroment = Enviroment.Demo,
+        env: Environment = Environment.Demo,
         query?: GetEndpointQueryParams[T]
     ): Promise<EndpointResponse[T] | PenaltyResponse> => {
         const {accessToken} = this.storage.getAccessToken()
@@ -113,7 +113,7 @@ export default class TradovateService {
 
     post = async <T extends PostEndpoints>(
         endpoint: T,
-        env: Enviroment = Enviroment.Demo,
+        env: Environment = Environment.Demo,
         data?: PostEndpointBodyParams[T],
         usetoken: boolean = true
     ): Promise<EndpointResponse[T] | PenaltyResponse> => {
@@ -158,7 +158,7 @@ export default class TradovateService {
      *
      * @returns A promise that resolves to the renewed access token information.
      */
-    renewAccessToken = async (env: Enviroment = Enviroment.Demo) => {
+    renewAccessToken = async (env: Environment = Environment.Demo) => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (
             accessToken &&
@@ -212,7 +212,7 @@ export default class TradovateService {
      * @returns A promise that resolves to either PenaltyResponse or AccessTokenResponse.
      */
     handleRenewRetry = async (
-        env: Enviroment,
+        env: Environment,
         penaltyResponse: PenaltyResponse
     ): Promise<PenaltyResponse | AccessTokenResponse> => {
         if (!isPenaltyResponse(penaltyResponse))
@@ -245,7 +245,7 @@ export default class TradovateService {
      */
     connect = async (
         data: AccessTokenRequestBody,
-        env: Enviroment = Enviroment.Demo
+        env: Environment = Environment.Demo
     ): Promise<AccessTokenResponse> => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (

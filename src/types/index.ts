@@ -4630,7 +4630,7 @@ export type GetEndpoints = keyof GetEndpointQueryParams
 
 export type PostEndpoints = keyof PostEndpointBodyParams
 
-export enum Enviroment {
+export enum Environment {
     Live = 'live',
     Demo = 'demo'
 }
