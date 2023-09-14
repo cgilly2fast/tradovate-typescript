@@ -17,7 +17,7 @@ export default class TradovateSocket implements Socket {
     private socket: RequestSocket
 
     constructor(live: boolean = false, socket?: RequestSocket) {
-        const listeningURL = live ? URLs.LIVE_URL : URLs.DEMO_URL
+        const listeningURL = live ? URLs.WS_LIVE_URL : URLs.WS_DEMO_URL
         this.socket = socket ?? new RequestSocket(listeningURL)
     }
 
@@ -26,11 +26,10 @@ export default class TradovateSocket implements Socket {
             `[Tradovate]: connecting TradovateSocket to ${this.socket.getListeningUrl()}...`
         )
         await this.socket.connect()
-        log(`[Tradovate]: TradovateSocket connected`)
     }
 
     disconnect() {
-        log('[Tradovate]: Closing TradovateSocket connection...')
+        // log('[Tradovate]: Closing TradovateSocket connection...')
         this.socket.disconnect()
         log('[Tradovate]: TradovateSocket removed.')
     }

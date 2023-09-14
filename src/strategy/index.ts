@@ -20,6 +20,7 @@ import {stringify} from '../utils/stringify'
 import ReplaySocket from '../websockets/ReplaySocket'
 import TradovateSocket from '../websockets/TradovateSocket'
 import MarketDataSocket from '../websockets/MarketDataSocket'
+import Storage from '../storage'
 
 /**
  * Represents a trading.
@@ -32,6 +33,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
     private replaySocket?: ReplaySocket
     private model
     private live
+    private storage: Storage
 
     private replayMode: boolean
 
@@ -63,7 +65,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
                 'Strategy: tried to enter replayMode but replaySpeed or replaySocket not passed'
             )
         this.live = params.live
-
+        this.storage = new Storage()
         if (this.replayMode) {
             this.tvSocket = this.mdSocket = this.replaySocket = new ReplaySocket()
         } else {
@@ -121,6 +123,9 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
 
     private async replayModeSetup() {
         const {replayPeriods} = this.props
+        if (!this.replaySocket!.isConnected()) {
+            await this.replaySocket!.connect()
+        }
         try {
             log('[Tradovate]: Checking new replay period...')
             await this.replaySocket!.checkReplaySession(replayPeriods![0].start)
@@ -161,7 +166,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
             const account = accountRes.d.find(account => account.active)
             log('replay account test ' + account)
             await this.setupEventCatcher(this.replaySocket!, this.replaySocket!)
-            //setAvailableAccounts([account!])
+            this.storage.setAvailableAccounts([account!])
 
             log(`[Tradovate]: account: ${stringify(account)}`)
         } catch (err) {
@@ -192,6 +197,10 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
                 timeRangeType === 'asMuchAsElements' || timeRangeType === 'closestTickId'
                     ? timeRangeValue
                     : timeRangeValue.toString()
+        }
+
+        if (!this.tvSocket.isConnected() || !this.mdSocket.isConnected()) {
+            await Promise.all([socket.connect(), mdSocket.connect()])
         }
 
         mdSocket.subscribeChart(
@@ -231,6 +240,15 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
                 this.D.dispatch({event: StrategyEvent.Clock, payload: item.d})
             }
         })
+    }
+    async disconnect() {
+        return Promise.all([
+            this.tvSocket.isConnected() ? this.tvSocket.disconnect : null,
+            this.mdSocket.isConnected() ? this.mdSocket.disconnect() : null,
+            this.replaySocket && this.replaySocket.isConnected()
+                ? this.replaySocket.disconnect()
+                : null
+        ])
     }
     /**
      * Retrieves the request socket associated with the strategy.

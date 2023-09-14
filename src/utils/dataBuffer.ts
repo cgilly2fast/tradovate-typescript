@@ -1,4 +1,11 @@
-import {Bar, Tick, TickPacket, BarPacket} from '../types'
+import {
+    Bar,
+    Tick,
+    TickPacket,
+    BarPacket,
+    BarsTransformer,
+    TicksTransformer
+} from '../types'
 import {TickOrBar, TickOrBarPacket} from '../types'
 
 /**
@@ -6,7 +13,7 @@ import {TickOrBar, TickOrBarPacket} from '../types'
  * @param packet - The BarPacket containing bars data.
  * @returns An array of Bar objects.
  */
-export function BarsTransformer(packet: BarPacket) {
+export function barsTransformer(packet: BarPacket) {
     const {bars} = packet
     const results: Bar[] = []
     if (bars) {
@@ -22,7 +29,7 @@ export function BarsTransformer(packet: BarPacket) {
  * @param packet - The TickPacket containing tick data.
  * @returns An array of Tick objects.
  */
-export function TicksTransformer(packet: TickPacket) {
+export function ticksTransformer(packet: TickPacket) {
     const {id: subId, bp, bt, ts, tks} = packet
     const result: Tick[] = []
     if (tks) {
@@ -44,9 +51,7 @@ export function TicksTransformer(packet: TickPacket) {
     return result
 }
 
-export default class DataBuffer<
-    T extends {(packet: TickPacket): Tick[]} | {(packet: BarPacket): Bar[]}
-> {
+export default class DataBuffer<T extends BarsTransformer | TicksTransformer> {
     public transformer: T
     public buffer: TickOrBar<T>[]
     public lastTs: number
@@ -160,7 +165,7 @@ export default class DataBuffer<
      * @param end - The ending index of the slice.
      * @returns An array of sliced items.
      */
-    slice = (start: number, end: number) => this.buffer.slice(start, end)
+    slice = (start: number, end: number): TickOrBar<T>[] => this.buffer.slice(start, end)
 
     /**
      * Finds the index of the specified item in the buffer.

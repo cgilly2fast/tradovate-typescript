@@ -3,14 +3,17 @@ import {log} from 'console'
 import {stringify, stringifyQueryParams} from '../utils/stringify'
 import {
     ResponseMsg,
-    ErrorResponse,
-    isErrorResponse,
     RequestParams,
     URLs,
     Socket,
     EndpointURLs,
-    Listener
+    Listener,
+    SocketPenaltyResponse,
+    isSocketPenaltyResponse,
+    HTTPErrorResponse,
+    isHTTPErrorResponse
 } from '../types'
+import Storage from '../storage'
 
 export default class RequestSocket implements Socket {
     private counter: number
@@ -18,6 +21,7 @@ export default class RequestSocket implements Socket {
     private listeningURL: string
     private curTime: Date
     private listeners: Listener[]
+    private storage: Storage
 
     constructor(url: URLs) {
         this.counter = 0
@@ -25,6 +29,7 @@ export default class RequestSocket implements Socket {
         this.listeningURL = url
         this.curTime = new Date()
         this.listeners = []
+        this.storage = Storage.getInstance()
     }
 
     private prepareMessage(raw: Data) {
@@ -57,8 +62,8 @@ export default class RequestSocket implements Socket {
 
     private getToken() {
         if (this.listeningURL === URLs.DEMO_URL || this.listeningURL === URLs.LIVE_URL)
-            return process.env.ACCESS_TOKEN!
-        return process.env.MD_ACCESS_TOKEN!
+            return this.storage.getAccessToken().accessToken!
+        return this.storage.getMdAccessToken().mdAccessToken!
     }
 
     private dataToListeners(data: any[]) {
@@ -79,7 +84,6 @@ export default class RequestSocket implements Socket {
         log('[Tradovate]: Closing ' + this.listeningURL + ' connection...')
         this.removeListeners()
         this.ws = {} as WebSocket
-        log('[Tradovate]: ' + this.listeningURL + ' removed.')
     }
 
     isConnected() {
@@ -124,18 +128,28 @@ export default class RequestSocket implements Socket {
             const onConnect = async (msg: MessageEvent) => {
                 const {T} = this.prepareMessage(msg.data)
                 if (T === 'o') {
-                    await this.request({url: 'authorize', body: {token}})
+                    const authorizeResponse = await this.request({
+                        url: 'authorize',
+                        body: token
+                    })
+                    this.increment()
+                    if (authorizeResponse.s !== 200)
+                        rej(
+                            `${this.listeningURL} authorization failed with ${stringify(
+                                authorizeResponse
+                            )}`
+                        )
 
-                    log('[Tradovate]: connected.')
+                    log('[Tradovate]: ...connected.')
 
                     this.ws.removeEventListener('message', onConnect)
                     heartbeatInterval = setInterval(sendHeartbeat, 2500)
+                    res()
                 }
             }
             try {
                 this.ws.addEventListener('message', onEvent)
                 this.ws.addEventListener('message', onConnect)
-                res()
             } catch (err) {
                 log(`[Tradovate]: RequestSocket: Could not add listeners ${err}`)
                 rej(err)
@@ -156,17 +170,25 @@ export default class RequestSocket implements Socket {
             const onRequest = (msg: MessageEvent) => {
                 const {data} = this.prepareMessage(msg.data)
 
-                data.forEach((item: ResponseMsg<T> | ErrorResponse) => {
-                    if (item.i !== id) return
+                data.forEach(
+                    (
+                        item: ResponseMsg<T> | HTTPErrorResponse | SocketPenaltyResponse
+                    ) => {
+                        if (item.i !== id) return
 
-                    this.ws.removeEventListener('message', onRequest)
+                        this.ws.removeEventListener('message', onRequest)
 
-                    if (isErrorResponse(item)) {
-                        rej(`WS request: ${stringify({params, item})}`)
-                        return
+                        if (isSocketPenaltyResponse(item) || isHTTPErrorResponse(item)) {
+                            rej(
+                                `WS request: ${stringify({params, item})}, ${
+                                    this.listeningURL
+                                }`
+                            )
+                            return
+                        }
+                        res(item)
                     }
-                    res(item)
-                })
+                )
             }
 
             try {
@@ -176,7 +198,7 @@ export default class RequestSocket implements Socket {
                 )
             } catch (err) {
                 log(`[Tradovate]: Socket request: ${stringify({url, query, body})}`)
-                throw err
+                rej(err)
             }
         })
     }

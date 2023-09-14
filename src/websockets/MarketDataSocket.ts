@@ -24,11 +24,18 @@ import {
     isChartSubscription,
     isDOMSubscription,
     isQuoteSubscription,
-    isHistogramSubscription
+    isHistogramSubscription,
+    isPenaltyResponse,
+    PenaltyResponse,
+    Contract,
+    SubscribeURLs
 } from '../types'
 import RequestSocket from './RequestSocket'
+import TradovateService from '../service'
+import {stringify} from '../utils/stringify'
 export default class MarketDataSocket implements MdSocket {
     private socket: RequestSocket
+    private service: TradovateService
     private subscriptions: Array<{
         symbol: string | number
         dispose: () => Promise<void>
@@ -37,6 +44,7 @@ export default class MarketDataSocket implements MdSocket {
 
     constructor(socket?: RequestSocket) {
         this.socket = socket ?? new RequestSocket(URLs.MD_URL)
+        this.service = new TradovateService()
         this.subscriptions = []
         this.subscribeCancelMap = {
             'md/subscribequote': 'md/unsubscribequote',
@@ -47,11 +55,13 @@ export default class MarketDataSocket implements MdSocket {
     }
 
     async connect() {
+        log(
+            `[Tradovate]: connecting MarketDataSocket to ${this.socket.getListeningUrl()}...`
+        )
         return await this.socket.connect()
     }
 
     async disconnect(): Promise<void> {
-        log('[Tradovate]: Closing MarketDataSocket connection...')
         await this.disposeSubscriptions()
         this.socket.disconnect()
         log('[Tradovate]: MarketDataSocket removed.')
@@ -77,7 +87,7 @@ export default class MarketDataSocket implements MdSocket {
             })
     }
 
-    async subscribe<T extends EndpointURLs>(
+    async subscribe<T extends SubscribeURLs>(
         params: MarketDataSocketSubscribeParams<T>
     ): Promise<() => Promise<void>> {
         const {url, body, onSubscription} = params
@@ -98,20 +108,27 @@ export default class MarketDataSocket implements MdSocket {
             body
         })
 
+        if (response.d && response.d.errorText)
+            throw new Error(`subscribe: ${response.d.errorText}`)
+
         if (isGetChartResponse(response)) {
             realtimeId = response.d.realtimeId! || response.d.subscriptionId!
             cancelBody = {subscriptionId: realtimeId}
         } else {
-            const contract = await this.socket.request({
-                url: 'contract/find',
-                query: {name: symbol}
-            })
-
-            if (!contract.d.id)
+            let contract: Contract | PenaltyResponse
+            try {
+                contract = await this.service.get('contract/find', {name: symbol})
+            } catch (err) {
                 throw new Error(
-                    `Subscribe: ${url} Could not find contract id for symbol ${symbol}`
+                    `Subscribe: ${url} Could not find contract id for symbol ${symbol}, ${err}`
                 )
-            contractId = contract.d.id
+            }
+
+            if (isPenaltyResponse(contract))
+                throw new Error(
+                    `Subscribe: ${url} rate limit hit ${symbol}, ${stringify(contract)}`
+                )
+            contractId = contract.id!
             cancelBody = {symbol}
         }
 

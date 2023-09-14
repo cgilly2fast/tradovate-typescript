@@ -7,7 +7,6 @@ import {
     GetEndpointQueryParams,
     GetEndpoints,
     EndpointResponse,
-    Environment,
     PostEndpoints,
     PostEndpointBodyParams,
     isPenaltyResponse,
@@ -25,7 +24,7 @@ export default class TradovateService {
     private storage: Storage
 
     constructor() {
-        this.storage = new Storage()
+        this.storage = Storage.getInstance()
     }
     /**
      * Makes a GET request to the Tradovate REST API.
@@ -47,20 +46,17 @@ export default class TradovateService {
      */
     get = async <T extends GetEndpoints>(
         endpoint: T,
-        env: Environment = Environment.Demo,
-        query?: GetEndpointQueryParams[T]
+        query?: GetEndpointQueryParams[T],
+        live: boolean = false
     ): Promise<EndpointResponse[T] | PenaltyResponse> => {
         const {accessToken} = this.storage.getAccessToken()
-        const baseURL = env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
-        if (!baseURL)
-            throw new Error(
-                `[Services:tvGet] => 'env' variable should be either 'live' or 'demo'.`
-            )
+        const baseURL = live ? LIVE_URL : DEMO_URL
         const stringyQuery = stringifyQueryParams(query)
+
         try {
             const url =
                 query !== null
-                    ? baseURL + '/' + endpoint + stringyQuery
+                    ? baseURL + '/' + endpoint + '?' + stringyQuery
                     : baseURL + '/' + endpoint
 
             console.log('[Tradovate]: ' + url)
@@ -92,7 +88,7 @@ export default class TradovateService {
      * @param endpoint - The API endpoint to call.
      * @param env - The environment (demo or live).
      * @param data - The data to send in the request body as JSON.
-     * @param usetoken - Indicates whether to use an access token in the request.
+     * @param useToken - Indicates whether to use an access token in the request.
      *
      * @returns A promise that resolves to the response data.
      *
@@ -113,24 +109,20 @@ export default class TradovateService {
 
     post = async <T extends PostEndpoints>(
         endpoint: T,
-        env: Environment = Environment.Demo,
         data?: PostEndpointBodyParams[T],
-        usetoken: boolean = true
+        live: boolean = false,
+        useToken: boolean = true
     ): Promise<EndpointResponse[T] | PenaltyResponse> => {
         let accessToken: AccessToken
-        if (usetoken) accessToken = this.storage.getAccessToken()
+        if (useToken) accessToken = this.storage.getAccessToken()
 
-        const bearer = usetoken
+        const bearer = useToken
             ? {Authorization: `Bearer ${accessToken!.accessToken}`}
             : {}
 
-        const baseURL = env === 'demo' ? DEMO_URL : env === 'live' ? LIVE_URL : ''
-        if (!baseURL)
-            throw new Error(
-                `[Services:tvPost] => 'env' variable should be either 'live' or 'demo'.`
-            )
+        const baseURL = live ? LIVE_URL : DEMO_URL
 
-        const request = baseURL + endpoint
+        const request = baseURL + '/' + endpoint
         console.log(`[Tradovate]: ${request}`)
 
         try {
@@ -158,7 +150,7 @@ export default class TradovateService {
      *
      * @returns A promise that resolves to the renewed access token information.
      */
-    renewAccessToken = async (env: Environment = Environment.Demo) => {
+    renewAccessToken = async (live: boolean = false) => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (
             accessToken &&
@@ -175,9 +167,9 @@ export default class TradovateService {
         }
 
         console.log('[Tradovate]: Renewing accessToken...')
-        const authResponse = await this.get('auth/renewaccesstoken', env)
+        const authResponse = await this.get('auth/renewaccesstoken', undefined, live)
         if (isPenaltyResponse(authResponse)) {
-            return await this.handleRenewRetry(env, authResponse)
+            return await this.handleRenewRetry(live, authResponse)
         } else {
             const {
                 errorText,
@@ -212,7 +204,7 @@ export default class TradovateService {
      * @returns A promise that resolves to either PenaltyResponse or AccessTokenResponse.
      */
     handleRenewRetry = async (
-        env: Environment,
+        live: boolean,
         penaltyResponse: PenaltyResponse
     ): Promise<PenaltyResponse | AccessTokenResponse> => {
         if (!isPenaltyResponse(penaltyResponse))
@@ -232,7 +224,7 @@ export default class TradovateService {
         )
 
         await waitForMs(time! * 1000)
-        return await this.get('auth/renewaccesstoken', env)
+        return await this.get('auth/renewaccesstoken', undefined, live)
     }
 
     /**
@@ -245,7 +237,7 @@ export default class TradovateService {
      */
     connect = async (
         data: AccessTokenRequestBody,
-        env: Environment = Environment.Demo
+        live: boolean = false
     ): Promise<AccessTokenResponse> => {
         const {accessToken, expiration} = this.storage.getAccessToken()
         if (
@@ -262,7 +254,7 @@ export default class TradovateService {
             return {accessToken: accessToken, expirationTime: expiration, userId, name}
         }
 
-        const authResponse = await this.post('auth/accesstokenrequest', env, data, false)
+        const authResponse = await this.post('auth/accesstokenrequest', data, live, false)
         if (isPenaltyResponse(authResponse)) {
             return await this.handleConnectRetry(data, authResponse)
         } else {
@@ -281,6 +273,8 @@ export default class TradovateService {
             }
 
             this.storage.setAccessToken(accessToken!, mdAccessToken!, expirationTime!)
+
+            this.storage.setUserData({userId: userId!, name: name!})
 
             const accounts = await this.get('account/list')
 

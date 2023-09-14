@@ -12,6 +12,9 @@ export default class Storage {
     private accessToken: string
     private mdAccessToken: string
     private expiration: string
+    private userData: {userId: number; name: string}
+
+    private static instance: Storage | null = null
 
     /**
      * Initializes a new instance of the Storage class.
@@ -25,6 +28,14 @@ export default class Storage {
         this.accessToken = ''
         this.mdAccessToken = ''
         this.expiration = ''
+        this.userData = {userId: 0, name: ''}
+    }
+
+    public static getInstance(): Storage {
+        if (!Storage.instance) {
+            Storage.instance = new Storage()
+        }
+        return Storage.instance
     }
 
     /**
@@ -154,17 +165,17 @@ export default class Storage {
 
     /**
      * Sets user data as an environment variable.
-     * @param {any} data - User data to be stored.
+     * @param {{userId: number, name: string}} data - User data to be stored.
      */
-    setUserData(data: any): void {
-        process.env.USER_DATA = JSON.stringify(data)
+    setUserData(data: {userId: number; name: string}): void {
+        this.userData = data
     }
 
     /**
      * Gets user data from the environment variable.
-     * @returns {any} User data.
+     * @returns {{userId: number, name: string}} User data.
      */
-    getUserData(): any {
-        return JSON.parse(process.env.USER_DATA!)
+    getUserData(): {userId: number; name: string} {
+        return this.userData
     }
 }

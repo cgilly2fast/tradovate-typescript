@@ -1,5 +1,4 @@
 import ReplaySocket from '../websockets/ReplaySocket'
-import {BarsTransformer, TicksTransformer} from '../utils'
 
 export enum OrderType {
     Limit = 'Limit',
@@ -38,10 +37,6 @@ export enum StrategyEvent {
     NextReplay = 'replay/nextReplayPeriod',
     ReplayDrawStats = 'replay/drawStats', //the draw effect
     ReplayComplete = 'replay/complete', //the event that says replay is done
-    ProductFound = 'product/found',
-    PlaceOCO = 'order/placeoco',
-    PlaceOrder = 'order/placeOrder',
-    StartOrderStrategy = 'orderStrategy/startOrderStrategy',
     Stop = 'stop'
 }
 
@@ -548,11 +543,6 @@ export type UserSyncAction = {
     payload: UserSyncPayload
 }
 
-export type ProductFoundAction = {
-    event: StrategyEvent.ProductFound
-    payload: ProductFoundPayload
-}
-
 export type ReplayCompleteAction = {
     event: StrategyEvent.ReplayComplete
     payload: ReplayCompletePayload
@@ -617,7 +607,6 @@ export type Action =
     | ChartAction
     | PropsAction
     | UserSyncAction
-    | ProductFoundAction
     | ReplayCompleteAction
     // | PlaceOrderAction
     // | PlaceOCOAction
@@ -651,7 +640,7 @@ export type MdAccessToken = {
     expiration?: string
 }
 
-export type ErrorResponse = {
+export type HTTPErrorResponse = {
     d: string
     i: number
     s: number
@@ -693,10 +682,9 @@ export type OrderItemRequest = {
     onReject?: () => void
 }
 
-export type EndpointURLs = keyof EndpointResponse &
-    keyof EndpointRequestBody &
-    keyof EndpointRequestQuery
-export type SubscribeURLs = keyof SubscribeEventResponse & keyof SubscribeRequestBody
+export type EndpointURLs = keyof EndpointResponse
+
+export type SubscribeURLs = keyof SubscribeMap
 
 export type LiquidatePositionRequestBody = {
     accountId: number
@@ -847,6 +835,21 @@ export type AddSecondMarketDataSubscriptionRequestBody = {
     accountId?: number
     userId?: number
 }
+
+export type CancelOrderRequestBody = {
+    orderId: number
+    clOrdId?: string
+    activationTime?: string
+    customTag50?: string
+    isAutomated?: boolean
+}
+
+export type ModifyOrderStrategyRequestBody = {
+    orderStrategyId: number
+    command: string
+    customTag50?: string
+}
+
 export type EndpointRequestBody = {
     'md/subscribequote': {symbol: string}
     'md/getchart': {
@@ -860,7 +863,7 @@ export type EndpointRequestBody = {
     'md/unsubscribequote': CancelBody
     'md/unsubscribedom': CancelBody
     'md/cancelchart': CancelChartBody
-    authorize: {token: string}
+    authorize: string //{token: string}
     'auth/accesstokenrequest': AccessTokenRequestBody
     'auth/me': undefined
     'auth/oauthtoken': OAuthTokenRequestBody
@@ -974,19 +977,21 @@ export type EndpointRequestBody = {
     'order/item': undefined
     'order/items': undefined
     'order/ldeps': undefined
-    'order/liquidatePosition': LiquidatePositionRequestBody
+    'order/liquidateposition': LiquidatePositionRequestBody
     'order/list': undefined
-    'order/placeOrder': PlaceOrderRequestBody
+    'order/placeorder': PlaceOrderRequestBody
     'order/placeoco': PlaceOCORequestBody
     'order/modifyorder': ModifyOrderRequestBody
     'order/placeoso': PlaceOSORequestBody
+    'order/cancelorder': CancelOrderRequestBody
     'orderStrategy/deps': undefined
-    'orderStrategy/interruptOrderStrategy': undefined
+    'orderStrategy/interruptorderstrategy': undefined
     'orderStrategy/item': undefined
     'orderStrategy/items': undefined
     'orderStrategy/ldeps': undefined
     'orderStrategy/list': undefined
-    'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
+    'orderStrategy/modifyorderstrategy': ModifyOrderStrategyRequestBody
+    'orderStrategy/startorderstrategy': StartOrderStrategyRequestBody
     'orderStrategyLink/deps': undefined
     'orderStrategyLink/item': undefined
     'orderStrategyLink/items': undefined
@@ -1070,7 +1075,7 @@ export type EndpointRequestBody = {
     'adminAlertSignal/ldeps': undefined
     'adminAlertSignal/list': undefined
     'alert/createalert': undefined
-    'alret/deletealert': undefined
+    'alert/deletealert': undefined
     'alert/deps': undefined
     'alert/dismissalert': undefined
     'alert/item': undefined
@@ -1320,20 +1325,21 @@ export type EndpointRequestQuery = {
     'order/item': QueryId
     'order/items': QueryIds
     'order/ldeps': QueryMasterIds
-    'order/liquidatePosition': undefined
+    'order/liquidateposition': undefined
     'order/list': undefined
     'order/modifyorder': undefined
     'order/placeoco': undefined
     'order/placeorder': undefined
     'order/placeoso': undefined
+    'order/cancelorder': undefined
     'orderStrategy/deps': QueryMasterIds
-    'orderStrategy/interruptOrderStrategy': undefined
+    'orderStrategy/interruptorderstrategy': undefined
     'orderStrategy/item': QueryId
     'orderStrategy/items': QueryIds
     'orderStrategy/ldeps': QueryMasterIds
     'orderStrategy/list': undefined
-    'orderStrategy/modifyOrderStrategy': undefined
-    'orderStrategy/startOrderStrategy': undefined
+    'orderStrategy/modifyorderstrategy': undefined
+    'orderStrategy/startorderstrategy': undefined
     'orderStrategyLink/deps': QueryMasterIds
     'orderStrategyLink/item': QueryId
     'orderStrategyLink/items': QueryIds
@@ -1543,7 +1549,6 @@ export type EndpointResponse = {
     'md/subscribehistogram': SimpleResponse
     'md/subscribequote': SimpleResponse
     'md/subscribedom': SimpleResponse
-    simple: SimpleResponse
     'md/unsubscribehistogram': SimpleResponse
     'md/unsubscribequote': SimpleResponse
     'md/unsubscribedom': SimpleResponse
@@ -1662,20 +1667,21 @@ export type EndpointResponse = {
     'order/item': Order
     'order/items': Order[]
     'order/ldeps': Order[]
-    'order/liquidatePosition': PlaceOrderResponse
+    'order/liquidateposition': PlaceOrderResponse
     'order/list': Order[]
     'order/modifyorder': CommandResponse
     'order/placeoco': PlaceOCOOrderResponse
     'order/placeorder': PlaceOrderResponse
     'order/placeoso': PLaceOSOResult
+    'order/cancelorder': CommandResponse
     'orderStrategy/deps': OrderStrategy[]
-    'orderStrategy/interruptOrderStrategy': OrderStrategyStatusResponse
+    'orderStrategy/interruptorderstrategy': OrderStrategyStatusResponse
     'orderStrategy/item': OrderStrategy
     'orderStrategy/items': OrderStrategy[]
     'orderStrategy/ldeps': OrderStrategy[]
     'orderStrategy/list': OrderStrategy[]
-    'orderStrategy/modifyOrderStrategy': OrderStrategyStatusResponse
-    'orderStrategy/startOrderStrategy': StartOrderStrategyResponse
+    'orderStrategy/modifyorderstrategy': OrderStrategyStatusResponse
+    'orderStrategy/startorderstrategy': StartOrderStrategyResponse
     'orderStrategyLink/deps': OrderStrategyLink[]
     'orderStrategyLink/item': OrderStrategyLink
     'orderStrategyLink/items': OrderStrategyLink[]
@@ -1752,7 +1758,7 @@ export type EndpointResponse = {
     'alert/createalert': AlertResponse
     'alert/deletealert': AlertResponse
     'alert/deps': Alert[]
-    'alret/dismissalert': AlertResponse
+    'alert/dismissalert': AlertResponse
     'alert/item': Alert
     'alert/items': Alert[]
     'alert/ldeps': Alert[]
@@ -2651,6 +2657,16 @@ export type PenaltyResponse = {
     'p-captcha'?: string
 }
 
+export type SocketPenaltyResponse = {
+    s: number
+    i: number
+    d: PenaltyResponse
+}
+
+export function isSocketPenaltyResponse(obj: any): obj is SocketPenaltyResponse {
+    return obj && obj.d && isPenaltyResponse(obj.d)
+}
+
 export type SubscribeRequestBody = {
     'replay/initializeclock': {
         startTimestamp: string
@@ -2687,10 +2703,10 @@ export type SubscribeEventResponse = {
 export type SubscribeMap = {
     'replay/initializeclock': 'replay/initializeclock'
     'user/syncrequest': 'user/syncrequest'
-    'md/subscribeQuote': 'md/subscribeQuote'
-    'md/getChart': 'md/getChart'
-    'md/subscribeHistogram': 'md/subscribeHistogram'
-    'md/subscribeDOM': 'md/subscribeDOM'
+    'md/subscribequote': 'md/subscribeQuote'
+    'md/getchart': 'md/getChart'
+    'md/subscribehistogram': 'md/subscribeHistogram'
+    'md/subscribedom': 'md/subscribeDOM'
 }
 
 export function isPenaltyResponse(obj: any): obj is PenaltyResponse {
@@ -2700,18 +2716,14 @@ export function isPenaltyResponse(obj: any): obj is PenaltyResponse {
     return false
 }
 
-export function isErrorResponse<T extends EndpointURLs>(
-    item: ResponseMsg<T> | ErrorResponse
-): item is ErrorResponse
-
-export function isErrorResponse(
-    item: ResponseMsg<'simple'> | ErrorResponse | ServerEvent
-): item is ErrorResponse {
-    return (item as ErrorResponse).s !== 200
+export function isHTTPErrorResponse<T extends EndpointURLs>(
+    item: ResponseMsg<T> | HTTPErrorResponse
+): item is HTTPErrorResponse {
+    return (item as HTTPErrorResponse).s !== 200
 }
 
 export function isValidResponseMsg<T extends EndpointURLs>(
-    item: ResponseMsg<T> | ErrorResponse
+    item: ResponseMsg<T> | HTTPErrorResponse
 ): item is ResponseMsg<T> {
     return isResponseMsg(item) && item.s === 200
 }
@@ -2798,6 +2810,7 @@ export type SimpleResponse = {
 export type GetChartResponse = {
     subscriptionId?: number
     realtimeId?: number
+    errorText?: string
 }
 
 export function isGetChartResponse(
@@ -2889,6 +2902,7 @@ export type SyncRequestResponse = {
     userPlugins?: UserPlugin[]
     contractGroups: ContractGroup[]
     orderStrategyTypes?: any[]
+    errorText?: string
 }
 
 export function isUserSyncResponseMsg(
@@ -3503,7 +3517,7 @@ export type DOMSubscription = (item: DOM) => void
 export type ChartSubscription = (item: Chart) => void
 export type HistogramSubscription = (item: Histogram) => void
 
-export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
+export type MarketDataSocketSubscribeParams<T extends SubscribeURLs> = {
     url: T
     body: EndpointRequestBody[T]
     onSubscription:
@@ -3514,7 +3528,7 @@ export type MarketDataSocketSubscribeParams<T extends EndpointURLs> = {
 }
 
 export interface MdSocket extends Socket {
-    subscribe<T extends EndpointURLs>(
+    subscribe<T extends SubscribeURLs>(
         params: MarketDataSocketSubscribeParams<T>
     ): Promise<() => Promise<void>>
     subscribeQuote(symbol: string, onSubscription: QuoteSubscription): Promise<() => void>
@@ -3750,20 +3764,21 @@ export enum TvEndpoint {
     OrderItem = 'order/item',
     OrderItems = 'order/items',
     OrderLDependents = 'order/ldeps',
-    LiquidatePosition = 'order/liquidatePosition',
+    LiquidatePosition = 'order/liquidateposition',
     OrderList = 'order/list',
     ModifyOrder = 'order/modifyorder',
     PlaceOCO = 'order/placeoco',
     PlaceOrder = 'order/placeorder',
     PlaceOSO = 'order/placeoso',
+    CancelOrder = 'order/cancelorder',
     OrderStrategyDependents = 'orderStrategy/deps',
-    InterruptOrderStrategy = 'orderStrategy/interruptOrderStrategy',
+    InterruptOrderStrategy = 'orderStrategy/interruptorderstrategy',
     OrderStrategyItem = 'orderStrategy/item',
     OrderStrategyItems = 'orderStrategy/items',
     OrderStrategyLDependents = 'orderStrategy/ldeps',
     OrderStrategyList = 'orderStrategy/list',
-    ModifyOrderStrategy = 'orderStrategy/modifyOrderStrategy',
-    StartOrderStrategy = 'orderStrategy/startOrderStrategy',
+    ModifyOrderStrategy = 'orderStrategy/modifyorderstrategy',
+    StartOrderStrategy = 'orderStrategy/startorderstrategy',
     OrderStrategyLinkDependents = 'orderStrategyLink/deps',
     OrderStrategyLinkItem = 'orderStrategyLink/item',
     OrderStrategyLinkItems = 'orderStrategyLink/items',
@@ -3840,7 +3855,7 @@ export enum TvEndpoint {
     CreateAlert = 'alert/createalert',
     DeleteAlert = 'alert/deletealert',
     AlertDependents = 'alert/deps',
-    DismissAlert = 'alret/dismissalert',
+    DismissAlert = 'alert/dismissalert',
     AlertItem = 'alert/item',
     AlertItems = 'alert/items',
     AlertLDepends = 'alert/ldeps',
@@ -3962,7 +3977,7 @@ export enum TvEndpoint {
     AdminAlertSignalList = 'adminAlertSignal/list'
 }
 
-enum ReversedTvEndpoint {
+export enum ReversedTvEndpoint {
     'contract/deps' = 'ContractDependents',
     'contract/find' = 'ContractFind',
     'getProductFeeParams' = 'GetProductFeeParams',
@@ -4072,20 +4087,21 @@ enum ReversedTvEndpoint {
     'order/item' = 'OrderItem',
     'order/items' = 'OrderItems',
     'order/ldeps' = 'OrderLDependents',
-    'order/liquidatePosition' = 'LiquidatePosition',
+    'order/liquidateposition' = 'LiquidatePosition',
     'order/list' = 'OrderList',
     'order/modifyorder' = 'ModifyOrder',
     'order/placeoco' = 'PlaceOCO',
     'order/placeorder' = 'PlaceOrder',
     'order/placeoso' = 'PlaceOSO',
+    'order/cancelorder' = 'CancelOrder',
     'orderStrategy/deps' = 'OrderStrategyDependents',
-    'orderStrategy/interruptOrderStrategy' = 'InterruptOrderStrategy',
+    'orderStrategy/interruptorderstrategy' = 'InterruptOrderStrategy',
     'orderStrategy/item' = 'OrderStrategyItem',
     'orderStrategy/items' = 'OrderStrategyItems',
     'orderStrategy/ldeps' = 'OrderStrategyLDependents',
     'orderStrategy/list' = 'OrderStrategyList',
-    'orderStrategy/modifyOrderStrategy' = 'ModifyOrderStrategy',
-    'orderStrategy/startOrderStrategy' = 'StartOrderStrategy',
+    'orderStrategy/modifyorderstrategy' = 'ModifyOrderStrategy',
+    'orderStrategy/startorderstrategy' = 'StartOrderStrategy',
     'orderStrategyLink/deps' = 'OrderStrategyLinkDependents',
     'orderStrategyLink/item' = 'OrderStrategyLinkItem',
     'orderStrategyLink/items' = 'OrderStrategyLinkItems',
@@ -4160,7 +4176,7 @@ enum ReversedTvEndpoint {
     'adminAlert/list' = 'AdminAlertList',
     'adminAlertSignal/takealertsignalownership' = 'TakeAlertOwnership',
     'alert/createalert' = 'CreateAlert',
-    'alret/deletealert' = 'DeleteAlert',
+    'alert/deletealert' = 'DeleteAlert',
     'alert/deps' = 'AlertDependents',
     'alert/dismissalert' = 'DismissAlert',
     'alert/item' = 'AlertItem',
@@ -4307,12 +4323,13 @@ export type PostEndpointBodyParams = {
     'userAccountPositionLimit/update': UserAccountPositionLimit
     'userAccountRiskParameter/create': UserAccountPositionLimit
     'userAccountRiskParameter/update': UserAccountRiskParameter
-    'order/liquidatePosition': LiquidatePositionRequestBody
+    'order/liquidateposition': LiquidatePositionRequestBody
     'order/placeorder': PlaceOrderRequestBody
     'order/placeoco': PlaceOCORequestBody
     'order/modifyorder': ModifyOrderRequestBody
     'order/placeoso': PlaceOSORequestBody
-    'orderStrategy/startOrderStrategy': StartOrderStrategyRequestBody
+    'order/cancelorder': CancelOrderRequestBody
+    'orderStrategy/startorderstrategy': StartOrderStrategyRequestBody
     'cashBalance/getcashbalancesnapshot': {accountId: number}
     'replay/changespeed': {speed: number}
     'replay/checkreplaysession': {startTimestamp: string}
@@ -4635,6 +4652,14 @@ export enum Environment {
     Demo = 'demo'
 }
 
+export interface TicksTransformer {
+    (packet: TickPacket): Tick[]
+}
+
+export interface BarsTransformer {
+    (packet: BarPacket): Bar[]
+}
+
 export type CalculatePnLParams = {
     price: number
     position: Position
@@ -4660,20 +4685,16 @@ export type DispatcherParams<T extends StrategyState, U extends string, V> = {
  * Represents a type that is either a Tick or a Bar based on the transformer function provided.
  * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
  */
-export type TickOrBar<T extends typeof BarsTransformer | typeof TicksTransformer> =
-    T extends typeof TicksTransformer
-        ? Tick
-        : T extends typeof BarsTransformer
-        ? Bar
-        : never
+export type TickOrBar<T extends BarsTransformer | TicksTransformer> =
+    T extends TicksTransformer ? Tick : T extends BarsTransformer ? Bar : never
 
 /**
  * Represents a type that is either a TickPacket or a BarPacket based on the transformer function provided.
  * @typeparam T - The transformer function type (BarsTransformer or TicksTransformer).
  */
-export type TickOrBarPacket<T extends typeof BarsTransformer | typeof TicksTransformer> =
-    T extends typeof TicksTransformer
+export type TickOrBarPacket<T extends BarsTransformer | TicksTransformer> =
+    T extends TicksTransformer
         ? TickPacket
-        : T extends typeof BarsTransformer
+        : T extends BarsTransformer
         ? BarPacket
         : never

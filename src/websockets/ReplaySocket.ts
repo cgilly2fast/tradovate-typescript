@@ -13,7 +13,8 @@ import {
     ClockEventMsg,
     isServerEvent,
     isClockEventMsg,
-    MarketDataSocketSubscribeParams
+    MarketDataSocketSubscribeParams,
+    SubscribeURLs
 } from '../types'
 import TradovateSocket from './TradovateSocket'
 import MarketDataSocket from './MarketDataSocket'
@@ -32,6 +33,9 @@ export default class ReplaySocket implements TvSocket, MdSocket {
     }
 
     async connect() {
+        log(
+            `[Tradovate]: connecting MarketDataSocket to ${this.socket.getListeningUrl()}...`
+        )
         return this.socket.connect()
     }
 
@@ -44,10 +48,10 @@ export default class ReplaySocket implements TvSocket, MdSocket {
     }
 
     async disconnect() {
-        log('[Tradovate]: Closing ReplaySocket connection...')
+        // log('[Tradovate]: Closing ReplaySocket connection...')
         await this.marketDataSocket.disposeSubscriptions()
         this.socket.disconnect()
-        log('[Tradovate]: ReplaySocket removed.')
+        log('[Tradovate]: Replay removed.')
     }
 
     checkReplaySession(startTimestamp: string) {
@@ -93,7 +97,7 @@ export default class ReplaySocket implements TvSocket, MdSocket {
         return this.tradovateSocket.synchronize(params)
     }
 
-    subscribe<T extends EndpointURLs>(
+    subscribe<T extends SubscribeURLs>(
         params: MarketDataSocketSubscribeParams<T>
     ): Promise<() => Promise<void>> {
         return this.marketDataSocket.subscribe(params)
