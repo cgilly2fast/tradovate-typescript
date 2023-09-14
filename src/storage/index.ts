@@ -6,9 +6,6 @@ import {AccessToken, MdAccessToken, Account, AccountMini} from '../types'
 export default class Storage {
     private deviceId: string
     private availableAccounts: Account[]
-    private accountId: number
-    private spec: string
-    private userId: number
     private accessToken: string
     private mdAccessToken: string
     private expiration: string
@@ -22,9 +19,6 @@ export default class Storage {
     constructor() {
         this.deviceId = ''
         this.availableAccounts = []
-        this.accountId = 0
-        this.spec = ''
-        this.userId = 0
         this.accessToken = ''
         this.mdAccessToken = ''
         this.expiration = ''
@@ -67,10 +61,6 @@ export default class Storage {
         if (accounts.length === 0)
             throw new Error('[Tradovate]: Empty account passed setAvailableAccounts')
         this.availableAccounts = accounts
-        // is this right? shouldn't I need to find account == active?
-        this.accountId = accounts[0].id!
-        this.spec = accounts[0].name
-        this.userId = accounts[0].userId
     }
 
     /**
@@ -86,10 +76,11 @@ export default class Storage {
      * @returns {AccountMini} The current account as an AccountMini object.
      */
     getCurrentAccount(): AccountMini {
+        const account = this.availableAccounts.find(account => account.active)
         return {
-            id: this.accountId,
-            name: this.spec,
-            userId: this.userId
+            id: account !== undefined ? account.id! : 0,
+            name: account !== undefined ? account.name : '',
+            userId: account !== undefined ? account.userId : 0
         }
     }
 
@@ -126,7 +117,7 @@ export default class Storage {
     getAccessToken(): AccessToken {
         const accessToken = this.accessToken
         const expiration = this.expiration
-        if (!accessToken) {
+        if (accessToken === '' || accessToken === undefined) {
             console.warn(
                 '[Tradovate]: No access token retrieved. Please request an access token.'
             )
@@ -141,7 +132,7 @@ export default class Storage {
     getMdAccessToken(): MdAccessToken {
         const mdAccessToken = this.mdAccessToken
         const expiration = this.expiration
-        if (!mdAccessToken) {
+        if (mdAccessToken === '') {
             console.warn(
                 '[Tradovate]: No market data access token retrieved. Please request an access token.'
             )

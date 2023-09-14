@@ -3060,25 +3060,6 @@ export type ExecutionReport = {
     exchangeOrderId: string
 }
 
-export enum ExecutionReportType {
-    CANCELED = 'Canceled',
-    COMPLETED = 'Completed',
-    DONE_FOR_DAY = 'DoneForDay',
-    EXPIRED = 'Expired',
-    NEW = 'New',
-    ORDER_STATUS = 'OrderStatus',
-    PEDNING_CANCEL = 'PendingCancel',
-    PEDNING_NEW = 'PendingNew',
-    PENDING_REPLACE = 'PendingReplace',
-    REJECTED = 'Rejected',
-    REPLACED = 'Replaced',
-    STOPPED = 'Stopped',
-    SUSPENED = 'Suspended',
-    TRADE = 'Trade',
-    TRADE_CANCEL = 'TradeCancel',
-    TRADE_CORRECT = 'TradeCorrect'
-}
-
 export type Command = {
     id?: number
     orderId: number
@@ -3093,12 +3074,6 @@ export type Command = {
     isAutomated: boolean
 }
 
-export enum CommandType {
-    CANCEL = 'Cancel',
-    MODIFY = 'Modify',
-    New = 'New'
-}
-
 export type SpreadDefinition = {
     id?: number
     timestamp: string
@@ -3106,25 +3081,78 @@ export type SpreadDefinition = {
     uds: boolean
 }
 
+export enum ExecutionReportType {
+    Canceled = 'Canceled',
+    Completed = 'Completed',
+    DoneForDay = 'DoneForDay',
+    Expired = 'Expired',
+    New = 'New',
+    OrderStatus = 'OrderStatus',
+    PendingCancel = 'PendingCancel',
+    PendingNew = 'PendingNew',
+    PendingReplace = 'PendingReplace',
+    Rejected = 'Rejected',
+    Replaced = 'Replaced',
+    Stopped = 'Stopped',
+    Suspended = 'Suspended',
+    Trade = 'Trade',
+    TradeCancel = 'TradeCancel',
+    TradeCorrect = 'TradeCorrect'
+}
+
+export enum CommandType {
+    Cancel = 'Cancel',
+    Modify = 'Modify',
+    New = 'New'
+}
+
 export enum SpreadType {
-    BUNDLE = 'Bundle',
-    BUNDLE_SPREAD = 'BundleSpread',
-    BUTERFLY = 'Butterfly',
-    CALENDAR_SPREAD = 'CalendarSpread',
-    CONDOR = 'Condor',
-    CRACK = 'Crack',
-    DOUBLE_BUTTEFLY = 'DoubleButterfly',
-    GENERAL = 'General',
-    INTERCOMMODITY_SPREAD = 'IntercommoditySpread',
-    LAGGED_INTERCOMMODITY_SPREAD = 'LaggedIntercommoditySpread',
-    PACK = 'Pack',
-    PACK_BUTTERFLY = 'PackButterfly',
-    PACK_SPREAD = 'PackSpread',
-    REDUCED_TICK_CALENDAR_SPREAD = 'ReducedTickCalendarSpread',
-    REVERSE_INTERCOMMODITY_SPREAD = 'ReverseIntercommoditySpread',
-    REVERSE_SPREAD = 'ReverseSpread',
-    STRIP = 'Strip',
-    TREASURY_INTERCOMMODITY_SPREAD = 'TreasuryIntercommoditySpread'
+    Bundle = 'Bundle',
+    BundleSpread = 'BundleSpread',
+    Butterfly = 'Butterfly',
+    CalendarSpread = 'CalendarSpread',
+    Condor = 'Condor',
+    Crack = 'Crack',
+    DoubleButterfly = 'DoubleButterfly',
+    General = 'General',
+    IntercommoditySpread = 'IntercommoditySpread',
+    LaggedIntercommoditySpread = 'LaggedIntercommoditySpread',
+    Pack = 'Pack',
+    PackButterfly = 'PackButterfly',
+    PackSpread = 'PackSpread',
+    ReducedTickCalendarSpread = 'ReducedTickCalendarSpread',
+    ReverseIntercommoditySpread = 'ReverseIntercommoditySpread',
+    ReverseSpread = 'ReverseSpread',
+    Strip = 'Strip',
+    TreasuryIntercommoditySpread = 'TreasuryIntercommoditySpread'
+}
+
+export enum PriceFormatType {
+    Decimal = 'Decimal',
+    Fractional = 'Fractional'
+}
+
+export enum ProductStatus {
+    Inactive = 'Inactive',
+    Locked = 'Locked',
+    ReadyForContracts = 'ReadyForContracts',
+    ReadyToTrade = 'ReadyToTrade',
+    Verified = 'Verified'
+}
+
+export enum ProductType {
+    CommonStock = 'CommonStock',
+    Continuous = 'Continuous',
+    Cryptocurrency = 'Cryptocurrency',
+    Futures = 'Futures',
+    MarketInternals = 'MarketInternals',
+    Options = 'Options',
+    Spread = 'Spread'
+}
+
+export enum TrailingMaxDrawdownMode {
+    EOD = 'EOD',
+    RealTime = 'RealTime'
 }
 
 export type Exchange = {
@@ -3148,29 +3176,6 @@ export type Product = {
     priceFormatType?: PriceFormatType
     priceFormat: number
     tickSize: number
-}
-
-export enum PriceFormatType {
-    DECIMAL = 'Decimal',
-    FRACTIONAL = 'Fractional'
-}
-
-export enum ProductStatus {
-    INACTIVE = 'Inactive',
-    LOCKED = 'Locked',
-    READY_FOR_CONTRACTS = 'ReadyForContracts',
-    READY_TO_TRADE = 'ReadyToTrade',
-    VERIFIED = 'Verified'
-}
-
-export enum ProductType {
-    COMMON_STOCK = 'CommonStock',
-    CONTINUOUS = 'Continuous',
-    CRYPTOCURRENCY = 'Cryptocurrency',
-    FUTURES = 'Futures',
-    MARKET_INTERNALS = 'MarketInternals',
-    OPTIONS = 'Options',
-    SPREAD = 'Spread'
 }
 
 export type ContractMaturity = {
@@ -3259,11 +3264,6 @@ export type UserAccountAutoLiqs = {
     dailyProfitAutoLiq?: number
     weeklyProfitAutoLiq?: number
     doNotUnlock?: boolean
-}
-
-export enum TrailingMaxDrawdownMode {
-    EOD = 'EOD',
-    REAL_TIME = 'RealTime'
 }
 
 export type MarginSnapshot = {
@@ -3644,7 +3644,7 @@ export type SocketsParams = {
 
 export type EventHandlerResults<T extends StrategyState> = {
     state: T
-    actions: Action[]
+    actions: (Action | CustomActionTemplate<string, any>)[]
 }
 
 export type AccountMini = {

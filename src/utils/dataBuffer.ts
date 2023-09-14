@@ -13,16 +13,17 @@ import {TickOrBar, TickOrBarPacket} from '../types'
  * @param packet - The BarPacket containing bars data.
  * @returns An array of Bar objects.
  */
-export function barsTransformer(packet: BarPacket) {
+export function barsTransformer(packet: BarPacket): Bar[] {
     const {bars} = packet
-    const results: Bar[] = []
-    if (bars) {
-        bars.forEach((bar: Bar) => {
-            const result = bar
-            results.push(result)
-        })
-    }
-    return results
+    return bars
+    // const results: Bar[] = []
+    // if (bars) {
+    //     bars.forEach((bar: Bar) => {
+    //         const result = bar
+    //         results.push(result)
+    //     })
+    // }
+    // return results
 }
 /**
  * Represents a utility function to transform TickPacket data into an array of Tick objects.

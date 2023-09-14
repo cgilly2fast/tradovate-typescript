@@ -11,18 +11,23 @@ import {
  * @param o - The object or array to be deep copied.
  * @returns A deep copy of the input object or array.
  */
-export const deepCopy = (o: any) => {
-    let r: any
-    if (o === null) return null
-    else if (Array.isArray(o) || typeof o === 'string') {
-        r = o.slice()
-    } else if (typeof o === 'object') {
-        r = {}
-        Object.keys(o).forEach(k => (r[k] = deepCopy(o[k])))
-    } else {
-        r = o
+export const deepCopy = (o: any): any => {
+    if (o === null || typeof o !== 'object') {
+        return o
     }
-    return r
+
+    if (Array.isArray(o)) {
+        return o.map(item => deepCopy(item))
+    }
+
+    const result: any = {}
+    for (const key in o) {
+        if (Object.prototype.hasOwnProperty.call(o, key)) {
+            result[key] = deepCopy(o[key])
+        }
+    }
+
+    return result
 }
 
 /**
@@ -37,7 +42,7 @@ export default class Dispatcher<T extends StrategyState> {
         action: Action | CustomActionTemplate<string, any>
     ) => EventHandlerResults<T>
     private storeState: T
-    private storeActions: Action[]
+    private storeActions: (Action | CustomActionTemplate<string, any>)[]
     private dispatching: boolean
     private queue: (Action | CustomActionTemplate<string, any>)[]
 

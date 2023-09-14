@@ -15,6 +15,12 @@ export function stringify(...args: any[]): string {
  * Converts a dictionary of query parameters into a URL-encoded query string.
  * @param query - The dictionary of query parameters.
  * @returns A URL-encoded query string.
+ *
+ * @example
+ * ```
+ * const queryParams = {name: 'ESU3'}
+ * const stringified = stringifyQueryParams(queryParams) // Output:'name=ESU3'
+ * ```
  */
 export function stringifyQueryParams(query: any): string {
     if (query === undefined || Object.keys(query).length === 0) return ''

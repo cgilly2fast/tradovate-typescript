@@ -5,7 +5,8 @@
     "scripts": {
         "build": "rimraf ./dist && tsc",
         "push": "npm run build && npm publish --access=public",
-        "lint": "npx eslint . --fix"
+        "lint": "npx eslint . --fix",
+        "test": "npx jest --watchAll --verbose"
     },
     "author": "Colby Gilbert",
     "license": "MIT",

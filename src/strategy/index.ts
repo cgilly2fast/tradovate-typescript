@@ -103,7 +103,7 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
         const actions = this.D.actions()
 
         if (actions && actions.length && actions.length > 0) {
-            actions.forEach((fx: Action) => {
+            actions.forEach((fx: Action | CustomActionTemplate<string, any>) => {
                 log(
                     '[Tradovate]: Side Effect:',
                     fx.event,
