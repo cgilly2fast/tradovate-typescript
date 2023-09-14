@@ -30,8 +30,8 @@ export default class TradovateService {
      * Makes a GET request to the Tradovate REST API.
      *
      * @param endpoint - The API endpoint to call.
-     * @param env - The environment (demo or live).
      * @param query - The query parameters as key-value pairs.
+     * @param live - The environment (demo or live).
      *
      * @returns A promise that resolves to the response data.
      *
@@ -86,8 +86,8 @@ export default class TradovateService {
      * Makes a POST request to the Tradovate REST API.
      *
      * @param endpoint - The API endpoint to call.
-     * @param env - The environment (demo or live).
      * @param data - The data to send in the request body as JSON.
+     * @param live - The environment (demo or live).
      * @param useToken - Indicates whether to use an access token in the request.
      *
      * @returns A promise that resolves to the response data.
@@ -102,7 +102,7 @@ export default class TradovateService {
      *   symbol: 'MNQM1',
      *   orderQty: 2,
      *   orderType: 'Market',
-     *   isAutomated: true, // Was this order placed by you or your robot?
+     *   isAutomated: true,
      * });
      * ```
      */
@@ -146,7 +146,7 @@ export default class TradovateService {
     /**
      * Renews the stored access token.
      *
-     * @param env - Indicates whether to renew the access token for the live environment or demo environment.
+     * @param live - Indicates whether to renew the access token for the live environment or demo environment.
      *
      * @returns A promise that resolves to the renewed access token information.
      */
@@ -196,9 +196,9 @@ export default class TradovateService {
     }
 
     /**
-     * Handles retrying an operation when a time penalty is present.
+     * Handles retrying renewAccessToken when a time penalty is present.
      *
-     * @param env - The environment (demo or live).
+     * @param live - The environment (demo or live).
      * @param penaltyResponse - The response data.
      *
      * @returns A promise that resolves to either PenaltyResponse or AccessTokenResponse.
@@ -231,7 +231,7 @@ export default class TradovateService {
      * Connects to the Tradovate API.
      *
      * @param data - The data for connecting to the API.
-     * @param env - The environment (demo or live).
+     * @param live - The environment (demo or live).
      *
      * @returns A promise that resolves to the response data.
      */

@@ -33,6 +33,10 @@
         "type": "git",
         "url": "https://github.com/cgilly2fast/tradovate-typescript"
     },
+    "jest": {
+        "preset": "ts-jest",
+        "testEnvironment": "node"
+    },
     "main": "dist/index.js",
     "files": [
         "dist/",

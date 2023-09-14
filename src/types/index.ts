@@ -2654,7 +2654,7 @@ export enum UserStatus {
 export type PenaltyResponse = {
     'p-ticket'?: string
     'p-time'?: number
-    'p-captcha'?: string
+    'p-captcha'?: boolean
 }
 
 export type SocketPenaltyResponse = {

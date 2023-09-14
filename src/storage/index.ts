@@ -31,6 +31,10 @@ export default class Storage {
         this.userData = {userId: 0, name: ''}
     }
 
+    /**
+     * Gets the singleton instance of the Storage class.
+     * @returns {Storage} The singleton instance of the Storage class.
+     */
     public static getInstance(): Storage {
         if (!Storage.instance) {
             Storage.instance = new Storage()
