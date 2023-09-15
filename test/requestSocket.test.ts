@@ -35,7 +35,6 @@ describe('RequestSocket', () => {
     beforeEach(async () => {
         originalConsoleLog = console.log
         console.log = jest.fn()
-        // Create a new instance of RequestSocket for each test
         requestSocket = new RequestSocket(URLs.WS_DEMO_URL)
         await service.connect(credentials)
     })

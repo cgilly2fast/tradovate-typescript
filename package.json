@@ -1,27 +1,16 @@
 {
     "name": "tradovate",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "Typescript Tradovate package to quickly test and deploy trading strategies on Tradovate.",
     "scripts": {
         "build": "rimraf ./dist && tsc",
         "push": "npm build && npm publish --access=public",
         "lint": "npx eslint . --fix",
-        "test": "npx jest --watchAll --verbose "
+        "test": "npx jest 30--verbose ",
+        "coverage": "npm run test --coverage"
     },
     "author": "Colby Gilbert",
     "license": "MIT",
-    "nyc": {
-        "extension": [
-            ".ts"
-        ],
-        "include": [
-            "src"
-        ],
-        "exclude": [
-            "**/*.d.ts"
-        ],
-        "all": true
-    },
     "keywords": [
         "tradovate",
         "tradovate api",
@@ -58,9 +47,11 @@
         "@types/ws": "^8.5.5",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
         "@typescript-eslint/parser": "^6.4.1",
+        "coveralls": "^3.1.1",
         "dotenv": "^16.3.1",
         "eslint": "^8.47.0",
         "jest": "^29.7.0",
+        "nyc": "^15.1.0",
         "prettier": "2.8.8",
         "rimraf": "^5.0.1",
         "ts-jest": "^29.1.1",

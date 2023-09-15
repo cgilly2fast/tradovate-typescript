@@ -3,17 +3,24 @@
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-downloads-url]
 [![MIT License][license-image]][license-url]
+[![Coverage Status](https://coveralls.io/repos/github/tradovate-typescript/badge.svg)](https://coveralls.io/github/tradovate-typescript)
 
 <!-- [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![FOSSA Status][fossa-badge-image]][fossa-badge-url]
 [![SemVer compatibility][semver-image]][semver-url] -->
 
-A Typescript Package for quickly connecting to and deploying trading strategies to Tradovate.
+A Typescript package for quickly connecting and deploying trading strategies toyarn Tradovate.
 
 ## Project Status
 
 Nearing 1.0 release, tests need to be written for some key components.
+
+## Installation
+
+```bash
+npm install tradovate --save
+```
 
 ## License
 
