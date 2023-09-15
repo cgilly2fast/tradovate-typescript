@@ -1,4 +1,15 @@
-language: ruby
-rvm:
-    - 2.2
-    - jruby
+language: node_js
+node_js:
+    - '16'
+
+# Define the script to run tests and report coverage
+script:
+    - npm test -- --coverage
+
+# Configure notifications
+notifications:
+    email: false
+
+# Send coverage information to Coveralls
+after_success:
+    - npx coveralls
