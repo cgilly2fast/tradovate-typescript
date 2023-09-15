@@ -1,10 +1,10 @@
 {
     "name": "tradovate",
-    "version": "0.5.6",
+    "version": "0.6.0",
     "description": "Typescript Tradovate package to quickly test and deploy trading strategies on Tradovate.",
     "scripts": {
         "build": "rimraf ./dist && tsc",
-        "push": "npm run build && npm publish --access=public",
+        "push": "npm build && npm publish --access=public",
         "lint": "npx eslint . --fix",
         "test": "npx jest --watchAll --verbose "
     },
