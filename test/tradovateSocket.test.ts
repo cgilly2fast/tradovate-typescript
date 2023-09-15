@@ -33,7 +33,7 @@ describe('TradovateSocket', () => {
 
     beforeEach(async () => {
         originalConsoleLog = console.log
-        // console.log = jest.fn()
+        console.log = jest.fn()
         // Create a new instance of TradovateSocket for each test
         tvSocket = new TradovateSocket()
         await service.connect(credentials)
@@ -68,7 +68,6 @@ describe('TradovateSocket', () => {
             new TradovateSocket(false, new RequestSocket(URLs.MD_URL))
             expect(true).toBe(true)
         } catch (error) {
-            console.log(error)
             //@ts-ignore
             expect(error.message).toBe('RequestSocket passed with an invalid url.')
         }

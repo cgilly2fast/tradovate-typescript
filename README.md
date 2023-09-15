@@ -3,7 +3,7 @@
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-downloads-url]
 [![MIT License][license-image]][license-url]
-[![Coverage Status](https://coveralls.io/repos/github/tradovate-typescript/badge.svg)](https://coveralls.io/github/tradovate-typescript)
+[![Coverage Status](https://coveralls.io/repos/github/cgilly2fast/tradovate-typescript/badge.svg)](https://coveralls.io/github/cgilly2fast/tradovate-typescript)
 
 <!-- [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]

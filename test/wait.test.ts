@@ -33,7 +33,7 @@ describe('waitUntil Function Tests', () => {
     })
 
     it('should resolve immediately if the predicate is initially true', async () => {
-        let isReady = true // Predicate is initially true
+        const isReady = true // Predicate is initially true
 
         // Wait until isReady becomes true
         await waitUntil(() => isReady)

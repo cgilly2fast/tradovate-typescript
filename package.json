@@ -7,7 +7,8 @@
         "push": "npm build && npm publish --access=public",
         "lint": "npx eslint . --fix",
         "test": "npx jest --verbose",
-        "coverage": "yarn test --coverage"
+        "coverage": "yarn test --coverage",
+        "coveralls": "npx coveralls < ./coverage/lcov.info"
     },
     "author": "Colby Gilbert",
     "license": "MIT",

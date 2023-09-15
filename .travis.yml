@@ -1,3 +1,4 @@
+sudo: false
 language: node_js
 node_js:
     - '16'
@@ -5,11 +6,8 @@ node_js:
 # Define the script to run tests and report coverage
 script:
     - yarn test --coverage
+    - yarn coveralls
 
 # Configure notifications
 notifications:
     email: false
-
-# Send coverage information to Coveralls
-after_success:
-    - npx coveralls

@@ -85,7 +85,7 @@ describe('Dispatcher Class Tests', () => {
 
     it('should handle action queueing', async () => {
         dispatcher.dispatch({event: 'IncrementPeriodTwice', payload: {}})
-        let actions = dispatcher.actions()
+        const actions = dispatcher.actions()
         dispatcher.dispatch(actions[0])
         // Queue two more actions while dispatching
         dispatcher.dispatch({event: 'IncrementPeriod', payload: {}})
