@@ -289,82 +289,6 @@ export type PositionEventMsg = {
     eventType: EventType
 }
 
-export function isContractGroupEventMsg(obj: any): obj is ContractGroupEventMsg {
-    return obj.entityType === EntityType.ContractGroup
-}
-
-export function isOrderStrategyLinkEventMsg(obj: any): obj is OrderStrategyLinkEventMsg {
-    return obj.entityType === EntityType.OrderStrategyLink
-}
-
-export function isOrderStrategyEventMsg(obj: any): obj is OrderStrategyEventMsg {
-    return obj.entityType === EntityType.OrderStrategy
-}
-
-export function isFillEventMsg(obj: any): obj is FillEventMsg {
-    return obj.entityType === EntityType.Fill
-}
-
-export function isOrderVersionEventMsg(obj: any): obj is OrderVersionEventMsg {
-    return obj.entityType === EntityType.OrderVersion
-}
-
-export function isExecutionReportEventMsg(obj: any): obj is ExecutionReportEventMsg {
-    return obj.entityType === EntityType.ExecutionReport
-}
-
-export function isCommandReportEventMsg(obj: any): obj is CommandReportEventMsg {
-    return obj.entityType === EntityType.CommandReport
-}
-
-export function isCommandEventMsg(obj: any): obj is CommandEventMsg {
-    return obj.entityType === EntityType.Command
-}
-
-export function isExchangeEventMsg(obj: any): obj is ExchangeEventMsg {
-    return obj.entityType === EntityType.Exchange
-}
-
-export function isProductEventMsg(obj: any): obj is ProductEventMsg {
-    return obj.entityType === EntityType.Product
-}
-
-export function isContractMaturityEventMsg(obj: any): obj is ContractMaturityEventMsg {
-    return obj.entityType === EntityType.ContractMaturity
-}
-
-export function isContractEventMsg(obj: any): obj is ContractEventMsg {
-    return obj.entityType === EntityType.Contract
-}
-
-export function isOrderEventMsg(obj: any): obj is OrderEventMsg {
-    return obj.entityType === EntityType.Order
-}
-
-export function isFillPairEventMsg(obj: any): obj is FillPairEventMsg {
-    return obj.entityType === EntityType.FillPair
-}
-
-export function isCurrencyEventMsg(obj: any): obj is CurrencyEventMsg {
-    return obj.entityType === EntityType.Currency
-}
-
-export function isMarginSnapshotEventMsg(obj: any): obj is MarginSnapshotEventMsg {
-    return obj.entityType === EntityType.MarginSnapshot
-}
-
-export function isAccountEventMsg(obj: any): obj is AccountEventMsg {
-    return obj.entityType === EntityType.Account
-}
-
-export function isCashBalanceEventMsg(obj: any): obj is CashBalanceEventMsg {
-    return obj.entityType === EntityType.CashBalance
-}
-
-export function isPositionEventMsg(obj: any): obj is PositionEventMsg {
-    return obj.entityType === EntityType.Position
-}
-
 export type PropsEvent = {
     e: string
     d: PropsEventMsg
@@ -414,49 +338,621 @@ export enum EventType {
     DELETED = 'Deleted'
 }
 
+/**
+ * Checks if the provided object is an instance of ContractGroupEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ContractGroupEventMsg, otherwise `false`.
+ */
+export function isContractGroupEventMsg(obj: any): obj is ContractGroupEventMsg {
+    return obj.entityType === EntityType.ContractGroup
+}
+
+/**
+ * Checks if the provided object is an instance of OrderStrategyLinkEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderStrategyLinkEventMsg, otherwise `false`.
+ */
+export function isOrderStrategyLinkEventMsg(obj: any): obj is OrderStrategyLinkEventMsg {
+    return obj.entityType === EntityType.OrderStrategyLink
+}
+
+/**
+ * Checks if the provided object is an instance of OrderStrategyEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderStrategyEventMsg, otherwise `false`.
+ */
+export function isOrderStrategyEventMsg(obj: any): obj is OrderStrategyEventMsg {
+    return obj.entityType === EntityType.OrderStrategy
+}
+
+/**
+ * Checks if the provided object is an instance of FillEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a FillEventMsg, otherwise `false`.
+ */
+export function isFillEventMsg(obj: any): obj is FillEventMsg {
+    return obj.entityType === EntityType.Fill
+}
+
+/**
+ * Checks if the provided object is an instance of OrderVersionEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderVersionEventMsg, otherwise `false`.
+ */
+export function isOrderVersionEventMsg(obj: any): obj is OrderVersionEventMsg {
+    return obj.entityType === EntityType.OrderVersion
+}
+
+/**
+ * Checks if the provided object is an instance of ExecutionReportEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an ExecutionReportEventMsg, otherwise `false`.
+ */
+export function isExecutionReportEventMsg(obj: any): obj is ExecutionReportEventMsg {
+    return obj.entityType === EntityType.ExecutionReport
+}
+
+/**
+ * Checks if the provided object is an instance of CommandReportEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a CommandReportEventMsg, otherwise `false`.
+ */
+export function isCommandReportEventMsg(obj: any): obj is CommandReportEventMsg {
+    return obj.entityType === EntityType.CommandReport
+}
+
+/**
+ * Checks if the provided object is an instance of CommandEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a CommandEventMsg, otherwise `false`.
+ */
+export function isCommandEventMsg(obj: any): obj is CommandEventMsg {
+    return obj.entityType === EntityType.Command
+}
+
+/**
+ * Checks if the provided object is an instance of ExchangeEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an ExchangeEventMsg, otherwise `false`.
+ */
+export function isExchangeEventMsg(obj: any): obj is ExchangeEventMsg {
+    return obj.entityType === EntityType.Exchange
+}
+
+/**
+ * Checks if the provided object is an instance of ProductEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ProductEventMsg, otherwise `false`.
+ */
+export function isProductEventMsg(obj: any): obj is ProductEventMsg {
+    return obj.entityType === EntityType.Product
+}
+
+/**
+ * Checks if the provided object is an instance of ContractMaturityEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ContractMaturityEventMsg, otherwise `false`.
+ */
+export function isContractMaturityEventMsg(obj: any): obj is ContractMaturityEventMsg {
+    return obj.entityType === EntityType.ContractMaturity
+}
+
+/**
+ * Checks if the provided object is an instance of ContractEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ContractEventMsg, otherwise `false`.
+ */
+export function isContractEventMsg(obj: any): obj is ContractEventMsg {
+    return obj.entityType === EntityType.Contract
+}
+
+/**
+ * Checks if the provided object is an instance of OrderEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderEventMsg, otherwise `false`.
+ */
+export function isOrderEventMsg(obj: any): obj is OrderEventMsg {
+    return obj.entityType === EntityType.Order
+}
+
+/**
+ * Checks if the provided object is an instance of FillPairEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a FillPairEventMsg, otherwise `false`.
+ */
+export function isFillPairEventMsg(obj: any): obj is FillPairEventMsg {
+    return obj.entityType === EntityType.FillPair
+}
+
+/**
+ * Checks if the provided object is an instance of CurrencyEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a CurrencyEventMsg, otherwise `false`.
+ */
+export function isCurrencyEventMsg(obj: any): obj is CurrencyEventMsg {
+    return obj.entityType === EntityType.Currency
+}
+
+/**
+ * Checks if the provided object is an instance of MarginSnapshotEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a MarginSnapshotEventMsg, otherwise `false`.
+ */
+export function isMarginSnapshotEventMsg(obj: any): obj is MarginSnapshotEventMsg {
+    return obj.entityType === EntityType.MarginSnapshot
+}
+
+/**
+ * Checks if the provided object is an instance of AccountEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an AccountEventMsg, otherwise `false`.
+ */
+export function isAccountEventMsg(obj: any): obj is AccountEventMsg {
+    return obj.entityType === EntityType.Account
+}
+
+/**
+ * Checks if the provided object is an instance of CashBalanceEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a CashBalanceEventMsg, otherwise `false`.
+ */
+export function isCashBalanceEventMsg(obj: any): obj is CashBalanceEventMsg {
+    return obj.entityType === EntityType.CashBalance
+}
+
+/**
+ * Checks if the provided object is an instance of PositionEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a PositionEventMsg, otherwise `false`.
+ */
+export function isPositionEventMsg(obj: any): obj is PositionEventMsg {
+    return obj.entityType === EntityType.Position
+}
+
+/**
+ * Checks if the provided object is an instance of ClockEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ClockEventMsg, otherwise `false`.
+ */
 export function isClockEventMsg(obj: any): obj is ClockEventMsg {
     return obj.e === 'clock' && typeof obj.d === 'string'
 }
 
+/**
+ * Checks if the provided object is an instance of QuoteEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a QuoteEventMsg, otherwise `false`.
+ */
 export function isQuoteEventMsg(obj: any): obj is QuoteEventMsg {
     return 'quotes' in obj && Array.isArray(obj.quotes)
 }
 
+/**
+ * Checks if the provided object is an instance of HistogramEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a HistogramEventMsg, otherwise `false`.
+ */
 export function isHistogramEventMsg(obj: any): obj is HistogramEventMsg {
     return 'histograms' in obj && Array.isArray(obj.histograms)
 }
 
+/**
+ * Checks if the provided object is an instance of DomEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a DomEventMsg, otherwise `false`.
+ */
 export function isDomEventMsg(obj: any): obj is DomEventMsg {
     return 'doms' in obj && Array.isArray(obj.doms)
 }
 
+/**
+ * Checks if the provided object is an instance of ChartEventMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ChartEventMsg, otherwise `false`.
+ */
 export function isChartEventMsg(obj: any): obj is ChartEventMsg {
     return 'charts' in obj && (Array.isArray(obj.charts) || obj.charts instanceof Array)
 }
 
+/**
+ * Checks if the provided object is an instance of QuoteEvent.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a QuoteEvent, otherwise `false`.
+ */
 export function isQuoteEvent(obj: any): obj is QuoteEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'quotes' in obj.d
 }
 
+/**
+ * Checks if the provided object is an instance of HistogramEvent.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a HistogramEvent, otherwise `false`.
+ */
 export function isHistogramEvent(obj: any): obj is HistogramEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'histograms' in obj.d
 }
 
+/**
+ * Checks if the provided object is an instance of DomEvent.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a DomEvent, otherwise `false`.
+ */
 export function isDomEvent(obj: any): obj is DomEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'doms' in obj.d
 }
 
+/**
+ * Checks if the provided object is an instance of ChartEvent.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ChartEvent, otherwise `false`.
+ */
 export function isChartEvent(obj: any): obj is ChartEvent {
     return obj && obj.e === 'string' && 'd' in obj && 'charts' in obj.d
 }
 
+/**
+ * Checks if the provided object is an instance of PropsEvent.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a PropsEvent, otherwise `false`.
+ */
 export function isPropsEvent(obj: any): obj is PropsEvent {
     return obj && obj.e === 'props' && obj.d
 }
 
-// export function isUserSyncEvent(obj: any): obj is UserSyncEvent {
-//     return obj && obj
-// }
+/**
+ * Checks if the provided object is an instance of RequestAction.
+ *
+ * @param action - The object to be checked.
+ * @returns `true` if the object is a RequestAction, otherwise `false`.
+ */
+export function isRequestAction(action: any): action is RequestAction {
+    return action && action.event === StrategyEvent.Request
+}
+
+/**
+ * Checks if the provided object is an instance of SocketPenaltyResponse.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a SocketPenaltyResponse, otherwise `false`.
+ */
+export function isSocketPenaltyResponse(obj: any): obj is SocketPenaltyResponse {
+    return obj && obj.d && isPenaltyResponse(obj.d)
+}
+
+/**
+ * Checks if the provided object is an instance of PenaltyResponse.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a PenaltyResponse, otherwise `false`.
+ */
+export function isPenaltyResponse(obj: any): obj is PenaltyResponse {
+    if (typeof obj === 'object' && ('p-ticket' in obj || 'p-captcha' in obj)) {
+        return true
+    }
+    return false
+}
+
+/**
+ * Checks if the provided item is an instance of HTTPErrorResponse.
+ *
+ * @param item - The object to be checked.
+ * @returns `true` if the item is an HTTPErrorResponse, otherwise `false`.
+ */
+export function isHTTPErrorResponse<T extends EndpointURLs>(
+    item: ResponseMsg<T> | HTTPErrorResponse
+): item is HTTPErrorResponse {
+    return (item as HTTPErrorResponse).s !== 200
+}
+
+/**
+ * Checks if the provided item is a valid ResponseMsg (status code 200).
+ *
+ * @param item - The object to be checked.
+ * @returns `true` if the item is a valid ResponseMsg, otherwise `false`.
+ */
+export function isValidResponseMsg<T extends EndpointURLs>(
+    item: ResponseMsg<T> | HTTPErrorResponse
+): item is ResponseMsg<T> {
+    return isResponseMsg(item) && item.s === 200
+}
+
+/**
+ * Checks if the provided data is an instance of ServerEvent.
+ *
+ * @param data - The object to be checked.
+ * @returns `true` if the data is a ServerEvent, otherwise `false`.
+ */
+export const isServerEvent = (data: any): data is ServerEvent => {
+    return 'e' in data
+}
+
+/**
+ * Checks if the provided data is a ResponseMsg.
+ *
+ * @param data - The object to be checked.
+ * @returns `true` if the data is a ResponseMsg, otherwise `false`.
+ */
+export const isResponseMsg = (data: any): data is ResponseMsg<any> => {
+    return 'i' in data && 's' in data
+}
+
+/**
+ * Checks if the provided response is a GetChartResponse.
+ *
+ * @param response - The object to be checked.
+ * @returns `true` if the response is a GetChartResponse, otherwise `false`.
+ */
+export function isGetChartResponse(
+    response: ResponseMsg<any>
+): response is ResponseMsg<'md/getchart'> {
+    return 'subscriptionId' in response || 'realtimeId' in response
+}
+
+/**
+ * Checks if the provided object is a UserSyncResponseMsg.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a UserSyncResponseMsg, otherwise `false`.
+ */
+export function isUserSyncResponseMsg(
+    obj: ResponseMsg<any> | ServerEvent
+): obj is ResponseMsg<'user/syncrequest'> {
+    return obj && obj.d && obj.d.users
+}
+
+/**
+ * Checks if the provided function is a QuoteSubscription.
+ *
+ * @param fn - The function to be checked.
+ * @returns `true` if the function is a QuoteSubscription, otherwise `false`.
+ */
+export function isQuoteSubscription(fn: any): fn is QuoteSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+/**
+ * Checks if the provided function is a DOMSubscription.
+ *
+ * @param fn - The function to be checked.
+ * @returns `true` if the function is a DOMSubscription, otherwise `false`.
+ */
+export function isDOMSubscription(fn: any): fn is DOMSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+/**
+ * Checks if the provided function is a ChartSubscription.
+ *
+ * @param fn - The function to be checked.
+ * @returns `true` if the function is a ChartSubscription, otherwise `false`.
+ */
+export function isChartSubscription(fn: any): fn is ChartSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+/**
+ * Checks if the provided function is a HistogramSubscription.
+ *
+ * @param fn - The function to be checked.
+ * @returns `true` if the function is a HistogramSubscription, otherwise `false`.
+ */
+export function isHistogramSubscription(fn: any): fn is HistogramSubscription {
+    return typeof fn === 'function' && fn.length === 1
+}
+
+/**
+ * Checks if the provided object is a CommandReport.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a CommandReport, otherwise `false`.
+ */
+export function isCommandReport(obj: any): obj is CommandReport {
+    return 'commandId' in obj && 'timestamp' in obj && 'commandStatus' in obj
+}
+
+/**
+ * Checks if the provided object is an Order.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an Order, otherwise `false`.
+ */
+export function isOrder(obj: any): obj is Order {
+    return (
+        'accountId' in obj &&
+        'timestamp' in obj &&
+        'action' in obj &&
+        'ordStatus' in obj &&
+        'admin' in obj
+    )
+}
+
+/**
+ * Checks if the provided object is an Account.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an Account, otherwise `false`.
+ */
+export function isAccount(obj: any): obj is Account {
+    return (
+        'name' in obj &&
+        'userId' in obj &&
+        'accountType' in obj &&
+        'active' in obj &&
+        'clearingHouseId' in obj &&
+        'riskCategoryId' in obj &&
+        'autoLiqProfileId' in obj &&
+        'marginAccountType' in obj &&
+        'legalStatus' in obj &&
+        'archived' in obj &&
+        'timestamp' in obj
+    )
+}
+
+/**
+ * Checks if the provided object is an OrderStrategyTypes.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderStrategyTypes, otherwise `false`.
+ */
+export function isOrderStrategyTypes(obj: any): obj is OrderStrategyTypes {
+    return 'name' in obj && 'enabled' in obj
+}
+
+/**
+ * Checks if the provided object is a ContractGroup.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a ContractGroup, otherwise `false`.
+ */
+export function isContractGroup(obj: any): obj is ContractGroup {
+    return 'name' in obj
+}
+
+/**
+ * Checks if the provided object is a UserPlugin.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a UserPlugin, otherwise `false`.
+ */
+export function isUserPlugin(obj: any): obj is UserPlugin {
+    return (
+        'userId' in obj &&
+        'timestamp' in obj &&
+        'planPrice' in obj &&
+        'pluginName' in obj &&
+        'approval' in obj &&
+        'startDate' in obj &&
+        'paidAmount' in obj &&
+        'autoRenewal' in obj &&
+        'planCategories' in obj
+    )
+}
+
+/**
+ * Checks if the provided object is a Properties.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a Properties, otherwise `false`.
+ */
+export function isProperties(obj: any): obj is Properties {
+    return 'name' in obj && 'propertyType' in obj && 'defaultValue' in obj
+}
+
+/**
+ * Checks if the provided object is a UserProperties.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a UserProperties, otherwise `false`.
+ */
+export function isUserProperties(obj: any): obj is UserProperties {
+    return 'userId' in obj && 'propertyId' in obj && 'value' in obj
+}
+
+/**
+ * Checks if the provided object is an OrderStrategyLink.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderStrategyLink, otherwise `false`.
+ */
+export function isOrderStrategyLink(obj: any): obj is OrderStrategyLink {
+    return 'orderStrategyId' in obj && 'orderId' in obj && 'label' in obj
+}
+
+/**
+ * Checks if the provided object is a Fill.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is a Fill, otherwise `false`.
+ */
+export function isFill(obj: any): obj is Fill {
+    return (
+        'orderId' in obj &&
+        'contractId' in obj &&
+        'timestamp' in obj &&
+        'tradeDate' in obj &&
+        'action' in obj &&
+        'qty' in obj &&
+        'price' in obj &&
+        'active' in obj &&
+        'finallyPaired' in obj
+    )
+}
+
+/**
+ * Checks if the provided object is an OrderVersion.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an OrderVersion, otherwise `false`.
+ */
+export function isOrderVersion(obj: any): obj is OrderVersion {
+    return (
+        'orderId' in obj && 'orderQty' in obj && 'orderType' in obj && 'expireTime' in obj
+    )
+}
+
+/**
+ * Checks if the provided object is an ExecutionReport.
+ *
+ * @param obj - The object to be checked.
+ * @returns `true` if the object is an ExecutionReport, otherwise `false`.
+ */
+export function isExecutionReport(obj: any): obj is ExecutionReport {
+    return (
+        'commandId' in obj &&
+        'name' in obj &&
+        'accountId' in obj &&
+        'contractId' in obj &&
+        'timestamp' in obj &&
+        'tradeDate' in obj &&
+        'orderId' in obj &&
+        'execType' in obj &&
+        'execRefId' in obj &&
+        'ordStatus' in obj &&
+        'action' in obj &&
+        'rejectReason' in obj &&
+        'text' in obj &&
+        'exchangeOrderId' in obj
+    )
+}
+
+/**
+ * Checks if the provided URL is a valid Tradovate URL.
+ *
+ * @param url - The URL to be checked.
+ * @returns `true` if the URL is a valid Tradovate URL, otherwise `false`.
+ */
+export function isTradovateURL(url: any): url is URLs {
+    return Object.values(URLs).includes(url)
+}
 
 export type Chart = BarPacket | TickPacket
 export type DOM = {
@@ -584,10 +1080,6 @@ export type CustomActionTemplate<T extends string, U> = {event: T; payload: U}
 export type RequestAction = {
     event: StrategyEvent.Request
     payload: RequestParams<any>
-}
-
-export function isRequestAction(action: any): action is RequestAction {
-    return action && action.event === StrategyEvent.Request
 }
 
 export type ReplayCompletePayload = {[key: string]: any}
@@ -2660,10 +3152,6 @@ export type SocketPenaltyResponse = {
     d: PenaltyResponse
 }
 
-export function isSocketPenaltyResponse(obj: any): obj is SocketPenaltyResponse {
-    return obj && obj.d && isPenaltyResponse(obj.d)
-}
-
 export type SubscribeRequestBody = {
     'replay/initializeclock': {
         startTimestamp: string
@@ -2704,33 +3192,6 @@ export type SubscribeMap = {
     'md/getchart': 'md/getChart'
     'md/subscribehistogram': 'md/subscribeHistogram'
     'md/subscribedom': 'md/subscribeDOM'
-}
-
-export function isPenaltyResponse(obj: any): obj is PenaltyResponse {
-    if (typeof obj === 'object' && ('p-ticket' in obj || 'p-captcha' in obj)) {
-        return true
-    }
-    return false
-}
-
-export function isHTTPErrorResponse<T extends EndpointURLs>(
-    item: ResponseMsg<T> | HTTPErrorResponse
-): item is HTTPErrorResponse {
-    return (item as HTTPErrorResponse).s !== 200
-}
-
-export function isValidResponseMsg<T extends EndpointURLs>(
-    item: ResponseMsg<T> | HTTPErrorResponse
-): item is ResponseMsg<T> {
-    return isResponseMsg(item) && item.s === 200
-}
-
-export const isServerEvent = (data: any): data is ServerEvent => {
-    return 'e' in data
-}
-
-export const isResponseMsg = (data: any): data is ResponseMsg<any> => {
-    return 'i' in data && 's' in data
 }
 
 export type ReplayPeriod = {
@@ -2808,12 +3269,6 @@ export type GetChartResponse = {
     subscriptionId?: number
     realtimeId?: number
     errorText?: string
-}
-
-export function isGetChartResponse(
-    response: ResponseMsg<any>
-): response is ResponseMsg<'md/getchart'> {
-    return 'subscriptionId' in response || 'realtimeId' in response
 }
 
 export type ChangeSpeedResponse = SimpleResponse
@@ -2900,12 +3355,6 @@ export type SyncRequestResponse = {
     contractGroups: ContractGroup[]
     orderStrategyTypes?: any[]
     errorText?: string
-}
-
-export function isUserSyncResponseMsg(
-    obj: ResponseMsg<any> | ServerEvent
-): obj is ResponseMsg<'user/syncrequest'> {
-    return obj && obj.d && obj.d.users
 }
 
 export type CommandReport = {
@@ -3333,109 +3782,6 @@ export enum StartOrderStrategyStatus {
     StoppedByUser = 'StoppedByUser'
 }
 
-export function isCommandReport(obj: any): obj is CommandReport {
-    return 'commandId' in obj && 'timestamp' in obj && 'commandStatus' in obj
-}
-
-export function isOrder(obj: any): obj is Order {
-    return (
-        'accountId' in obj &&
-        'timestamp' in obj &&
-        'action' in obj &&
-        'ordStatus' in obj &&
-        'admin' in obj
-    )
-}
-
-export function isAccount(obj: any): obj is Account {
-    return (
-        'name' in obj &&
-        'userId' in obj &&
-        'accountType' in obj &&
-        'active' in obj &&
-        'clearingHouseId' in obj &&
-        'riskCategoryId' in obj &&
-        'autoLiqProfileId' in obj &&
-        'marginAccountType' in obj &&
-        'legalStatus' in obj &&
-        'archived' in obj &&
-        'timestamp' in obj
-    )
-}
-
-export function isOrderStrategyTypes(obj: any): obj is OrderStrategyTypes {
-    return 'name' in obj && 'enabled' in obj
-}
-
-export function isContractGroup(obj: any): obj is ContractGroup {
-    return 'name' in obj
-}
-
-export function isUserPlugin(obj: any): obj is UserPlugin {
-    return (
-        'userId' in obj &&
-        'timestamp' in obj &&
-        'planPrice' in obj &&
-        'pluginName' in obj &&
-        'approval' in obj &&
-        'startDate' in obj &&
-        'paidAmount' in obj &&
-        'autoRenewal' in obj &&
-        'planCategories' in obj
-    )
-}
-
-export function isProperties(obj: any): obj is Properties {
-    return 'name' in obj && 'propertyType' in obj && 'defaultValue' in obj
-}
-
-export function isUserProperties(obj: any): obj is UserProperties {
-    return 'userId' in obj && 'propertyId' in obj && 'value' in obj
-}
-
-export function isOrderStrategyLink(obj: any): obj is OrderStrategyLink {
-    return 'orderStrategyId' in obj && 'orderId' in obj && 'label' in obj
-}
-
-export function isFill(obj: any): obj is Fill {
-    return (
-        'orderId' in obj &&
-        'contractId' in obj &&
-        'timestamp' in obj &&
-        'tradeDate' in obj &&
-        'action' in obj &&
-        'qty' in obj &&
-        'price' in obj &&
-        'active' in obj &&
-        'finallyPaired' in obj
-    )
-}
-
-export function isOrderVersion(obj: any): obj is OrderVersion {
-    return (
-        'orderId' in obj && 'orderQty' in obj && 'orderType' in obj && 'expireTime' in obj
-    )
-}
-
-export function isExecutionReport(obj: any): obj is ExecutionReport {
-    return (
-        'commandId' in obj &&
-        'name' in obj &&
-        'accountId' in obj &&
-        'contractId' in obj &&
-        'timestamp' in obj &&
-        'tradeDate' in obj &&
-        'orderId' in obj &&
-        'execType' in obj &&
-        'execRefId' in obj &&
-        'ordStatus' in obj &&
-        'action' in obj &&
-        'rejectReason' in obj &&
-        'text' in obj &&
-        'exchangeOrderId' in obj
-    )
-}
-
 export type SubscribeQuoteParams = {symbol: string; onSubscription: (item: Quote) => void}
 export type SubscribeDOMParams = {symbol: string; onSubscription: (item: DOM) => void}
 export type SubscribeHistogramParams = {
@@ -3491,22 +3837,6 @@ export interface TvSocket extends Socket {
     synchronize(params: TradovateSocketSynchronizeParams): Promise<() => void>
     addListener(fn: (item: ResponseMsg<any> | ServerEvent) => void): () => Listener[]
     request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>>
-}
-
-export function isQuoteSubscription(fn: any): fn is QuoteSubscription {
-    return typeof fn === 'function' && fn.length === 1
-}
-
-export function isDOMSubscription(fn: any): fn is DOMSubscription {
-    return typeof fn === 'function' && fn.length === 1
-}
-
-export function isChartSubscription(fn: any): fn is ChartSubscription {
-    return typeof fn === 'function' && fn.length === 1
-}
-
-export function isHistogramSubscription(fn: any): fn is HistogramSubscription {
-    return typeof fn === 'function' && fn.length === 1
 }
 
 export type QuoteSubscription = (item: Quote) => void
@@ -4962,10 +5292,6 @@ export type CalculatePnLParams = {
     price: number
     position: Position
     product: Product
-}
-
-export function isTradovateURL(url: any): url is URLs {
-    return Object.values(URLs).includes(url)
 }
 
 /**
