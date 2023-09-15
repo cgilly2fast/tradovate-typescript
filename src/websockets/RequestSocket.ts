@@ -105,7 +105,7 @@ export default class RequestSocket implements Socket {
 
     connect(): Promise<void> {
         this.ws = new WebSocket(this.listeningURL)
-        let heartbeatInterval: NodeJS.Timer
+        let heartbeatInterval: NodeJS.Timeout
         const token = this.getToken()
 
         const sendHeartbeat = () => {
