@@ -144,7 +144,7 @@ describe('TradovateService', () => {
     it('should handle GET request errors', async () => {
         try {
             await await service.get('contract/find', {name: ''})
-            // Fail the test if it doesn't throw an error
+
             expect(true).toBe(false)
         } catch (error) {
             //@ts-ignore

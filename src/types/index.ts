@@ -4667,6 +4667,10 @@ export type CalculatePnLParams = {
     product: Product
 }
 
+export function isTradovateURL(url: any): url is URLs {
+    return Object.values(URLs).includes(url)
+}
+
 /**
  * Represents parameters for creating a Dispatcher instance.
  * @typeparam T - The type of the StrategyState.

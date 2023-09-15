@@ -11,19 +11,21 @@ import {
     SocketPenaltyResponse,
     isSocketPenaltyResponse,
     HTTPErrorResponse,
-    isHTTPErrorResponse
+    isHTTPErrorResponse,
+    isTradovateURL
 } from '../types'
 import Storage from '../storage'
 
 export default class RequestSocket implements Socket {
     private counter: number
     private ws: WebSocket
-    private listeningURL: string
+    private listeningURL: URLs
     private curTime: Date
     private listeners: Listener[]
     private storage: Storage
 
     constructor(url: URLs) {
+        if (!isTradovateURL(url)) throw new Error(`Not a valid Tradovate URL: ${url}`)
         this.counter = 0
         this.ws = {} as WebSocket
         this.listeningURL = url

@@ -8,6 +8,9 @@
 .vscode
 /docs
 /docsTemplate
+/guides
+/examples
+
 
 # production
 /dist
