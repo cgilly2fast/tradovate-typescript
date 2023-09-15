@@ -632,12 +632,12 @@ export enum Trend {
 
 export type AccessToken = {
     accessToken?: string
-    expiration?: string
+    expirationTime?: string
 }
 
 export type MdAccessToken = {
     mdAccessToken?: string
-    expiration?: string
+    expirationTime?: string
 }
 
 export type HTTPErrorResponse = {
@@ -985,7 +985,7 @@ export type EndpointRequestBody = {
     'order/placeoso': PlaceOSORequestBody
     'order/cancelorder': CancelOrderRequestBody
     'orderStrategy/deps': undefined
-    'orderStrategy/interruptorderstrategy': undefined
+    'orderStrategy/interruptorderstrategy': {orderStrategyId: number}
     'orderStrategy/item': undefined
     'orderStrategy/items': undefined
     'orderStrategy/ldeps': undefined
@@ -4330,6 +4330,7 @@ export type PostEndpointBodyParams = {
     'order/placeoso': PlaceOSORequestBody
     'order/cancelorder': CancelOrderRequestBody
     'orderStrategy/startorderstrategy': StartOrderStrategyRequestBody
+    'orderStrategy/interruptorderstrategy': {orderStrategyId: number}
     'cashBalance/getcashbalancesnapshot': {accountId: number}
     'replay/changespeed': {speed: number}
     'replay/checkreplaysession': {startTimestamp: string}

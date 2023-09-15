@@ -77,8 +77,7 @@ export default class TradovateService {
 
             return res.data
         } catch (err) {
-            console.error('[Tradovate]: tvGet' + err)
-            throw new Error('service.get' + err)
+            throw new Error('service.get ' + err)
         }
     }
 
@@ -139,7 +138,6 @@ export default class TradovateService {
 
             return res.data
         } catch (err) {
-            console.error('[Tradovate]: tvPost: ' + err)
             throw new Error('service.post ' + err)
         }
     }
@@ -151,47 +149,55 @@ export default class TradovateService {
      * @returns A promise that resolves to the renewed access token information.
      */
     renewAccessToken = async (live: boolean = false) => {
-        const {accessToken, expiration} = this.storage.getAccessToken()
+        const {accessToken, expirationTime} = this.storage.getAccessToken()
         if (
             accessToken &&
-            expiration &&
-            this.storage.tokenIsValid(expiration) &&
-            !this.storage.tokenNearExpiry(expiration)
+            expirationTime &&
+            this.storage.tokenIsValid(expirationTime) &&
+            !this.storage.tokenNearExpiry(expirationTime)
         ) {
             console.log(
                 '[Tradovate]: Already have an accessToken. Using existing accessToken.'
             )
-            const {accessToken, expiration} = this.storage.getAccessToken()
+            const {accessToken, expirationTime} = this.storage.getAccessToken()
             const {userId, name} = this.storage.getUserData()
-            return {accessToken: accessToken, expirationTime: expiration, userId, name}
+            return {
+                accessToken: accessToken,
+                expirationTime: expirationTime,
+                userId,
+                name
+            }
         }
 
         console.log('[Tradovate]: Renewing accessToken...')
-        const authResponse = await this.get('auth/renewaccesstoken', undefined, live)
-        if (isPenaltyResponse(authResponse)) {
-            return await this.handleRenewRetry(live, authResponse)
-        } else {
-            const {
-                errorText,
-                accessToken,
-                mdAccessToken,
-                userId,
-                userStatus,
-                name,
-                expirationTime
-            } = authResponse
+        try {
+            const authResponse = await this.get('auth/renewaccesstoken', undefined, live)
+            if (isPenaltyResponse(authResponse)) {
+                return await this.handleRenewRetry(live, authResponse)
+            } else {
+                const {
+                    errorText,
+                    accessToken,
+                    mdAccessToken,
+                    userId,
+                    userStatus,
+                    name,
+                    expirationTime
+                } = authResponse
 
-            if (errorText) {
-                console.error('[Tradovate]: Error in accessToken renewal: ' + errorText)
-                return
+                if (errorText) {
+                    throw new Error('accessToken renewal: ' + errorText)
+                }
+
+                this.storage.setAccessToken(accessToken!, mdAccessToken!, expirationTime!)
+
+                console.log(
+                    `[Tradovate]: Successfully stored RENEWED accessToken ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
+                )
+                return authResponse
             }
-
-            this.storage.setAccessToken(accessToken!, mdAccessToken!, expirationTime!)
-
-            console.log(
-                `[Tradovate]: Successfully stored RENEWED accessToken ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
-            )
-            return authResponse
+        } catch (err) {
+            throw new Error('No active token to renew: ' + err)
         }
     }
 
@@ -215,7 +221,7 @@ export default class TradovateService {
 
         if (captcha) {
             throw new Error(
-                '[Tradovate]: Captcha present, cannot retry auth request via third party application. Please try again in an hour.'
+                'Captcha present, cannot retry auth request via third party application. Please try again in an hour.'
             )
         }
 
@@ -239,19 +245,24 @@ export default class TradovateService {
         data: AccessTokenRequestBody,
         live: boolean = false
     ): Promise<AccessTokenResponse> => {
-        const {accessToken, expiration} = this.storage.getAccessToken()
+        const {accessToken, expirationTime} = this.storage.getAccessToken()
         if (
             accessToken &&
-            expiration &&
-            this.storage.tokenIsValid(expiration) &&
-            !this.storage.tokenNearExpiry(expiration)
+            expirationTime &&
+            this.storage.tokenIsValid(expirationTime) &&
+            !this.storage.tokenNearExpiry(expirationTime)
         ) {
             console.log(
                 '[Tradovate]: Already have an accessToken. Using existing accessToken.'
             )
-            const {accessToken, expiration} = this.storage.getAccessToken()
+            const {accessToken, expirationTime} = this.storage.getAccessToken()
             const {userId, name} = this.storage.getUserData()
-            return {accessToken: accessToken, expirationTime: expiration, userId, name}
+            return {
+                accessToken: accessToken,
+                expirationTime: expirationTime,
+                userId,
+                name
+            }
         }
 
         const authResponse = await this.post('auth/accesstokenrequest', data, live, false)
@@ -263,7 +274,7 @@ export default class TradovateService {
                 accessToken,
                 mdAccessToken,
                 userId,
-                userStatus,
+                // userStatus,
                 name,
                 expirationTime
             } = authResponse
@@ -283,9 +294,9 @@ export default class TradovateService {
 
             this.storage.setAvailableAccounts(accounts)
 
-            console.log(
-                `[Tradovate]: Successfully stored accessToken ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
-            )
+            // console.log(
+            //     `[Tradovate]: Successfully stored accessToken ${accessToken} for user {name: ${name}, ID: ${userId}, status: ${userStatus}}.`
+            // )
             return authResponse
         }
     }

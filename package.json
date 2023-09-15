@@ -6,7 +6,7 @@
         "build": "rimraf ./dist && tsc",
         "push": "npm run build && npm publish --access=public",
         "lint": "npx eslint . --fix",
-        "test": "npx jest --watchAll --verbose"
+        "test": "npx jest --watchAll --verbose "
     },
     "author": "Colby Gilbert",
     "license": "MIT",
@@ -52,11 +52,13 @@
     },
     "devDependencies": {
         "@tsconfig/docusaurus": "^2.0.0",
+        "@types/dotenv": "^8.2.0",
         "@types/jest": "^29.5.4",
         "@types/node": "^20.3.0",
         "@types/ws": "^8.5.5",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
         "@typescript-eslint/parser": "^6.4.1",
+        "dotenv": "^16.3.1",
         "eslint": "^8.47.0",
         "jest": "^29.7.0",
         "prettier": "2.8.8",

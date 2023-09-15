@@ -214,7 +214,7 @@ describe('Storage Class Tests', () => {
 
         expect(retrievedAccessToken).toEqual({
             accessToken: accessToken,
-            expiration: expiration
+            expirationTime: expiration
         })
     })
 
@@ -238,7 +238,7 @@ describe('Storage Class Tests', () => {
 
         expect(retrievedMdAccessToken).toEqual({
             mdAccessToken: mdAccessToken,
-            expiration: expiration
+            expirationTime: expiration
         })
     })
 
@@ -251,7 +251,7 @@ describe('Storage Class Tests', () => {
 
         expect(retrievedMdAccessToken).toEqual({
             mdAccessToken: '',
-            expiration: '2023-12-31T23:59:59Z'
+            expirationTime: '2023-12-31T23:59:59Z'
         })
         expect(consoleWarnSpy).toHaveBeenCalledWith(
             '[Tradovate]: No market data access token retrieved. Please request an access token.'
@@ -304,5 +304,27 @@ describe('Storage Class Tests', () => {
         const retrievedUserData = storageInstance.getUserData()
 
         expect(retrievedUserData).toEqual(userData)
+    })
+
+    it('should clear storage of all values back to null', () => {
+        const accessToken = 'sampleAccessToken'
+        const mdAccessToken = 'sampleMdAccessToken'
+        const expiration = '2023-12-31T23:59:59Z'
+
+        const userData = {userId: 1234567, name: 'DEMO131344444'}
+
+        storageInstance.setAccessToken(accessToken, mdAccessToken, expiration)
+        storageInstance.setUserData(userData)
+        storageInstance.clear()
+
+        const retrievedAccessToken = storageInstance.getAccessToken()
+        const retrievedUserData = storageInstance.getUserData()
+
+        expect(retrievedUserData).toEqual({userId: 0, name: ''})
+
+        expect(retrievedAccessToken).toEqual({
+            accessToken: '',
+            expirationTime: ''
+        })
     })
 })

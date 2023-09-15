@@ -8,7 +8,7 @@ export default class Storage {
     private availableAccounts: Account[]
     private accessToken: string
     private mdAccessToken: string
-    private expiration: string
+    private expirationTime: string
     private userData: {userId: number; name: string}
 
     private static instance: Storage | null = null
@@ -21,7 +21,7 @@ export default class Storage {
         this.availableAccounts = []
         this.accessToken = ''
         this.mdAccessToken = ''
-        this.expiration = ''
+        this.expirationTime = ''
         this.userData = {userId: 0, name: ''}
     }
 
@@ -107,7 +107,7 @@ export default class Storage {
             throw new Error('[Tradovate]: Attempted to set an undefined token')
         this.accessToken = token
         this.mdAccessToken = md_token
-        this.expiration = expiration
+        this.expirationTime = expiration
     }
 
     /**
@@ -116,13 +116,13 @@ export default class Storage {
      */
     getAccessToken(): AccessToken {
         const accessToken = this.accessToken
-        const expiration = this.expiration
+        const expirationTime = this.expirationTime
         if (accessToken === '' || accessToken === undefined) {
             console.warn(
                 '[Tradovate]: No access token retrieved. Please request an access token.'
             )
         }
-        return {accessToken, expiration}
+        return {accessToken, expirationTime}
     }
 
     /**
@@ -131,13 +131,13 @@ export default class Storage {
      */
     getMdAccessToken(): MdAccessToken {
         const mdAccessToken = this.mdAccessToken
-        const expiration = this.expiration
+        const expirationTime = this.expirationTime
         if (mdAccessToken === '') {
             console.warn(
                 '[Tradovate]: No market data access token retrieved. Please request an access token.'
             )
         }
-        return {mdAccessToken, expiration}
+        return {mdAccessToken, expirationTime}
     }
 
     /**
@@ -172,5 +172,18 @@ export default class Storage {
      */
     getUserData(): {userId: number; name: string} {
         return this.userData
+    }
+
+    /**
+     * Clear the storage back to null values
+     * @returns {{userId: number, name: string}} User data.
+     */
+    clear(): void {
+        this.deviceId = ''
+        this.availableAccounts = []
+        this.accessToken = ''
+        this.mdAccessToken = ''
+        this.expirationTime = ''
+        this.userData = {userId: 0, name: ''}
     }
 }
