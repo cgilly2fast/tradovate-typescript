@@ -6,8 +6,8 @@
         "build": "rimraf ./dist && tsc",
         "push": "npm build && npm publish --access=public",
         "lint": "npx eslint . --fix",
-        "test": "npx jest 30--verbose ",
-        "coverage": "npm run test --coverage"
+        "test": "npx jest --verbose",
+        "coverage": "yarn test --coverage"
     },
     "author": "Colby Gilbert",
     "license": "MIT",
