@@ -4,7 +4,7 @@
     "description": "Typescript Tradovate package to quickly test and deploy trading strategies on Tradovate.",
     "scripts": {
         "build": "rimraf ./dist && tsc",
-        "push": "npm build && npm publish --access=public",
+        "push": "yarn build && yarn publish",
         "lint": "npx eslint . --fix",
         "test": "npx jest --verbose",
         "coverage": "yarn test --coverage",

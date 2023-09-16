@@ -3,7 +3,7 @@
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-downloads-url]
 [![MIT License][license-image]][license-url]
-[![Coverage Status](https://coveralls.io/repos/github/cgilly2fast/tradovate-typescript/badge.svg)](https://coveralls.io/github/cgilly2fast/tradovate-typescript)
+[![Coverage Status](https://coveralls.io/repos/github/cgilly2fast/tradovate-typescript/badge.svg)](https://coveralls.io/github/cgilly2fast/tradovate-typescript)thub/cgilly2fast/tradovate-typescript)
 
 <!-- [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
@@ -21,6 +21,50 @@ Nearing 1.0 release, tests need to be written for some key components.
 ```bash
 npm install tradovate --save
 ```
+
+```bash
+yarn add tradovate
+```
+
+## Usage
+
+Connecting to quote data can be done in a few lines of code.
+
+```typescript
+import 'dotenv/config'
+import {TradovateService, AccessTokenRequestBody, MarketDataSocket} from '../../src'
+
+const credentials: AccessTokenRequestBody = {
+    name: process.env.TV_USER!,
+    password: process.env.TV_PASSWORD!,
+    appId: process.env.TV_APP_ID,
+    appVersion: '1.0.0',
+    cid: process.env.TV_CID,
+    sec: process.env.TV_SECRET
+}
+
+const service = new TradovateService()
+
+const mdSocket = new MarketDataSocket()
+
+async function main() {
+    await service.connect(credentials)
+
+    await mdSocket.connect()
+
+    await mdSocket.subscribeQuote('ESU3', item => {
+        console.log(item)
+    })
+
+    setTimeout(() => {
+        mdSocket.disconnect()
+    }, 30 * 60 * 1000)
+}
+
+main()
+```
+
+_Note: you need to have a funded Tradovate account with API access enabled and a CME Information License Agreement (ILA) for above code to work._
 
 ## License
 
