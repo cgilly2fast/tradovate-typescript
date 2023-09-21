@@ -16,6 +16,10 @@ import {
 } from '../types'
 import Storage from '../storage'
 
+/**
+ * Represents a WebSocket-based communication class for making requests and handling responses.
+ * This class is specifically designed for interacting with Tradovate API endpoints.
+ */
 export default class RequestSocket implements Socket {
     private counter: number
     private ws: WebSocket
@@ -24,6 +28,11 @@ export default class RequestSocket implements Socket {
     private listeners: Listener[]
     private storage: Storage
 
+    /**
+     * Initializes a new instance of the RequestSocket class.
+     * @param url - The URL to connect to. Must be a valid Tradovate URL.
+     * @throws Error if the provided URL is not a valid Tradovate URL.
+     */
     constructor(url: URLs) {
         if (!isTradovateURL(url)) throw new Error(`Not a valid Tradovate URL: ${url}`)
         this.counter = 0
@@ -72,22 +81,39 @@ export default class RequestSocket implements Socket {
         this.listeners.forEach(listener => data.forEach((item: any) => listener(item)))
     }
 
+    /**
+     * Connects to the WebSocket server.
+     * @returns A promise that resolves when the connection is established successfully.
+     */
     getListeningUrl() {
         return this.listeningURL
     }
 
+    /**
+     * Removes all listeners and closes the WebSocket connection.
+     */
     removeListeners() {
         this.ws.removeAllListeners('message')
         this.ws.close(1000, `Client initiated disconnect.`)
         this.listeners = []
     }
 
+    /**
+     * Disconnects from the WebSocket server.
+     * @remarks
+     * This method closes the WebSocket connection and removes all listeners.
+     */
     disconnect() {
         log('[Tradovate]: Closing ' + this.listeningURL + ' connection...')
         this.removeListeners()
         this.ws = {} as WebSocket
     }
 
+    /**
+     * Disconnects from the WebSocket server.
+     * @remarks
+     * This method closes the WebSocket connection and removes all listeners.
+     */
     isConnected() {
         return (
             this.ws &&
@@ -98,11 +124,38 @@ export default class RequestSocket implements Socket {
         )
     }
 
+    /**
+     * Adds a listener function to handle incoming data from the WebSocket.
+     * @param listener - The listener function that processes incoming data.
+     * @returns A function to remove the listener when called.
+     */
     addListener(listener: (item: any) => void) {
         this.listeners.push(listener)
         return () => this.listeners.splice(this.listeners.indexOf(listener), 1)
     }
 
+    /**
+     * Connects to the WebSocket server.
+     * @returns A promise that resolves when the connection is established successfully.
+     * @throws Error if there are issues with establishing the connection.
+     * **Example:**
+     * TradovateService connect method must be called before the calling the RequestSocket's
+     * connect method.
+     *
+     * ```typescript
+     * // Create a service object
+     * const service = new TradovateService()
+     *
+     * // connect with Tradovate's API Service with credentials
+     * await service.connect(credentials)
+     *
+     * // Pass in demo environment websocket url
+     * const requestSocket = new RequestSocket(URLs.WS_DEMO_URL)
+     *
+     * // connect and authenticate websocket connection.
+     * await requestSocket.connect()
+     * ```
+     */
     connect(): Promise<void> {
         this.ws = new WebSocket(this.listeningURL)
         let heartbeatInterval: NodeJS.Timeout
@@ -159,6 +212,26 @@ export default class RequestSocket implements Socket {
         })
     }
 
+    /**
+     * Sends a request to the WebSocket server.
+     * @param params - The request parameters, including the URL, request body, and query parameters.
+     * @returns A promise that resolves with the response from the server.
+     * @throws Error if the URL is undefined, or if the WebSocket is not connected.
+     *
+     * **Example:**
+     * Ways to call for types of request. Typescript will throw errors if url is not valid tradovate
+     * endpoint and will confirm structure of body or query fields.
+     * ```typescript
+     * //get Request with no query params
+     * const response = await requestSocket.request({url: 'account/list'})
+     *
+     * //Get request with query params
+     * const response = await requestSocket.request({url: 'contract/find', query: {name: ESU3}})
+     *
+     * //post request
+     * const response = await requestSocket.request({url: 'authorize',body:token})
+     * ```
+     */
     request<T extends EndpointURLs>(params: RequestParams<T>): Promise<ResponseMsg<T>> {
         const {url, body, query} = params
 
