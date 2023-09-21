@@ -104,6 +104,25 @@ export enum TimeRangeType {
     ClosestTickId = 'closestTickId'
 }
 
+export enum EventType {
+    Created = 'Created',
+    Updated = 'Updated',
+    Deleted = 'Deleted'
+}
+
+export enum ErrorCode {
+    DataError = 'DataError',
+    EmailAlreadyRegistered = 'EmailAlreadyRegistered',
+    EmailPolicyFailed = 'EmailPolicyFailed',
+    FailedRecaptcha = 'FailedRecaptcha',
+    Success = 'Success',
+    UnknownError = 'UnknownError',
+    UserAlreadyExists = 'UserAlreadyExists',
+    WeakPassword = 'WeakPassword',
+    WrongChallenge = 'WrongChallenge',
+    WrongChallengeOrigin = 'WrongChallengeOrigin'
+}
+
 export type Bar = {
     timestamp: string
     open: number
@@ -330,12 +349,6 @@ export type DomEventMsg = {
 
 export type ChartEventMsg = {
     charts: Chart[]
-}
-
-export enum EventType {
-    CREATED = 'Created',
-    UPDATED = 'Updated',
-    DELETED = 'Deleted'
 }
 
 /**
@@ -1017,8 +1030,8 @@ export type TickRaw = {
 }
 
 export type BarPacket = {
-    id: number // id matches either historicalId or realtimeId values from response
-    td: number // Trade date as a number with value YYYYMMDD
+    id: number
+    td: number
     bars: Bar[]
 }
 export type Payload = {
@@ -1097,9 +1110,6 @@ export type Action =
     | PropsAction
     | UserSyncAction
     | ReplayCompleteAction
-    // | PlaceOrderAction
-    // | PlaceOCOAction
-    // | StartOrderStrategyAction
     | StopAction
     | ReplayResetAction
     | ClockAction
@@ -1108,25 +1118,14 @@ export type Action =
     | QuoteAction
     | RequestAction
 
-// {
-//     event: StrategyEvent
-//     payload: Payload
-// }
-
-export enum Trend {
-    DOWN = -1,
-    NA = 0,
-    UP = 1
-}
-
 export type AccessToken = {
-    accessToken?: string
-    expirationTime?: string
+    accessToken: string
+    expirationTime: string
 }
 
 export type MdAccessToken = {
-    mdAccessToken?: string
-    expirationTime?: string
+    mdAccessToken: string
+    expirationTime: string
 }
 
 export type HTTPErrorResponse = {
@@ -1150,25 +1149,6 @@ export type ResponseMsg<T extends keyof EndpointResponse> = {
     d: EndpointResponse[T]
     i: number
     s: number
-}
-
-export interface SimpleRequest<T extends EndpointURLs> {
-    url: string
-    onResponse?: (item: ResponseMsg<T>) => void
-    onReject?: () => void
-}
-
-export type OrderListRequest = {
-    url?: 'order/list'
-    onResponse?: (item: ResponseMsg<'order/list'>) => void
-    onReject?: () => void
-}
-
-export type OrderItemRequest = {
-    url: string
-    query: {id: number}
-    onResponse?: (item: ResponseMsg<'order/item'>) => void
-    onReject?: () => void
 }
 
 export type EndpointURLs = keyof EndpointResponse
@@ -2373,19 +2353,6 @@ export type EntitlementSubscriptionResponse = {
     errorText?: string
     errorCode: ErrorCode
     entitlementSubscription: UserPlugin
-}
-
-export enum ErrorCode {
-    DataError = 'DataError',
-    EmailAlreadyRegistered = 'EmailAlreadyRegistered',
-    EmailPolicyFailed = 'EmailPolicyFailed',
-    FailedRecaptcha = 'FailedRecaptcha',
-    Success = 'Success',
-    UnknownError = 'UnknownError',
-    UserAlreadyExists = 'UserAlreadyExists',
-    WeakPassword = 'WeakPassword',
-    WrongChallenge = 'WrongChallenge',
-    WrongChallengeOrigin = 'WrongChallengeOrigin'
 }
 
 export type SignUpResponse = {

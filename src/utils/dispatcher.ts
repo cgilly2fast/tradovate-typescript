@@ -65,7 +65,7 @@ export default class Dispatcher<T extends StrategyState> {
      * Retrieves the current state managed by the Dispatcher.
      * @returns The current state of the Dispatcher.
      */
-    state() {
+    getState() {
         return this.storeState
     }
 
@@ -73,7 +73,7 @@ export default class Dispatcher<T extends StrategyState> {
      * Retrieves the list of actions applied to the Dispatcher's state.
      * @returns The list of actions applied to the state.
      */
-    actions() {
+    getActions() {
         return this.storeActions
     }
 
@@ -82,22 +82,16 @@ export default class Dispatcher<T extends StrategyState> {
      * @param action - The action to dispatch.
      */
     dispatch(action: Action | CustomActionTemplate<string, any>) {
+        this.queue.push(action)
         if (this.dispatching) {
-            this.queue.push(action)
             return
         }
         this.dispatching = true
 
-        if (this.reducer) {
-            const next = this.reducer(this.storeState, action)
-            this.storeState = next.state
-            this.storeActions = next.actions
-        }
-
         while (this.queue.length > 0) {
             const a = this.queue.shift()
 
-            if (this.reducer && a !== undefined) {
+            if (a !== undefined) {
                 const next = this.reducer(this.storeState, a)
                 this.storeState = next.state
                 this.storeActions = next.actions
