@@ -65,35 +65,37 @@ describe('Dispatcher Class Tests', () => {
 
     it('should initialize with the provided parameters', () => {
         expect(dispatcher.id).toBe('testDispatcher')
-        expect(dispatcher.state()).toEqual({stopLoss: 0, current_period: 0})
-        expect(dispatcher.actions()).toEqual([])
+        expect(dispatcher.getState()).toEqual({stopLoss: 0, current_period: 0})
+        expect(dispatcher.getActions()).toEqual([])
     })
 
     it('should dispatch actions and update the state', () => {
         dispatcher.dispatch({event: StrategyEvent.Props, payload: {}})
 
-        expect(dispatcher.state()).toEqual({stopLoss: -5, current_period: 0})
-        expect(dispatcher.actions()).toEqual([])
+        expect(dispatcher.getState()).toEqual({stopLoss: -5, current_period: 0})
+        expect(dispatcher.getActions()).toEqual([])
     })
 
     it('should dispatch custom actions and update the state', () => {
         dispatcher.dispatch({event: 'IncrementPeriod', payload: {}})
 
-        expect(dispatcher.state()).toEqual({stopLoss: 0, current_period: 1})
-        expect(dispatcher.actions()).toEqual([])
+        expect(dispatcher.getState()).toEqual({stopLoss: 0, current_period: 1})
+        expect(dispatcher.getActions()).toEqual([])
     })
 
     it('should handle action queueing', async () => {
         dispatcher.dispatch({event: 'IncrementPeriodTwice', payload: {}})
-        const actions = dispatcher.actions()
+        const actions = dispatcher.getActions()
         dispatcher.dispatch(actions[0])
         // Queue two more actions while dispatching
         dispatcher.dispatch({event: 'IncrementPeriod', payload: {}})
         dispatcher.dispatch({event: 'AdjustStopThenProps', payload: {}})
 
         // After dispatching, the state should reflect all three actions
-        expect(dispatcher.state()).toEqual({stopLoss: -3, current_period: 3})
-        expect(dispatcher.actions()).toEqual([{event: StrategyEvent.Props, payload: {}}])
+        expect(dispatcher.getState()).toEqual({stopLoss: -3, current_period: 3})
+        expect(dispatcher.getActions()).toEqual([
+            {event: StrategyEvent.Props, payload: {}}
+        ])
     })
 })
 
