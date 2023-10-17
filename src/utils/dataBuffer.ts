@@ -18,12 +18,12 @@ export function barsTransformer(packet: BarPacket): Bar[] {
     return bars
     // const results: Bar[] = []
     // if (bars) {
-    //     bars.forEach((bar: Bar) => {
-    //         const result = bar
+    //     for (let i = 0; i < bars.length; i++) {
+    //         const result = bars[i]
     //         results.push(result)
-    //     })
+    //     }
     // }
-    // return results
+    //return results
 }
 /**
  * Represents a utility function to transform TickPacket data into an array of Tick objects.
@@ -34,7 +34,8 @@ export function ticksTransformer(packet: TickPacket) {
     const {id: subId, bp, bt, ts, tks} = packet
     const result: Tick[] = []
     if (tks) {
-        tks.forEach(({t, p, s, b, a, bs, as: asks, id}) => {
+        for (let i = 0; i < tks.length; i++) {
+            const {t, p, s, b, a, bs, as: asks, id} = tks[i]
             result.push({
                 subscriptionId: subId,
                 id,
@@ -47,7 +48,7 @@ export function ticksTransformer(packet: TickPacket) {
                 askPrice: asks && (bp + a) * ts,
                 askSize: asks
             })
-        })
+        }
     }
     return result
 }
@@ -80,8 +81,8 @@ export default class DataBuffer<T extends BarsTransformer | TicksTransformer> {
         items = items.sort(
             (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         )
-
-        items.forEach(tick => {
+        for (let i = 0; i < items.length; i++) {
+            const tick = items[i]
             const timestamp = new Date(tick.timestamp).getTime()
             if (this.buffer.length === 0 || timestamp > this.lastTs) {
                 this.buffer.push(tick as TickOrBar<T>)
@@ -92,7 +93,7 @@ export default class DataBuffer<T extends BarsTransformer | TicksTransformer> {
             } else if (timestamp === this.lastTs) {
                 this.buffer[this.buffer.length - 1] = {...tick} as TickOrBar<T>
             }
-        })
+        }
     }
 
     /**

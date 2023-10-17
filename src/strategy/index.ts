@@ -100,17 +100,18 @@ export default class Strategy<T extends StrategyParams, U extends StrategyState>
      * Runs side effects based on the actions processed by the strategy.
      */
     runSideFx = () => {
-        const actions = this.D.actions()
+        const actions = this.D.getActions()
 
         if (actions && actions.length && actions.length > 0) {
-            actions.forEach((fx: Action | CustomActionTemplate<string, any>) => {
+            for (let i = 0; i < actions.length; i++) {
+                const fx = actions[i]
                 log(
                     '[Tradovate]: Side Effect:',
                     fx.event,
                     JSON.stringify(fx.payload, null, 2)
                 )
                 this.D.dispatch(fx)
-            })
+            }
         }
     }
 

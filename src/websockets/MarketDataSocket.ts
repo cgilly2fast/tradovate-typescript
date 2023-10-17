@@ -75,16 +75,16 @@ export default class MarketDataSocket implements MdSocket {
         return this.socket.isConnected()
     }
     unsubscribe(symbol: string) {
-        this.subscriptions
-            .filter(sub => sub.symbol === symbol)
-            .forEach(({dispose}, i) => {
+        for (let i = 0; i < this.subscriptions.length; i++) {
+            if (this.subscriptions[i].symbol == symbol) {
                 log(`Closing subscription to ${symbol}.`)
                 this.subscriptions.splice(
                     this.subscriptions.indexOf(this.subscriptions[i]),
                     1
                 )
-                dispose()
-            })
+                this.subscriptions[i].dispose()
+            }
+        }
     }
 
     async subscribe<T extends SubscribeURLs>(
@@ -134,61 +134,75 @@ export default class MarketDataSocket implements MdSocket {
 
         switch (url.toLowerCase()) {
             case 'md/getchart': {
-                if (isChartSubscription(onSubscription))
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isChartEventMsg(item.d)) {
-                                item.d.charts.forEach(chart =>
-                                    chart.id === realtimeId ? onSubscription(chart) : null
-                                )
-                            }
+                if (!isChartSubscription(onSubscription)) {
+                    break
+                }
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (!isServerEvent(item) || !isChartEventMsg(item.d)) {
+                            return
                         }
-                    )
+                        for (let i = 0; i < item.d.charts.length; i++) {
+                            item.d.charts[i].id === realtimeId
+                                ? onSubscription(item.d.charts[i])
+                                : null
+                        }
+                    }
+                )
                 break
             }
             case 'md/subscribedom': {
-                if (isDOMSubscription(onSubscription))
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isDomEventMsg(item.d)) {
-                                item.d.doms.forEach((dom: DOM) =>
-                                    dom.contractId === contractId
-                                        ? onSubscription(dom)
-                                        : null
-                                )
-                            }
+                if (!isDOMSubscription(onSubscription)) {
+                    break
+                }
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (!isServerEvent(item) || !isDomEventMsg(item.d)) {
+                            return
                         }
-                    )
+                        for (let i = 0; i < item.d.doms.length; i++) {
+                            item.d.doms[i].contractId === contractId
+                                ? onSubscription(item.d.doms[i])
+                                : null
+                        }
+                    }
+                )
                 break
             }
             case 'md/subscribequote': {
-                if (isQuoteSubscription(onSubscription))
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isQuoteEventMsg(item.d)) {
-                                item.d.quotes.forEach((quote: Quote) =>
-                                    quote.contractId === contractId
-                                        ? onSubscription(quote)
-                                        : null
-                                )
-                            }
+                if (!isQuoteSubscription(onSubscription)) {
+                    break
+                }
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (!isServerEvent(item) || !isQuoteEventMsg(item.d)) {
+                            return
                         }
-                    )
+                        for (let i = 0; i < item.d.quotes.length; i++) {
+                            item.d.quotes[i].contractId === contractId
+                                ? onSubscription(item.d.quotes[i])
+                                : null
+                        }
+                    }
+                )
                 break
             }
             case 'md/subscribehistogram': {
-                if (isHistogramSubscription(onSubscription))
-                    removeListener = this.socket.addListener(
-                        (item: ResponseMsg<any> | ServerEvent) => {
-                            if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
-                                item.d.histograms.forEach((histogram: Histogram) =>
-                                    histogram.contractId === contractId
-                                        ? onSubscription(histogram)
-                                        : null
-                                )
-                            }
+                if (!isHistogramSubscription(onSubscription)) {
+                    break
+                }
+                removeListener = this.socket.addListener(
+                    (item: ResponseMsg<any> | ServerEvent) => {
+                        if (isServerEvent(item) && isHistogramEventMsg(item.d)) {
+                            return
                         }
-                    )
+                        for (let i = 0; i < item.d.histogram.length; i++) {
+                            item.d.histograms[i].contractId === contractId
+                                ? onSubscription(item.d.histograms[i])
+                                : null
+                        }
+                    }
+                )
                 break
             }
         }

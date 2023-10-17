@@ -78,7 +78,11 @@ export default class RequestSocket implements Socket {
     }
 
     private dataToListeners(data: any[]) {
-        this.listeners.forEach(listener => data.forEach((item: any) => listener(item)))
+        for (let i = 0; i < this.listeners.length; i++) {
+            for (let j = 0; j < data.length; j++) {
+                this.listeners[i](data[j])
+            }
+        }
     }
 
     /**
@@ -245,25 +249,24 @@ export default class RequestSocket implements Socket {
             const onRequest = (msg: MessageEvent) => {
                 const {data} = this.prepareMessage(msg.data)
 
-                data.forEach(
-                    (
-                        item: ResponseMsg<T> | HTTPErrorResponse | SocketPenaltyResponse
-                    ) => {
-                        if (item.i !== id) return
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].i !== id) return
 
-                        this.ws.removeEventListener('message', onRequest)
+                    this.ws.removeEventListener('message', onRequest)
 
-                        if (isSocketPenaltyResponse(item) || isHTTPErrorResponse(item)) {
-                            rej(
-                                `WS request: ${stringify({params, item})}, ${
-                                    this.listeningURL
-                                }`
-                            )
-                            return
-                        }
-                        res(item)
+                    if (
+                        isSocketPenaltyResponse(data[i]) ||
+                        isHTTPErrorResponse(data[i])
+                    ) {
+                        rej(
+                            `WS request: ${stringify({params, data: data[i]})}, ${
+                                this.listeningURL
+                            }`
+                        )
+                        return
                     }
-                )
+                    res(data[i])
+                }
             }
 
             try {
