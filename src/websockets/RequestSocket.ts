@@ -8,9 +8,7 @@ import {
     Socket,
     EndpointURLs,
     Listener,
-    SocketPenaltyResponse,
     isSocketPenaltyResponse,
-    HTTPErrorResponse,
     isHTTPErrorResponse,
     isTradovateURL
 } from '../types'
