@@ -79,6 +79,12 @@ export enum BarType {
     Custom = 'Custom'
 }
 
+export enum Trend {
+    UP = 1,
+    NA = 0,
+    DOWN = -1
+}
+
 export enum StorageKeys {
     StorageKey = 'tradovate-api-access-token',
     ExpirationKey = 'tradovate-api-access-expiration',
@@ -154,6 +160,7 @@ export type Price = {
     price: number
     size: number
 }
+
 export type Quote = {
     timestamp: string //example: "2017-04-13T11:33:57.488Z"
     contractId: number // ID of the quote contract

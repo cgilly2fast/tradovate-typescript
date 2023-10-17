@@ -48,8 +48,8 @@ async function main() {
             asMuchAsElements: 2
         },
         item => {
-            const parserTicks = ticksTransformer(item as TickPacket)
-            console.log(parserTicks)
+            const parsedTicks = ticksTransformer(item as TickPacket)
+            console.log(parsedTicks)
         }
     )
 

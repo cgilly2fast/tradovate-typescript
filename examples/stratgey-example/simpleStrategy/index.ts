@@ -8,8 +8,13 @@ import {
     barsTransformer,
     EventHandlerResults,
     Action,
-    StrategyEvent
+    StrategyEvent,
+    BarPacket,
+    isRequestAction
 } from '../../../src'
+import {onAdjustStopLoss} from './onAdjustStopLoss'
+import {onUserSync} from './onUserSync'
+import {onProps} from './onProps'
 
 export interface SimpleStrategyState extends StrategyState {
     mode: LongShortMode
@@ -17,6 +22,10 @@ export interface SimpleStrategyState extends StrategyState {
     position: any
     realizedPnl: number
     buffer: DataBuffer<BarsTransformer>
+    breakeven: number
+    stopLoss: number
+    curPos: number
+    orderTracker: {maxId: number; entryId: number; stops: {[k: string]: number}}
 }
 
 export type CustomActions = AdjustStopLossAction | SetCancelAction
@@ -53,7 +62,11 @@ export default class TrendStrategy {
             product: '',
             position: '',
             realizedPnl: 0,
-            buffer: new DataBuffer(barsTransformer)
+            buffer: new DataBuffer(barsTransformer),
+            breakeven: 0,
+            stopLoss: 0,
+            curPos: 0,
+            orderTracker: {maxId: 0, entryId: 0, stops: {}}
         }
     }
 
