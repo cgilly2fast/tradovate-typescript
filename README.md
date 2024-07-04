@@ -10,7 +10,7 @@
 [![FOSSA Status][fossa-badge-image]][fossa-badge-url]
 [![SemVer compatibility][semver-image]][semver-url] -->
 
-A Typescript package for quickly connecting and deploying trading strategies toyarn Tradovate.
+A Typescript package for quickly connecting and deploying trading strategies to Tradovate.
 
 ## Project Status
 
