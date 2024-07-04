@@ -14,7 +14,7 @@ A Typescript package for quickly connecting and deploying trading strategies toy
 
 ## Project Status
 
-Nearing 1.0 release, tests need to be written for some key components.
+Nearing 1.0 release, tests need to be written for some components.
 
 ## Installation
 
