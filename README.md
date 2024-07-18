@@ -14,7 +14,7 @@ A Typescript package for quickly connecting and deploying trading strategies to 
 
 ## Project Status
 
-Nearing 1.0 release, tests need to be written for some components.
+Working on video examples for live and replay stratigies.
 
 ## Installation
 
