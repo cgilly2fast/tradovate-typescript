@@ -15,6 +15,7 @@ import {
 import {onAdjustStopLoss} from './onAdjustStopLoss'
 import {onUserSync} from './onUserSync'
 import {onProps} from './onProps'
+import {onChart} from './onChart'
 
 export interface SimpleStrategyState extends StrategyState {
     mode: LongShortMode
@@ -22,6 +23,7 @@ export interface SimpleStrategyState extends StrategyState {
     position: any
     realizedPnl: number
     buffer: DataBuffer<BarsTransformer>
+    bufferLength: number
     breakeven: number
     stopLoss: number
     curPos: number
@@ -63,6 +65,7 @@ export default class TrendStrategy {
             position: '',
             realizedPnl: 0,
             buffer: new DataBuffer(barsTransformer),
+            bufferLength: 0,
             breakeven: 0,
             stopLoss: 0,
             curPos: 0,

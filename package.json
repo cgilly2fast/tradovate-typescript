@@ -1,6 +1,6 @@
 {
     "name": "tradovate",
-    "version": "0.6.2",
+    "version": "1.0.0",
     "description": "Typescript Tradovate package to quickly test and deploy trading strategies on Tradovate.",
     "scripts": {
         "build": "rimraf ./dist && tsc",
