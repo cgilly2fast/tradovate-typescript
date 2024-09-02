@@ -10,7 +10,11 @@
 [![FOSSA Status][fossa-badge-image]][fossa-badge-url]
 [![SemVer compatibility][semver-image]][semver-url] -->
 
-A Typescript package for quickly connecting and deploying trading strategies to Tradovate.
+Robust TypeScript SDK for Tradovate API integration. Simplifies real-time market data handling, order management, and strategy deployment. Features WebSocket support, type safety, and tools for both live trading and backtesting.
+
+## Introduction
+
+[![Video Preview](https://www.colbygilbert.com/api/media/file/tradovateSDk_preview.png)](https://www.youtube.com/watch?v=WoW0uNWQqik)
 
 ## Project Status
 
