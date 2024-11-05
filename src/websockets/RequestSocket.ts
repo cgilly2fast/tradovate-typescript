@@ -138,6 +138,7 @@ export default class RequestSocket implements Socket {
 
     /**
      * Connects to the WebSocket server.
+     * @param accessToken - Optional. Pass in access token d=instead of using default from storage singleton.
      * @returns A promise that resolves when the connection is established successfully.
      * @throws Error if there are issues with establishing the connection.
      * **Example:**
@@ -158,10 +159,10 @@ export default class RequestSocket implements Socket {
      * await requestSocket.connect()
      * ```
      */
-    connect(): Promise<void> {
+    connect(accessToken?: string): Promise<void> {
         this.ws = new WebSocket(this.listeningURL)
         let heartbeatInterval: NodeJS.Timeout
-        const token = this.getToken()
+        const token = accessToken ?? this.getToken()
 
         const sendHeartbeat = () => {
             if (!this.isConnected()) {
